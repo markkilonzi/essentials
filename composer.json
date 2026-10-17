@@ -1,0 +1,31 @@
+{
+	"name": "nyumbani/essentials",
+	"type": "library",
+	"description": "Opinionated helpers, services, UIs, packages, and AI skills and rules that define how every Nyumbani internal app looks and is structured.",
+	"homepage": "https://nyumbanitech.co.ke/",
+	"keywords": [ "laravel", "nyumbani", "essentials" ],
+	"license": "proprietary",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"authors": [
+		{
+			"name": "Alvin Kaburu",
+			"email": "geekaburu@nyumbanitech.co.ke"
+		}
+	],
+	"require": {
+		"php": "^8.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"Nyumbani\\Essentials\\": "src/"
+		}
+	},
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Nyumbani\\Essentials\\EssentialsServiceProvider"
+			]
+		}
+	}
+}
