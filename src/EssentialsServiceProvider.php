@@ -3,6 +3,13 @@
 namespace Nyumbani\Essentials;
 
 use Illuminate\Support\ServiceProvider;
+use Nyumbani\Essentials\Console\Commands\InstallCommand;
+use Nyumbani\Essentials\Console\Commands\PermissionsCommand;
+use Nyumbani\Essentials\Providers\DefaultsServiceProvider;
+use Nyumbani\Essentials\Providers\FortifyServiceProvider;
+use Nyumbani\Essentials\Providers\MacroServiceProvider;
+use Nyumbani\Essentials\Providers\ModelServiceProvider;
+use Nyumbani\Essentials\Providers\ViewServiceProvider;
 
 class EssentialsServiceProvider extends ServiceProvider
 {
@@ -18,6 +25,21 @@ class EssentialsServiceProvider extends ServiceProvider
 
         //  Load the configuration file
         $this->mergeConfigFrom(essentials_path('config/essentials.php'), 'essentials');
+
+        //  Register the Blade directives
+        $this->app->register(ViewServiceProvider::class);
+
+        //  Register the redirect macros
+        $this->app->register(MacroServiceProvider::class);
+
+        //  Register the model defaults
+        $this->app->register(ModelServiceProvider::class);
+
+        //  Register the app-wide defaults
+        $this->app->register(DefaultsServiceProvider::class);
+
+        //  Register the Fortify defaults
+        $this->app->register(FortifyServiceProvider::class);
     }
 
     /**
@@ -40,6 +62,11 @@ class EssentialsServiceProvider extends ServiceProvider
         $this->publishes([
             essentials_path('config/essentials.php') => config_path('essentials.php'),
         ], 'essentials-config');
+
+        //  Register the Artisan commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([InstallCommand::class, PermissionsCommand::class]);
+        }
     }
 
     /**
@@ -49,7 +76,6 @@ class EssentialsServiceProvider extends ServiceProvider
      */
     protected function loadHelpersFrom(string $path): void
     {
-        //  Require each helper file once
         foreach (glob("$path/*.php") as $helper) {
             require_once $helper;
         }

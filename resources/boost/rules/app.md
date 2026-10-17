@@ -1,0 +1,63 @@
+---
+paths:
+  - 'app/**'
+---
+
+# App
+
+## House style overrides the generic CLAUDE.md guidance
+Where these rules conflict with the generic Laravel Boost text in CLAUDE.md, these rules win: `//  ` comments, an `@author` tag on every method, UPPER_SNAKE_CASE enum cases and the helper-first idioms below.
+
+## Add an @author tag to all methods
+Every PHP method gets a PHPDoc block with a one-line description and an `@author` tag. An existing author tag is never overwritten. When no author is defined, use the current developer's identity from `git config user.name` and `git config user.email`, e.g. `@author Jane Doe <jane@example.com>`; if git has none, ask. The PHPDoc holds only the description and the `@author` tag. Do not write `@param` or `@return` tags; the type hints already describe them.
+
+## Comment format
+Narrate method bodies with `//  ` comments (double slash followed by two spaces) above each logical step, in both PHP and JS. A method whose body is a single statement needs no inline comment.
+
+## Import FQCNs at the top
+Always `use` classes; never reference a fully-qualified class name inline.
+
+## Naming
+Use descriptive full names with no abbreviations. Boolean methods and properties start with `is`, `has`, `can` or `should`. Class members are ordered properties first, then methods.
+
+## Document every class property
+Every declared property gets a PHPDoc block with a one-line description only, no `@var` tag. Constructor-promoted properties are documented by the constructor's docblock.
+
+## Wrap multi-step writes in DB::transaction()
+Use `DB::transaction(fn () => ...)` closures. Never call `beginTransaction()`, `commit()` or `rollBack()` manually.
+
+## Prefer constructor injection over service location
+Use constructor or method injection, or explicit `new X(...)`, or the class's own static `make()` factory. Do not use `app()` or `resolve()` as a service locator. The only exception is `app(Class::class, [...])` for a class that needs runtime constructor arguments the container cannot resolve.
+
+## Prefer helpers over facades
+Use `route()`, `view()`, `redirect()`, `config()`, `auth()`, `response()`, `now()`, `today()` and the shared helpers (`user()`, `money()`, `prettify()`...) instead of their facades. Keep `Gate::` for authorization and `DB::` / `Storage::` for side-effecting facades.
+
+## Always use route() for URLs
+Generate URLs with named routes via `route()`. Never use `url()` or `action()`.
+
+## Collection pipelines and fluent strings
+Use `collect()->map()->filter()` chains instead of `array_map` / `array_filter`, and the fluent `str()` helper instead of `Str::` or native string functions for producing strings. Use `foreach` only for side effects. Reserve native `trim()` / `strtolower()` for simple checks and comparisons.
+
+## now() and today() for dates
+Use `now()` / `today()` for the current moment. Use `Carbon::parse()`, `create()` or `createFromFormat()` only for externally supplied date input.
+
+## whereBelongsTo() for relation-scoped queries
+Scope a query to a related model with `->whereBelongsTo($model)` (optionally `, 'relation'`) instead of `where('x_id', $model->id)`. Fall back to `where()` only when there is no relationship to hang it off. Tenant-owned data follows the tenant rule in models.md instead.
+
+## updateOrCreate / firstOrCreate over find-then-save
+When a record may or may not exist, use `updateOrCreate()` / `firstOrCreate()` keyed on a natural unique constraint. Do not fetch and conditionally `save()`.
+
+## One relation per line in ->load()
+When eager-loading more than one relation with `->load([...])`, put each relation on its own line. Query-builder `->with([...])` calls stay inline. A single relation stays inline either way.
+
+## Prefer enums over constants and switch
+Represent fixed option sets with string-backed enums and `match`, not class constants or `switch`.
+
+## Never hardcode currency
+Use `money()` / `currency()` (or a model's `HasMoney` methods) so display follows `config('essentials.currency')`. Never write "KES" or "Ksh" in PHP output, messages or PDFs.
+
+## No DTO layer
+Do not add DTO or readonly value-object classes. Use arrays or `fluent()`.
+
+## Keep dead code out
+No empty stub methods, no commented-out methods or classes, and no routes pointing at them. Implement the action or delete it and any UI that calls it.
