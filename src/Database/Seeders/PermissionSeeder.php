@@ -25,8 +25,10 @@ class PermissionSeeder extends Seeder
 
         //  Launch a database transaction
         DB::transaction(function () {
-            //  Get the role and permission models
+            //  Get the role model
             $role = config('permission.models.role');
+
+            //  Get the permission model
             $permission = config('permission.models.permission');
 
             //  Get the predefined roles and permissions from the included .json file
@@ -45,7 +47,10 @@ class PermissionSeeder extends Seeder
                     //  Loop through all the permissions
                     foreach ($permissions as $permissionName) {
                         //  Create or update the permission
-                        $record = $permission::updateOrCreate(['name' => $permissionName], ['group' => $group]);
+                        $record = $permission::updateOrCreate(
+                            ['name' => $permissionName],
+                            ['group' => $group]
+                        );
 
                         //  Track newly created permissions
                         if ($record->wasRecentlyCreated) {

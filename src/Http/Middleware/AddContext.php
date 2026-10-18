@@ -31,7 +31,7 @@ class AddContext
             ->toArray();
 
         //  Get the user
-        $user = user();
+        $user = $request->user();
 
         //  Get the organization
         $organization = $user->organization ?? null;
