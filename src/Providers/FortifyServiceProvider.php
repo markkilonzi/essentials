@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
+use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Nyumbani\Essentials\Actions\Fortify\ResetUserPassword;
 use Nyumbani\Essentials\Http\Responses\LoginResponse;
@@ -17,7 +18,7 @@ use Nyumbani\Essentials\Http\Responses\LogoutResponse;
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
-     * Register the default login and logout responses and the login throttle
+     * Register the default responses, the login throttle and the password reset feature
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -28,6 +29,9 @@ class FortifyServiceProvider extends ServiceProvider
 
         //  Define the logout response
         $this->app->singleton(LogoutResponseContract::class, LogoutResponse::class);
+
+        //  Offer password reset only: no registration, verification, 2FA or passkeys
+        config(['fortify.features' => [Features::resetPasswords()]]);
 
         //  Apply the login throttle; Fortify reads it before boot
         config(['fortify.limiters.login' => config('fortify.limiters.login') ?? 'login']);
@@ -51,20 +55,14 @@ class FortifyServiceProvider extends ServiceProvider
             str($request->input(Fortify::username()))->lower().'|'.$request->ip()
         ));
 
-        //  Get the folder of the auth views
-        $views = config('essentials.fortify.views', 'auth.pages');
-
-        //  Resolve a view from the app's folder, falling back to the package's plain one
-        $view = fn (string $name) => view()->exists("{$views}.{$name}") ? "{$views}.{$name}" : "essentials::auth.{$name}";
-
         //  Define the login view
-        Fortify::loginView(fn () => view($view('login')));
+        Fortify::loginView(fn () => view('essentials::auth.login'));
 
         //  Define the forgot password view
-        Fortify::requestPasswordResetLinkView(fn () => view($view('forgot-password')));
+        Fortify::requestPasswordResetLinkView(fn () => view('essentials::auth.forgot-password'));
 
         //  Define the reset password view
-        Fortify::resetPasswordView(fn (Request $request) => view($view('reset-password'), [
+        Fortify::resetPasswordView(fn (Request $request) => view('essentials::auth.reset-password', [
             'request' => $request,
         ]));
     }

@@ -1,27 +1,25 @@
 @extends('essentials::layouts.auth')
 
-@section('title', 'Sign in')
+@section('title', 'Login to continue')
+@section('heading', 'Login to continue')
+@section('description', 'Please enter your login credentials to continue')
 
 @section('content')
     <form method="POST" action="{{ route('login.store') }}">
         @csrf
 
-        <label for="{{ config('fortify.username', 'email') }}">{{ prettify(config('fortify.username', 'email')) }}</label>
-        <input id="{{ config('fortify.username', 'email') }}" type="text" name="{{ config('fortify.username', 'email') }}" value="{{ old(config('fortify.username', 'email')) }}" placeholder="e.g. jane@example.com" required autofocus>
-        @error(config('fortify.username', 'email'))
-            <p class="error">{{ $message }}</p>
-        @enderror
+        <x-essentials::field :name="config('fortify.username', 'email')" :label="prettify(config('fortify.username', 'email'))" :type="config('fortify.username', 'email') === 'email' ? 'email' : 'text'" icon="mail" :value="old(config('fortify.username', 'email'))" :placeholder="'Enter your '.strtolower(prettify(config('fortify.username', 'email')))" autocomplete="username" required autofocus />
 
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" placeholder="Your password" required>
-        @error('password')
-            <p class="error">{{ $message }}</p>
-        @enderror
+        <x-essentials::field name="password" label="Password" type="password" icon="lock" toggle placeholder="Enter your password" autocomplete="current-password" required />
 
-        <label><input type="checkbox" name="remember" value="1"> Remember me</label>
+        <div class="mb-7 flex items-center justify-between">
+            <label class="inline-flex cursor-pointer items-center" for="remember">
+                <input id="remember" name="remember" type="checkbox" value="1" class="rounded border-gray-300 text-primary focus:ring-primary" @checked(old('remember'))>
+                <span class="ml-2 text-sm font-medium text-gray-700">Remember me</span>
+            </label>
+            <a href="{{ route('password.request') }}" class="text-sm font-medium text-primary-dark underline-offset-2 hover:text-primary hover:underline">Forgot password?</a>
+        </div>
 
-        <button type="submit" data-disable-on-submit>Sign in</button>
+        <x-essentials::submit label="Sign In" busy="Signing in..." />
     </form>
-
-    <p class="links"><a href="{{ route('password.request') }}">Forgot your password?</a></p>
 @endsection

@@ -1,0 +1,65 @@
+/* Shared Nyumbani theme: import this once from the app's Tailwind css. */
+
+@source '../views/**/*.blade.php';
+
+@theme {
+    --color-primary-dark: #995b0a;
+    --color-primary: #f59e0b;
+    --color-primary-light: #ffc580;
+
+    --color-secondary-dark: #0f1419;
+    --color-secondary: #1f2937;
+    --color-secondary-light: #4a657f;
+}
+
+@layer base {
+    html, body {
+        @apply h-full bg-gray-100 text-[15px] text-gray-700;
+    }
+
+    [type='text'], [type='file'], input:where(:not([type])), [type='email'], [type='url'], [type='password'], [type='number'], [type='date'], [type='datetime-local'], [type='month'], [type='search'], [type='tel'], [type='time'], [type='week'], [multiple], textarea, select {
+        @apply w-full! border-gray-300! text-sm! rounded-sm! shadow-sm! placeholder-gray-400! text-gray-600! focus:border-primary! focus:ring-primary! px-3 py-2;
+    }
+
+    [type='checkbox'], [type='radio'] {
+        @apply border-gray-300! rounded-sm! text-primary! focus:ring-primary!;
+    }
+
+    [aria-required='true'] {
+        @apply before:text-red-600 before:content-['*'] before:inline-block before:mr-1;
+    }
+
+    label {
+        @apply block text-gray-600 text-sm font-semibold mb-1.5;
+    }
+
+    button {
+        @apply cursor-pointer;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 select-none whitespace-nowrap text-center no-underline align-middle py-1.5 px-3 text-sm font-medium border border-transparent rounded-sm cursor-pointer transition-colors duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100;
+
+        &.btn-lg {
+            @apply text-base! py-2! px-5! font-semibold!;
+        }
+
+        &.btn-sm {
+            @apply text-xs! py-1! px-2! font-medium!;
+        }
+
+        &.btn-primary {
+            @apply bg-primary-dark hover:bg-primary text-white shadow-sm hover:shadow-md focus-visible:ring-primary;
+        }
+
+        &.btn-secondary {
+            @apply bg-secondary hover:bg-secondary-light text-white shadow-sm hover:shadow-md focus-visible:ring-secondary-light;
+        }
+    }
+}

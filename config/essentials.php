@@ -6,8 +6,7 @@ return [
     | Nyumbani Essentials
     |--------------------------------------------------------------------------
     |
-    | Default settings shared by every Nyumbani app. An app overrides them by
-    | publishing this file (tag `essentials-config`).
+    | Defaults shared by every Nyumbani app. Publish with the `essentials-config` tag to override.
     |
     */
 
@@ -16,7 +15,7 @@ return [
     | Currency
     |--------------------------------------------------------------------------
     |
-    | The currency symbol used by the money() and currency() helpers.
+    | The symbol used by the money() and currency() helpers.
     |
     */
     'currency' => env('ESSENTIALS_CURRENCY', 'KES'),
@@ -26,7 +25,7 @@ return [
     | Models
     |--------------------------------------------------------------------------
     |
-    | The app models the package traits relate to: the model that uses HasUploads.
+    | The app's upload model, the one that uses HasUploads.
     |
     */
     'models' => [
@@ -38,13 +37,10 @@ return [
     | Fortify
     |--------------------------------------------------------------------------
     |
-    | Defaults for the sign-in screens: the view folder holding login,
-    | forgot-password and reset-password, and how many login attempts are
-    | allowed per minute for each username and IP address.
+    | Login attempts allowed per minute for each username and IP address.
     |
     */
     'fortify' => [
-        'views' => 'auth.pages',
         'max_attempts' => 5,
     ],
 
@@ -53,11 +49,12 @@ return [
     | Defaults
     |--------------------------------------------------------------------------
     |
-    | App-wide behaviour every Nyumbani app shares. Switch one off by setting
-    | it to false: lazy loading is prevented outside production, destructive
-    | database commands are prohibited in production, and the debugbar is
-    | enabled locally when it is installed, and the signed-in user, their
-    | organization and the request payload are added to the log context.
+    | App-wide behaviour. Set one to false to switch it off.
+    |
+    | prevent_lazy_loading: throw on lazy loading outside production
+    | prohibit_destructive_commands: block migrate:fresh and the like in production
+    | debugbar: enable the debugbar locally when installed
+    | context: add the user, organization and request to the log context
     |
     */
     'defaults' => [
@@ -65,5 +62,28 @@ return [
         'prohibit_destructive_commands' => true,
         'debugbar' => true,
         'context' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Assets
+    |--------------------------------------------------------------------------
+    |
+    | The Vite entries the package pages load. The app's css imports the package
+    | theme: @import '../../vendor/nyumbani/essentials/resources/css/theme.css';
+    |
+    */
+    'assets' => ['resources/css/app.css'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Branding
+    |--------------------------------------------------------------------------
+    |
+    | The sentence shown under the app name on the sign-in page.
+    |
+    */
+    'branding' => [
+        'description' => env('ESSENTIALS_DESCRIPTION'),
     ],
 ];

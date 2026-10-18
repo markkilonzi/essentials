@@ -8,12 +8,15 @@ use Illuminate\Support\ServiceProvider;
 class ViewServiceProvider extends ServiceProvider
 {
     /**
-     * Register the Blade directives that wrap the formatting helpers.
+     * Register the package components and the Blade directives.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
     public function boot(): void
     {
+        //  Register the package components as <x-essentials::name>
+        Blade::anonymousComponentPath(essentials_path('resources/views/components'), 'essentials');
+
         //  Format strings with underscores into perfect strings
         Blade::directive('prettify', fn ($expression) => "<?php echo prettify($expression); ?>");
 

@@ -6,7 +6,10 @@ paths:
 # Views
 
 ## Audience-first folders
-Views are grouped by audience: `admins/{pages,partials}`, `system-admins/{pages,partials}`, `auth/pages`, with shared `layouts` and `components`. Modal components live in `components/{audience}/modal`.
+Views are grouped by audience: `admins/{pages,partials}`, `system-admins/{pages,partials}`, with shared `layouts` and `components`. Modal components live in `components/{audience}/modal`.
+
+## Auth pages come from the package
+Login, forgot-password and reset-password are the same in every Nyumbani app and are provided by `nyumbani/essentials`. Do not build your own.
 
 ## Anonymous components
 Build reusable markup as anonymous `<x-*>` components with `@props()`. Never create class-based components in `app/View/Components`. Reserve `@include` for layout glue (sidebar, navbar, alerts).
@@ -33,4 +36,4 @@ Mutating submit buttons carry `data-disable-on-submit`. Destructive actions ask 
 Keep inline `x-data="{ ... }"` for trivial state only (a couple of keys). Register anything larger with `Alpine.data('name', () => ({ ... }))` inside `document.addEventListener('alpine:init', ...)` in a `@push('js')` block at the bottom of the same file, then use `x-data="name"`. Components are functions taking a `data` param with destructured defaults, use `init()`, `$watch()`, `$store.helpers`, getters, and `x-on:` instead of `@`.
 
 ## Design tokens
-Use the primary and secondary colour scales (dark, DEFAULT, light) from `resources/css/tailwind.css`. Buttons use the app's shared button classes, never raw colour utilities. Design mobile-first and meet WCAG AA.
+Import the shared theme from the package in the app's Tailwind css (`@import '../../vendor/nyumbani/essentials/resources/css/theme.css';`) and use its primary and secondary colour scales. Do not define your own palette. Buttons use `.btn` with `.btn-primary` or `.btn-secondary` from the shared theme (plus `.btn-sm` or `.btn-lg`), never raw colour utilities. Design mobile-first and meet WCAG AA.
