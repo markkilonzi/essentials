@@ -18,11 +18,25 @@
     }
 
     [type='text'], [type='file'], input:where(:not([type])), [type='email'], [type='url'], [type='password'], [type='number'], [type='date'], [type='datetime-local'], [type='month'], [type='search'], [type='tel'], [type='time'], [type='week'], [multiple], textarea, select {
-        @apply w-full! border-gray-300! text-sm! rounded-sm! shadow-sm! placeholder-gray-400! text-gray-600! focus:border-primary! focus:ring-primary! px-3 py-2;
+        @apply block w-full! bg-white border border-solid border-gray-300! text-sm! rounded-sm! shadow-sm! placeholder-gray-400! text-gray-600! px-3 py-2.5 focus:border-primary! focus:ring-1 focus:ring-primary! focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-70;
     }
 
     [type='checkbox'], [type='radio'] {
-        @apply border-gray-300! rounded-sm! text-primary! focus:ring-primary!;
+        @apply border border-solid border-gray-300! rounded-sm! text-primary! focus:ring-primary!;
+    }
+
+    /* A control right after an icon element, or right before a password toggle, makes room for it. */
+    span[data-icon] + input, span[data-icon] + select {
+        @apply pl-10;
+    }
+
+    input:has(+ [data-password-toggle]) {
+        @apply pr-11;
+    }
+
+    /* Invalid controls get a red border. */
+    [aria-invalid='true'] {
+        @apply border-red-900!;
     }
 
     [aria-required='true'] {
