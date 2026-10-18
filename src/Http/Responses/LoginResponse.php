@@ -7,7 +7,7 @@ use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 class LoginResponse implements LoginResponseContract
 {
     /**
-     * Redirect to where the user was headed, otherwise to the user's homeRoute() when the model has one, otherwise to Fortify's home.
+     * Redirect to the intended page, else the home.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

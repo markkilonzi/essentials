@@ -10,7 +10,7 @@ class ResetUserPassword implements ResetsUserPasswords
     use PasswordValidationRules;
 
     /**
-     * Validate and reset the user's forgotten password, which the user model hashes through its cast.
+     * Validate and reset the password.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

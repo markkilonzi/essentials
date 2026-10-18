@@ -8,9 +8,7 @@ use Nyumbani\Essentials\Logging\RateLimitedHandler;
 class ThrottleDiscordChannel
 {
     /**
-     * Customize the given logger instance to drop messages once the
-     * per-window attempt limit is reached, protecting against Discord's
-     * webhook rate limits.
+     * Rate limit the channel handlers.
      */
     public function __invoke(Logger $logger, string $maxAttempts = '20', string $decaySeconds = '60'): void
     {

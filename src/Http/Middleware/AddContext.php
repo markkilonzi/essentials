@@ -11,14 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 class AddContext
 {
     /**
-     * The request fields that are never added to the context, since the context is written to the logs.
+     * Request fields kept out of the log context.
      *
      * @var list<string>
      */
     protected const SENSITIVE_FIELDS = ['password', 'password_confirmation', 'current_password', '_token'];
 
     /**
-     * Add the signed-in user, their organization and the request payload to the log context.
+     * Add the user, organization and request to the log context.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

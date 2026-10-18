@@ -15,7 +15,7 @@ trait HasMoney
     }
 
     /**
-     * Format the amount of money to be displayed, as an absolute value unless told otherwise
+     * Format an amount, absolute unless told otherwise
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

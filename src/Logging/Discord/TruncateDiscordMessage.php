@@ -8,8 +8,7 @@ use Monolog\LogRecord;
 class TruncateDiscordMessage
 {
     /**
-     * Truncate the log message so it never exceeds Discord's embed
-     * description limit, preventing a silent delivery failure.
+     * Truncate log messages to the embed limit.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

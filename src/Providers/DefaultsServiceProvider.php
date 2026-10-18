@@ -12,7 +12,7 @@ use Nyumbani\Essentials\Http\Middleware\AddContext;
 class DefaultsServiceProvider extends ServiceProvider
 {
     /**
-     * Apply the app-wide defaults every Nyumbani app repeats, each of which an app can switch off in essentials.defaults.
+     * Apply the app-wide defaults, each switchable in essentials.defaults
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

@@ -29,7 +29,7 @@ trait HasKenyans
     }
 
     /**
-     * Generate a kenyan looking phone number, deliberately one digit too long so it can never reach a real recipient
+     * Generate a Kenyan-looking number, one digit too long so it never reaches a real person
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

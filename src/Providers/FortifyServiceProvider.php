@@ -17,7 +17,7 @@ use Nyumbani\Essentials\Http\Responses\LogoutResponse;
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
-     * Register the default login and logout responses, which an app overrides by binding its own, and switch on the login throttle.
+     * Register the default login and logout responses and the login throttle
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -29,12 +29,12 @@ class FortifyServiceProvider extends ServiceProvider
         //  Define the logout response
         $this->app->singleton(LogoutResponseContract::class, LogoutResponse::class);
 
-        //  Apply the login throttle unless the app chose its own; Fortify reads this when it defines its routes, so it cannot wait for boot
+        //  Apply the login throttle; Fortify reads it before boot
         config(['fortify.limiters.login' => config('fortify.limiters.login') ?? 'login']);
     }
 
     /**
-     * Set the Fortify defaults: password rules, the reset action, the login throttle and the auth views, which fall back to the package's plain ones.
+     * Set the password rules, reset action, login throttle and auth views
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

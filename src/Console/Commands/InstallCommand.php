@@ -55,7 +55,7 @@ class InstallCommand extends Command
     }
 
     /**
-     * Decide what to publish: everything with --all, what is already installed with --sync, otherwise whatever the developer picks.
+     * Decide what to publish.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -92,7 +92,7 @@ class InstallCommand extends Command
     }
 
     /**
-     * Copy the package rules into the app's .ai/rules folder, drop the ones the package no longer has, and rebuild the index.
+     * Copy the package rules into .ai/rules and rebuild the index.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -129,7 +129,7 @@ class InstallCommand extends Command
     }
 
     /**
-     * Return the package rule with a notice under its frontmatter that it is managed and will be overwritten.
+     * Mark a rule as managed.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -156,7 +156,7 @@ class InstallCommand extends Command
     }
 
     /**
-     * Rebuild .ai/rules/index.md through Boost, so the rows come from each rule's paths frontmatter.
+     * Rebuild .ai/rules/index.md through Boost.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

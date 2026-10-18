@@ -4,7 +4,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 
-//  Define the general helper functions of the package, each guarded by function_exists()
+//  General helper functions
 
 if (! function_exists('essentials_path')) {
     /**

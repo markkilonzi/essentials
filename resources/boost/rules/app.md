@@ -14,6 +14,9 @@ Every PHP method gets a PHPDoc block with a one-line description and an `@author
 ## Comment format
 Narrate method bodies with `//  ` comments (double slash followed by two spaces) above each logical step, in both PHP and JS. A method whose body is a single statement needs no inline comment.
 
+## Keep comments short
+Comments say what, in a short phrase. One line is the norm for a doc summary or an inline comment; never write a paragraph. Skip the why-and-how backstory; put a non-obvious reason in a few words, not a sentence chain.
+
 ## Import FQCNs at the top
 Always `use` classes; never reference a fully-qualified class name inline.
 

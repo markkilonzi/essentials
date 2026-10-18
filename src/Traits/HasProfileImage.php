@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 trait HasProfileImage
 {
     /**
-     * Get the latest upload of type profile-image, picked among the profile images only so a newer document never hides it
+     * Get the latest profile image upload
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

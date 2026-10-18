@@ -9,13 +9,13 @@ use Illuminate\Support\ServiceProvider;
 class MacroServiceProvider extends ServiceProvider
 {
     /**
-     * Register the alert macro on redirects, flashing the alert type and message to the session; a bare redirect()->alert() goes back.
+     * Register the alert macro on redirects
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
     public function boot(): void
     {
-        //  Macro for Redirector (redirect()), which goes back with the alert since it has no target of its own
+        //  Macro for Redirector (redirect()), which goes back
         Redirector::macro('alert', function (string $type, string $message): RedirectResponse {
             /** @var Redirector $this */
             return $this->back()->with([

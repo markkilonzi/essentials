@@ -5,14 +5,14 @@ namespace Nyumbani\Essentials\Traits;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * HasPermissions trait giving a user model, which uses Spatie's HasRoles, the permissions defined for each role in
- * the app's database/seeders/data/permissions.json
+ * Default permissions for a user model, read from permissions.json
  *
  * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
  */
 trait HasPermissions
 {
     use HasRoles;
+
     /**
      * Get the default permission names defined for a role in permissions.json
      *
@@ -26,7 +26,11 @@ trait HasPermissions
         );
 
         //  Flatten the grouped permissions
-        return collect($data[$role])->flatten()->unique()->values()->toArray();
+        return collect($data[$role])
+            ->flatten()
+            ->unique()
+            ->values()
+            ->toArray();
     }
 
     /**

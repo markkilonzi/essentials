@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * HasNumberIdentifiers trait for generating a year-scoped, sequential "number" identifier
- * (e.g. WOR-2026-0001) on any model with a `number` column
+ * Generate a year-scoped sequential number, e.g. WOR-2026-0001
  *
  * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
  */
@@ -49,8 +48,7 @@ trait HasNumberIdentifiers
     }
 
     /**
-     * Resolve the prefix for the number, from the explicit override property if set,
-     * otherwise derived from the first three characters of the model's class name
+     * Resolve the number prefix, by default the first three letters of the class name
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -60,8 +58,7 @@ trait HasNumberIdentifiers
     }
 
     /**
-     * Resolve the column to reference for the number's year, from the explicit override
-     * property if set, otherwise the model's creation timestamp
+     * Resolve the column that sets the number year
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -71,9 +68,7 @@ trait HasNumberIdentifiers
     }
 
     /**
-     * Resolve the query to determine the last used number, scoped to the model's tenant
-     * column (project or organization) when present. Override for more complex scoping,
-     * building on top of {@see applyNumberTenantScope()}.
+     * Resolve the query for the last used number, scoped to the tenant
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -83,8 +78,7 @@ trait HasNumberIdentifiers
     }
 
     /**
-     * Scope the given query to the model's tenant column (project or organization),
-     * when present
+     * Scope the query to the tenant column, when present
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

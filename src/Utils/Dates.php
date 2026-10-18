@@ -3,7 +3,7 @@
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
 
-//  Define the date and time helper functions of the package, each guarded by function_exists()
+//  Date and time helper functions
 
 if (! function_exists('format_date')) {
     /**

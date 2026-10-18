@@ -95,7 +95,7 @@ class DiscordWebhookHandler extends AbstractProcessingHandler
         //  Get the description
         $description = $record->message;
 
-        //  trim or drop trailing fields once that shared budget runs out, due to Discord's 6000 char limit
+        //  Trim fields to Discord's 6000 character limit
         $fields = $this->capFieldsToEmbedBudget($fields, 6000 - mb_strlen($title) - mb_strlen($description));
 
         //  Build the payload

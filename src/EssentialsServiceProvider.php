@@ -8,7 +8,6 @@ use Nyumbani\Essentials\Console\Commands\PermissionsCommand;
 use Nyumbani\Essentials\Providers\DefaultsServiceProvider;
 use Nyumbani\Essentials\Providers\FortifyServiceProvider;
 use Nyumbani\Essentials\Providers\MacroServiceProvider;
-use Nyumbani\Essentials\Providers\ModelServiceProvider;
 use Nyumbani\Essentials\Providers\ViewServiceProvider;
 
 class EssentialsServiceProvider extends ServiceProvider
@@ -31,9 +30,6 @@ class EssentialsServiceProvider extends ServiceProvider
 
         //  Register the redirect macros
         $this->app->register(MacroServiceProvider::class);
-
-        //  Register the model defaults
-        $this->app->register(ModelServiceProvider::class);
 
         //  Register the app-wide defaults
         $this->app->register(DefaultsServiceProvider::class);

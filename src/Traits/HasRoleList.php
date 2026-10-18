@@ -1,21 +1,16 @@
 <?php
 
-namespace Nyumbani\Essentials\Models;
-
-use Nyumbani\Essentials\Traits\HasUlids;
-use Spatie\Permission\Models\Role as SpatieRole;
+namespace Nyumbani\Essentials\Traits;
 
 /**
- * Role model extending Spatie's with a ULID public key
+ * The list of roles in permissions.json, for the app's Role model
  *
  * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
  */
-class Role extends SpatieRole
+trait HasRoleList
 {
-    use HasUlids;
-
     /**
-     * Extract all available roles from the app's database/seeders/data/permissions.json, whose top-level keys are the roles.
+     * Get the role names from permissions.json
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

@@ -9,7 +9,7 @@ use Spatie\Permission\PermissionRegistrar;
 class PermissionSeeder extends Seeder
 {
     /**
-     * The roles read from database/seeders/data/permissions.json: role => group => permissions.
+     * The roles from permissions.json.
      */
     private array|object $roles;
 

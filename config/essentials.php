@@ -1,7 +1,5 @@
 <?php
 
-use Nyumbani\Essentials\Models\Upload;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -28,24 +26,11 @@ return [
     | Models
     |--------------------------------------------------------------------------
     |
-    | The app models the package traits relate to.
+    | The app models the package traits relate to: the model that uses HasUploads.
     |
     */
     'models' => [
-        'upload' => Upload::class,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Enums
-    |--------------------------------------------------------------------------
-    |
-    | The app enums the package models cast to. Set upload_type to your app's
-    | UploadType enum to cast the type column of an upload.
-    |
-    */
-    'enums' => [
-        'upload_type' => null,
+        'upload' => 'App\Models\Upload',
     ],
 
     /*
