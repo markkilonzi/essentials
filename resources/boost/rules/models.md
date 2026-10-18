@@ -26,6 +26,9 @@ Add a relationship on a model only when something uses it; do not define the inv
 ## Tenant data goes through the tenant relation
 Query tenant-owned data from the tenant's relation, e.g. `$tenant->services()->latest('id')->get()`, not `Service::whereBelongsTo($tenant)`. Never list another tenant's rows.
 
+## The User model knows its home
+The `User` model implements `Nyumbani\Essentials\Contracts\HasHomeRoute`. `homeRoute()` always returns a URL, chosen by role or permission; a user with no access gets the unauthorized page or an abort with 403, never `null`.
+
 ## Local scopes use #[Scope]
 Define scopes with the `#[Scope]` attribute on a protected method, never `scopeXxx()` names.
 
