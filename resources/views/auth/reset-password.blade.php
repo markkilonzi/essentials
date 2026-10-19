@@ -5,7 +5,7 @@
 @section('description', 'Set a new password to regain access to the system')
 
 @section('content')
-    <form method="POST" action="{{ route('password.update') }}" x-data="{ busy: false }" x-on:submit="busy = true">
+    <form method="POST" action="{{ route('password.update') }}">
         @csrf
 
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
@@ -43,7 +43,7 @@
         </div>
 
         <div class="mt-7">
-            <x-essentials::submit label="Reset Password" busy="Resetting..." />
+            <button type="submit" class="btn btn-primary btn-lg w-full uppercase tracking-wide">Reset Password</button>
         </div>
 
         <p class="mt-6 text-center">

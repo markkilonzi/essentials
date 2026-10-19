@@ -31,7 +31,7 @@
 
                         <form method="POST" action="{{ route('essentials.impersonation.leave') }}">
                             @csrf
-                            <button type="submit" data-disable-on-submit class="font-medium underline hover:text-gray-200">Leave</button>
+                            <button type="submit" class="font-medium underline hover:text-gray-200">Leave</button>
                         </form>
                     </div>
                 @endif

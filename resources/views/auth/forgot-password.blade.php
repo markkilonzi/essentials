@@ -5,7 +5,7 @@
 @section('description', 'Enter your email address to receive a password reset link.')
 
 @section('content')
-    <form method="POST" action="{{ route('password.email') }}" x-data="{ busy: false }" x-on:submit="busy = true">
+    <form method="POST" action="{{ route('password.email') }}">
         @csrf
 
         <div class="mb-5">
@@ -20,7 +20,7 @@
         </div>
 
         <div class="mt-7">
-            <x-essentials::submit label="Get Reset Link" busy="Sending..." />
+            <button type="submit" class="btn btn-primary btn-lg w-full uppercase tracking-wide">Get Reset Link</button>
         </div>
 
         <p class="mt-6 text-center">

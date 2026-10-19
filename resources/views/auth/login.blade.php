@@ -4,7 +4,7 @@
 @section('description', 'Please enter your login credentials to continue')
 
 @section('content')
-    <form method="POST" action="{{ route('login.store') }}" x-data="{ busy: false }" x-on:submit="busy = true">
+    <form method="POST" action="{{ route('login.store') }}">
         @csrf
         <div class="mb-5">
             <label for="{{ config('fortify.username', 'email') }}">{{ prettify(config('fortify.username', 'email')) }}</label>
@@ -37,6 +37,6 @@
             <a href="{{ route('password.request') }}" class="text-sm font-medium text-primary-dark underline-offset-2 hover:text-primary hover:underline">Forgot password?</a>
         </div>
 
-        <x-essentials::submit label="Sign In" busy="Signing in..." />
+        <button type="submit" class="btn btn-primary btn-lg w-full uppercase tracking-wide">Sign In</button>
     </form>
 @endsection
