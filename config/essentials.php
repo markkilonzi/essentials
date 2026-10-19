@@ -51,6 +51,6 @@ return [
     */
     'branding' => [
         'description' => env('ESSENTIALS_DESCRIPTION'),
-        'theme_color' => env('ESSENTIALS_THEME_COLOR', '#f59e0b'),
+        'theme_color' => env('ESSENTIALS_THEME_COLOR', '#d97706'),
     ],
 ];

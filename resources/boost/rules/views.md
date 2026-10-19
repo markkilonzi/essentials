@@ -65,7 +65,7 @@ Every submit button is disabled and shows a spinner once its form is submitted, 
 Keep inline `x-data="{ ... }"` for trivial state only (a couple of keys). Register anything larger with `Alpine.data('name', () => ({ ... }))` inside `document.addEventListener('alpine:init', ...)` in a `@push('js')` block at the bottom of the same file, then use `x-data="name"`. Components are functions taking a `data` param with destructured defaults, use `init()`, `$watch()`, `$store.helpers`, getters, and `x-on:` instead of `@`.
 
 ## Design tokens
-Import the shared theme from the package in the app's Tailwind css (`@import '../../vendor/nyumbani/essentials/resources/css/theme.css';`) and use its primary and secondary colour scales. Do not define your own palette. Buttons use `.btn` with `.btn-primary` or `.btn-secondary` from the shared theme (plus `.btn-sm` or `.btn-lg`), never raw colour utilities. Design mobile-first and meet WCAG AA.
+Import the shared theme from the package in the app's Tailwind css (`@import '../../vendor/nyumbani/essentials/resources/css/theme.css';`) and use its primary and secondary colour scales. Do not define your own palette. Every button is primary: use `.btn .btn-primary` from the shared theme (plus `.btn-sm` or `.btn-lg`), never `.btn-secondary` or raw colour utilities. Design mobile-first and meet WCAG AA.
 
 ## 1.5 units between cards
 Cards sit 1.5 spacing units apart, never more. Space them with `gap-1.5` (or `gap-x-1.5` and `gap-y-1.5`), `m-1.5` (`mx-1.5`, `my-1.5`), `space-x-1.5` and `space-y-1.5`, or `p-1.5` (`px-1.5`, `py-1.5`) on the container, and do not use larger steps such as `gap-4` or `mb-4` between cards. Spacing inside a card, such as its padding and the gap between its fields, is separate and follows the design.
