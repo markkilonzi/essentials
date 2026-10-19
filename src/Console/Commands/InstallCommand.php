@@ -4,7 +4,9 @@ namespace Nyumbani\Essentials\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Laravel\Boost\Console\InstallCommand as BoostInstallCommand;
 use Laravel\Boost\Rules\RuleRepository;
+use Symfony\Component\Console\Input\ArrayInput;
 
 use function Laravel\Prompts\multiselect;
 
@@ -14,6 +16,11 @@ class InstallCommand extends Command
      * The prefix of every rule file the package owns inside the app's .ai/rules folder.
      */
     protected const RULE_PREFIX = 'nyumbani-';
+
+    /**
+     * The package whose guidelines and skills Boost should load.
+     */
+    protected const BOOST_PACKAGE = 'nyumbani/essentials';
 
     /**
      * The name and signature of the console command.
@@ -29,7 +36,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Publish the Nyumbani Essentials rules (and more, as they arrive) into this app';
+    protected $description = 'Publish the Nyumbani rules into this app and set up Laravel Boost with the Nyumbani guidelines and skills';
 
     /**
      * Execute the console command.
@@ -46,11 +53,17 @@ class InstallCommand extends Command
             $this->publishRules();
         }
 
+        //  Set up Boost when it was chosen
+        if (in_array('boost', $selected, true)) {
+            $this->setUpBoost();
+        }
+
         //  Tell the developer when nothing was chosen
         if ($selected === [] && ! $this->option('sync')) {
             $this->components->warn('Nothing was selected, so nothing was published.');
         }
 
+        //  Rebuild the index when rules were published
         return self::SUCCESS;
     }
 
@@ -68,14 +81,14 @@ class InstallCommand extends Command
 
         //  Only what is already installed is wanted
         if ($this->option('sync')) {
-            return $this->installedRules() === [] ? [] : ['rules'];
+            return $this->installed();
         }
 
         //  Ask the developer, pre-selecting what is already installed
         return multiselect(
             label: 'What do you want to publish?',
             options: $this->choices(),
-            default: $this->installedRules() === [] ? [] : ['rules'],
+            default: $this->installed(),
         );
     }
 
@@ -88,7 +101,21 @@ class InstallCommand extends Command
     {
         return [
             'rules' => 'AI rules (copied into .ai/rules as nyumbani-*.md)',
+            'boost' => 'Laravel Boost (guidelines, skills and MCP, with Essentials enabled)',
         ];
+    }
+
+    /**
+     * Return the identifiers of what is already installed.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function installed(): array
+    {
+        return array_values(array_filter([
+            $this->installedRules() === [] ? null : 'rules',
+            File::exists(base_path('boost.json')) ? 'boost' : null,
+        ]));
     }
 
     /**
@@ -153,6 +180,70 @@ class InstallCommand extends Command
     protected function installedRules(): array
     {
         return File::glob(base_path('.ai/rules/'.self::RULE_PREFIX.'*.md')) ?: [];
+    }
+
+    /**
+     * Install Boost, or refresh it when syncing, then load the Essentials package into it.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function setUpBoost(): void
+    {
+        //  Warn when Boost is not installed, since it owns the guidelines and skills
+        if (! class_exists(BoostInstallCommand::class)) {
+            $this->components->warn('laravel/boost is not installed, so Boost was not set up. Run composer require laravel/boost --dev first.');
+
+            return;
+        }
+
+        //  Install Boost unless this is a sync, which only refreshes what is installed
+        if (! $this->option('sync')) {
+            $this->option('all')
+                ? $this->runWithoutAsking('boost:install', ['--guidelines' => true, '--skills' => true, '--mcp' => true])
+                : $this->call('boost:install');
+        }
+
+        //  Load Essentials into Boost
+        $this->enableBoostPackages();
+
+        //  Refresh the guidelines and skills without asking, so it is safe in a composer script
+        $this->runWithoutAsking('boost:update');
+    }
+
+    /**
+     * Run another command with prompts switched off, which a nested call cannot do on its own.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function runWithoutAsking(string $command, array $options = []): int
+    {
+        //  Build the input and answer every prompt with its default
+        $input = new ArrayInput($options);
+        $input->setInteractive(false);
+
+        return $this->getApplication()->find($command)->run($input, $this->output);
+    }
+
+    /**
+     * Add Essentials to the packages Boost loads from, which it keeps in boost.json.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function enableBoostPackages(): void
+    {
+        //  Nothing to enable until Boost has written its settings
+        $path = base_path('boost.json');
+
+        if (! File::exists($path)) {
+            return;
+        }
+
+        //  Merge it into the packages Boost already loads
+        $settings = json_decode(File::get($path), true) ?? [];
+        $settings['packages'] = array_values(array_unique([...($settings['packages'] ?? []), self::BOOST_PACKAGE]));
+
+        //  Save the settings
+        File::put($path, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
     }
 
     /**

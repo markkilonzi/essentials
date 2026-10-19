@@ -126,7 +126,7 @@ class ViewServiceProvider extends ServiceProvider
         //  Format date time for humans
         Blade::directive('dateforhumans', fn ($expression) => "<?php echo format_humans($expression); ?>");
 
-        //  Print the error bag input
-        Blade::directive('bag', fn ($expression) => "<?php echo bag($expression); ?>");
+        //  Print the input Laravel reads to choose the error bag, without a global helper that another package could shadow
+        Blade::directive('bag', fn ($expression) => '<input type="hidden" name="_error_bag" value="<?php echo e('.$expression.'); ?>">');
     }
 }

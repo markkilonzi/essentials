@@ -1,6 +1,6 @@
 @props(['href', 'label', 'active' => false, 'sub' => false])
 
-<a href="{{ $href }}" title="{{ $label }}" @class([
+<a href="{{ $href }}" title="{{ $label }}" {{ $attributes }} @class([
     'mb-0.5 flex w-full items-center gap-2.5 rounded-sm px-3 py-2.5 text-[13px] transition duration-200 ease-linear hover:bg-white/10 hover:text-white',
     'text-white group-data-collapsed/shell:lg:justify-center group-data-collapsed/shell:lg:px-0' => ! $sub,
     'pl-9 text-gray-400' => $sub,

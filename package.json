@@ -1,0 +1,15 @@
+{
+    "name": "@nyumbani/essentials",
+    "private": true,
+    "type": "module",
+    "description": "Builds resources/dist, the one file that holds every Nyumbani script with the packages it needs, so an app installs nothing. Run npm run build after changing resources/js.",
+    "scripts": {
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@alpinejs/ui": "^3.17.4",
+        "pluralize": "^8.0.0",
+        "toastr": "^2.1.4",
+        "vite": "^8.0.0"
+    }
+}

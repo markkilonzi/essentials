@@ -1,0 +1,34 @@
+@extends('essentials::docs.layout')
+
+@section('page', 'JavaScript')
+@section('lead', 'Small, dependency-free behaviours that every page gets once they are imported.')
+
+@section('content')
+    <x-essentials::docs.section id="scripts" title="What each script does">
+        <x-essentials::docs.table :columns="['Script', 'Does']" :rows="[
+            ['toastr', 'Shows the toasts that back()->alert() flashes.'],
+            ['shell', 'Runs the sidebar: a drawer on phones, collapsible to icons on large screens, closed by a tap or Escape.'],
+            ['submit', 'Stops double submission and shows a spinner on the button that was pressed.'],
+            ['file-input', 'Powers the file input component with previews and a remove action.'],
+            ['modal', 'Registers the Alpine UI plugin and the essentialsModal component.'],
+            ['helpers', 'Adds money(), numeric(), prettify() and the date helpers to window.'],
+        ]" />
+    </x-essentials::docs.section>
+
+    <x-essentials::docs.section id="bundle" title="One bundled file">
+        <p>An app imports a single file, <code>vendor/nyumbani/essentials/resources/dist/essentials.js</code>. It already contains every script above together with the packages they need: toastr and jQuery, Alpine UI and pluralize. The app installs none of them with npm.</p>
+        <p>The scripts under <code>resources/js</code> are the source of that file. When you change one inside the package, run <code>npm run build</code> in the package folder and commit <code>resources/dist</code> with it.</p>
+    </x-essentials::docs.section>
+
+    <x-essentials::docs.section id="submit" title="Double-submit guard">
+        <p>Every submit button is guarded automatically, including forms rendered later by Alpine or a DataTable. Opt a button out when it must be pressed more than once.</p>
+        <x-essentials::docs.code lang="blade">
+            @verbatim
+            <button type="submit" class="btn btn-primary">Save</button>
+
+            <button type="submit" data-allow-resubmit class="btn btn-primary">Add another</button>
+            @endverbatim
+        </x-essentials::docs.code>
+        <x-essentials::docs.callout type="tip">The guard resets when the page is restored from the browser's back button, so a returning user is not stuck with a spinning button.</x-essentials::docs.callout>
+    </x-essentials::docs.section>
+@endsection

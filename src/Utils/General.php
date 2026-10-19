@@ -2,7 +2,6 @@
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\HtmlString;
 
 //  General helper functions
 
@@ -108,17 +107,5 @@ if (! function_exists('money')) {
         return $showCurrency
             ? currency().' '.$formattedAmount
             : $formattedAmount;
-    }
-}
-
-if (! function_exists('bag')) {
-    /**
-     * Return a hidden input that scopes validation errors to an error bag
-     *
-     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
-     */
-    function bag(string $value): HtmlString
-    {
-        return new HtmlString('<input type="hidden" name="_bag" value="'.e($value).'">');
     }
 }

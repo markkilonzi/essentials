@@ -15,6 +15,8 @@ Signed-in pages `@extends('essentials::layouts.portal')`, and sign-in pages `@ex
 The shared layout raises each flash message with toastr. The app installs `toastr` with npm and imports the package setup once in its js: `import '../../vendor/nyumbani/essentials/resources/js/toastr';`. Do not write your own toast setup.
 
 ## The shell script comes from the package
+Import every package script with one line: `import '../../vendor/nyumbani/essentials/resources/dist/essentials.js';`. That file is pre-bundled with toastr, jQuery, Alpine UI and pluralize, so the app installs none of them with npm and must not add them to its own `package.json`. It covers toastr, shell, submit, file-input, modal and helpers. Do not import the files under `resources/js` from an app.
+
 The sidebar, drawer and user menu are run by the package's `shell.js`, which the app imports once in its js after toastr: `import '../../vendor/nyumbani/essentials/resources/js/shell';`. It uses no Alpine. The double-submit guard is `submit.js`, imported the same way: `import '../../vendor/nyumbani/essentials/resources/js/submit';`.
 
 ## Formatting helpers and the file input come from the package

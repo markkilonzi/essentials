@@ -4,8 +4,11 @@ import ui from '@alpinejs/ui';
  * Add an alpine:init event listener to the document
  */
 document.addEventListener('alpine:init', () => {
-    //  Register the plugin
-    window.Alpine.plugin(ui);
+    //  Register the plugin once, in case the app registered it too
+    if (! window.Alpine.__essentialsUi) {
+        window.Alpine.plugin(ui);
+        window.Alpine.__essentialsUi = true;
+    }
 
     /**
      * Get the state of a modal from its name, the url of its body and whether to reopen it

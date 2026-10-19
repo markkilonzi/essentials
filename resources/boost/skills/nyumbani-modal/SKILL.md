@@ -10,7 +10,7 @@ metadata:
 Every Nyumbani app uses the package modal, `<x-essentials::modal>`. Never write a one-off Alpine modal and never copy one from another app.
 
 ## Setup (already done in a Nyumbani app)
-- `resources/js/app.js` imports `vendor/nyumbani/essentials/resources/js/modal`, which registers `@alpinejs/ui` and the `essentialsModal` Alpine component. The app needs `@alpinejs/ui` in `package.json`.
+- `resources/js/app.js` imports `vendor/nyumbani/essentials/resources/dist/essentials.js`, a pre-bundled file that includes the modal, its `@alpinejs/ui` plugin and `essentialsModal`. The app installs no npm package for it.
 - Run `npm run build` after adding classes to a view.
 
 ## Props
@@ -43,7 +43,7 @@ Open or close by name from anywhere inside an Alpine scope (`x-data`):
 ```
 `$dispatch` only works inside an element with `x-data`. Add one to the wrapper when the button sits outside any Alpine scope. Close with `close-modal`.
 
-Reopen after a failed save: give the modal an `error-bag` and make the Form Request set `protected $errorBag` to the same name. The modal reopens with the errors showing.
+Reopen after a failed save: give the modal an `error-bag` and post `@bag('same-name')` in its form (see the nyumbani-error-bags skill). A fixed `protected $errorBag` on the Form Request also works. The modal reopens with the errors showing.
 
 Remote content: pass `src` and return a Blade fragment, not a full page, from that route. The loader shows while it loads and a retry link shows on failure. It loads once per page, and again only after a failure.
 

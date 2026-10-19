@@ -11,8 +11,8 @@ Requests are split by plural audience folder (`Admins/`, `SystemAdmins/`, `Custo
 ## Messages and attributes live on the request
 Define `messages()` and `attributes()` on the Form Request, never in lang files. Any wildcard rule (e.g. `items.*.quantity`) needs a matching `attributes()` entry. The same applies to inline `validateWithBag()` calls, which take the attributes as the fourth argument.
 
-## Named error bags for modals
-Modal forms scope errors with `$this->errorBag = $this->{'_bag'} ?? $this->errorBag;` in `prepareForValidation()`.
+## Named error bags
+A form that must keep its errors apart from other forms on the page, such as a modal or one form per row, posts `@bag($name)`, which prints Laravel's own `_error_bag` input. Nothing is needed on the Form Request. Do not read a `_bag` field in `prepareForValidation()` and do not add a trait or a `failedValidation()` override for it.
 
 ## Model classes in Rule::exists / unique
 Pass the model class (`Rule::unique(User::class)`), never a table name. Assign each rule to a named variable with a one-line `//  Define the ...` comment before using it in `rules()`, even when there is only one.
