@@ -21,7 +21,7 @@ Pass the model class (`Rule::unique(User::class)`), never a table name. Assign e
 The tenant comes from the signed-in user in the controller, so a Form Request has no `organization_id` rule or message. Foreign keys to tenant-owned records use `Rule::exists(Model::class, 'id')` scoped to the current tenant with `->where('organization_id', $tenant->id)`, so a user cannot reference another tenant's record.
 
 ## Retrieve validated input
-Use `$request->safe()->field` (or `$this->field` inside the request's own methods), never `$request->input()` or typed getters.
+Use `$request->safe()->field` (or `$this->field` inside the request's own methods), never `$request->input()`. Typed getters are only for boolean, date and enum input (see the typed accessors rule).
 
 ## No empty authorize()
 Do not define an `authorize()` that just returns `true`.

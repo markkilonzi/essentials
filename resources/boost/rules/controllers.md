@@ -15,7 +15,7 @@ Controllers are plain classes grouped by resource, with custom action methods (e
 Call `Gate::authorize('ability', $model)` at the top of each action. Never use `$this->authorize()`, `->can()` or route-level `can:` middleware. Blade uses `@can` only for conditional UI.
 
 ## Validate via Form Requests
-All input validation uses Form Request classes type-hinted in the method signature. Never use inline `$request->validate()` or `Validator::make()`. Read data with `$request->safe()->field` or `->validated()`, not `input()` or typed getters like `->string()` or `->integer()`.
+All input validation uses Form Request classes type-hinted in the method signature. Never use inline `$request->validate()` or `Validator::make()`. Read data with `$request->safe()->field` or `->validated()`, not `input()`. Typed getters are only for boolean, date and enum input (see the typed accessors rule).
 
 ## Thin controllers delegate to model methods
 Keep controllers thin: authorize with `Gate::authorize`, extract the validated data, then call an expressive method on the relevant model (e.g. `$customer->createBid()`, `$invoice->isFullyPaid()`) to do the actual business logic. Do not write it inline in the action. There is no repository or query-object layer; query Eloquent directly. Use `app/Services` only for read-side aggregation (e.g. dashboard data), injected through method injection.
