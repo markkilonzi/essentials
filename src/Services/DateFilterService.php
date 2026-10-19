@@ -3,6 +3,7 @@
 namespace Nyumbani\Essentials\Services;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Fluent;
 
 /**
  * Parse a period filter (a day, month, year or range) into the dates a report is scoped to. Input that
@@ -13,11 +14,13 @@ use Illuminate\Support\Carbon;
 class DateFilterService
 {
     /**
-     * Parse a period string such as "2026", "2026-03", "2026-03-14" or "2026-01-01 to 2026-03-31"
+     * Parse a period string such as "2026", "2026-03", "2026-03-14" or "2026-01-01 to 2026-03-31" into a
+     * fluent object with `date`, `year`, `month`, `from`, `to` and `formatted`, where `year` and `month`
+     * are null when the period spans more than one of them
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    public function parse(?string $value, string $default = 'month'): Period
+    public function parse(?string $value, string $default = 'month'): Fluent
     {
         //  Trim the input
         $value = trim((string) $value);
@@ -35,7 +38,7 @@ class DateFilterService
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function defaultPeriod(string $default): Period
+    protected function defaultPeriod(string $default): Fluent
     {
         //  Get the current moment
         $now = now();
@@ -53,7 +56,7 @@ class DateFilterService
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function fromRange(string $value): ?Period
+    protected function fromRange(string $value): ?Fluent
     {
         //  Split the range into its two dates
         $parts = explode(' to ', $value, 2);
@@ -78,7 +81,7 @@ class DateFilterService
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function fromDate(string $value): ?Period
+    protected function fromDate(string $value): ?Fluent
     {
         //  Parse the date
         $date = $this->date($value);
@@ -94,7 +97,7 @@ class DateFilterService
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function fromMonth(string $value): ?Period
+    protected function fromMonth(string $value): ?Fluent
     {
         //  Match the year and month, with the month between 1 and 12
         if (! preg_match('/^(\d{4})-(\d{1,2})$/', $value, $matches) || ! checkdate((int) $matches[2], 1, (int) $matches[1])) {
@@ -113,7 +116,7 @@ class DateFilterService
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function fromYear(string $value): ?Period
+    protected function fromYear(string $value): ?Fluent
     {
         //  Match a four digit year
         if (! preg_match('/^\d{4}$/', $value)) {
@@ -148,15 +151,15 @@ class DateFilterService
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function make(Carbon $from, Carbon $to, string $formatted, bool $hasYear = true, bool $hasMonth = true): Period
+    protected function make(Carbon $from, Carbon $to, string $formatted, bool $hasYear = true, bool $hasMonth = true): Fluent
     {
-        return new Period(
-            date: $from->copy(),
-            year: $hasYear ? $from->year : null,
-            month: $hasMonth ? $from->month : null,
-            from: $from,
-            to: $to,
-            formatted: $formatted,
-        );
+        return fluent([
+            'date' => $from->copy(),
+            'year' => $hasYear ? $from->year : null,
+            'month' => $hasMonth ? $from->month : null,
+            'from' => $from,
+            'to' => $to,
+            'formatted' => $formatted,
+        ]);
     }
 }

@@ -5,9 +5,9 @@ namespace Nyumbani\Essentials\Providers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Fluent;
 use Illuminate\Support\ServiceProvider;
 use Nyumbani\Essentials\Services\DateFilterService;
-use Nyumbani\Essentials\Services\Period;
 
 class MacroServiceProvider extends ServiceProvider
 {
@@ -41,7 +41,7 @@ class MacroServiceProvider extends ServiceProvider
         });
 
         //  Macro for Request, which parses the period input into its dates
-        Request::macro('period', function (string $default = 'month'): Period {
+        Request::macro('period', function (string $default = 'month'): Fluent {
             /** @var Request $this */
             return app(DateFilterService::class)->parse($this->input('period'), $default);
         });

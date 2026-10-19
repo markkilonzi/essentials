@@ -33,7 +33,7 @@ The `User` model implements `Nyumbani\Essentials\Contracts\HasHomeRoute`. `homeR
 Define scopes with the `#[Scope]` attribute on a protected method, never `scopeXxx()` names.
 
 ## Lifecycle hooks in booted()
-Use `booted()` closures or trait boot methods, not observer classes or `#[ObservedBy]`.
+Use `booted()` closures or trait boot methods, not observer classes or `#[ObservedBy]`. Keep each closure short: put the work in a method on the model and call it from the closure (`static::saving(fn (self $model) => $model->setNumber())`).
 
 ## No model-level $with
 Never set `$with`. Lazy loading is prevented outside production, so eager-load explicitly per query.
