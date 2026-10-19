@@ -17,11 +17,14 @@ The shared layout raises each flash message with toastr. The app installs `toast
 ## The shell script comes from the package
 The sidebar, drawer and user menu are run by the package's `shell.js`, which the app imports once in its js after toastr: `import '../../vendor/nyumbani/essentials/resources/js/shell';`. It uses no Alpine. The double-submit guard is `submit.js`, imported the same way: `import '../../vendor/nyumbani/essentials/resources/js/submit';`.
 
+## Formatting helpers and the file input come from the package
+The app imports `helpers.js` once in its js (`import '../../vendor/nyumbani/essentials/resources/js/helpers';`) and installs `pluralize` with npm; it defines `money`, `numeric`, `parseNumber`, `pluralize`, `prettify`, `formatDate` and `formatDateTime` on `window`, mirroring the PHP helpers, so do not write your own `$store.helpers`. For file uploads use `<x-essentials::file-input>`, with `file-input.js` imported the same way: `import '../../vendor/nyumbani/essentials/resources/js/file-input';`.
+
 ## Auth pages come from the package
 Login, forgot-password and reset-password are the same in every Nyumbani app and are provided by `nyumbani/essentials`. Do not build your own.
 
 ## Anonymous components
-Build reusable markup as anonymous `<x-*>` components with `@props()`. Never create class-based components in `app/View/Components`. Reserve `@include` for layout glue (sidebar, navbar, alerts).
+Build reusable markup as anonymous `<x-*>` components with `@props()`. Never create class-based components in `app/View/Components`. Reserve `@include` for layout glue (sidebar, navbar, alerts). A component that needs a short script carries it at the bottom of its file in `@pushOnce('js')`, so it works wherever it is used. A component with a long script keeps it in a file in `resources/js`, registered with `Alpine.data` inside `alpine:init`, which the app imports once.
 
 ## No inline PHP
 Never write `@php ... @endphp` blocks to compute data. Move it to the controller, a view composer (registered in `ViewServiceProvider`), or the owning DataTable class. Reading `$errors` or `old()` inline is fine. Never inline a fully-qualified class name; add `@use('Vendor\Class')` at the top of the file.

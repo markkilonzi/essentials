@@ -3,13 +3,16 @@
 namespace Nyumbani\Essentials\Providers;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\ServiceProvider;
+use Nyumbani\Essentials\Services\DateFilterService;
+use Nyumbani\Essentials\Services\Period;
 
 class MacroServiceProvider extends ServiceProvider
 {
     /**
-     * Register the alert macro on redirects
+     * Register the alert macro on redirects and the period macro on requests
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -35,6 +38,12 @@ class MacroServiceProvider extends ServiceProvider
                     'message' => $message,
                 ],
             ]);
+        });
+
+        //  Macro for Request, which parses the period input into its dates
+        Request::macro('period', function (string $default = 'month'): Period {
+            /** @var Request $this */
+            return app(DateFilterService::class)->parse($this->input('period'), $default);
         });
     }
 }

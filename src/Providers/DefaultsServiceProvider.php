@@ -4,6 +4,7 @@ namespace Nyumbani\Essentials\Providers;
 
 use Fruitcake\LaravelDebugbar\Facades\Debugbar;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +27,11 @@ class DefaultsServiceProvider extends ServiceProvider
         //  Prevent lazy loading outside production, so a missed eager-load throws
         if (config('essentials.defaults.prevent_lazy_loading', true)) {
             Model::preventLazyLoading(! app()->isProduction());
+        }
+
+        //  Return API resources without the data wrapper
+        if (config('essentials.defaults.unwrapped_json_resources', true)) {
+            JsonResource::withoutWrapping();
         }
 
         //  Enable the debugbar locally when it is installed

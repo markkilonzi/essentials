@@ -34,6 +34,7 @@ return [
     'defaults' => [
         'prevent_lazy_loading' => true,
         'prohibit_destructive_commands' => true,
+        'unwrapped_json_resources' => true,
         'debugbar' => true,
         'context' => true,
     ],
