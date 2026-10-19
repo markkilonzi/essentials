@@ -25,7 +25,7 @@
             ['nyumbani-error-pages', 'The shipped error pages and how to change them.'],
             ['nyumbani-branding', 'Layouts, favicons, manifest and theme colour.'],
             ['nyumbani-ui-theme', 'Buttons, toasts and the loader.'],
-            ['nyumbani-error-bags', 'Several forms on one page, @@bag and reopening a modal after a failed save.'],
+            ['nyumbani-error-bags', 'Several forms on one page, the bag directive and reopening a modal after a failed save.'],
         ]" />
     </x-essentials::docs.section>
 
