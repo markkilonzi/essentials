@@ -1,7 +1,9 @@
+@use('Nyumbani\Essentials\Contracts\HasHomeRoute')
+
 {{--  Sidebar: a drawer below lg, a fixed column from lg that collapses to icons  --}}
 <aside class="fixed inset-y-0 left-0 z-40 w-44 -translate-x-full overflow-y-auto overflow-x-hidden bg-secondary-dark text-gray-400 shadow-2xl transition-all duration-300 ease-in-out group-data-open/shell:translate-x-0 lg:translate-x-0 lg:shadow-none group-data-collapsed/shell:lg:w-16">
     <div class="relative flex h-16 items-center justify-center bg-secondary px-3 lg:justify-center">
-        <a href="{{ user() instanceof \Nyumbani\Essentials\Contracts\HasHomeRoute ? user()->homeRoute() : url('/') }}" class="flex items-center gap-x-2">
+        <a href="{{ user() instanceof HasHomeRoute ? user()->homeRoute() : url('/') }}" class="flex items-center gap-x-2">
             <img src="{{ route('essentials.image', 'icon-secondary.png') }}" alt="{{ config('app.name') }}" class="h-8 w-8 object-contain">
             <span class="text-xs font-bold uppercase tracking-[.15rem] text-white group-data-collapsed/shell:lg:hidden">{{ config('app.name') }}</span>
         </a>

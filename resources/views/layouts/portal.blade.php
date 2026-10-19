@@ -40,7 +40,7 @@
             {{--  Content  --}}
             <main class="px-2 pb-3.5 pt-1.5">
                 @yield('banner')
-                <div class="relative bg-gray-100 p-3 shadow-xs lg:p-4">
+                <div class="relative">
                     @yield('content')
                 </div>
             </main>

@@ -11,6 +11,9 @@ Where these rules conflict with the generic Laravel Boost text in CLAUDE.md, the
 ## Add an @author tag to all methods
 Every PHP method gets a PHPDoc block with a one-line description and an `@author` tag. An existing author tag is never overwritten. When no author is defined, use the current developer's identity from `git config user.name` and `git config user.email`, e.g. `@author Jane Doe <jane@example.com>`; if git has none, ask. The PHPDoc holds only the description and the `@author` tag. Do not write `@param` or `@return` tags; the type hints already describe them.
 
+## Never use @param or @return in doc blocks
+Doc blocks hold a one-line summary and the `@author` tag only. Do not write `@param` or `@return` tags; the type hints already describe them. Put an array's shape in a `@var` on the property or a short sentence in the summary.
+
 ## Comment format
 Narrate method bodies with `//  ` comments (double slash followed by two spaces) above each logical step, in both PHP and JS. A method whose body is a single statement needs no inline comment.
 

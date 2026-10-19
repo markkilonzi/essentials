@@ -24,6 +24,32 @@ class ViewServiceProvider extends ServiceProvider
 
         //  Register the Blade directives
         $this->handleDirectives();
+
+        //  Register the error pages
+        $this->handleErrorPages();
+    }
+
+    /**
+     * Offer the package error pages after the app's own, so an app's resources/views/errors file wins.
+     * The framework looks errors up in each `view.paths` entry's errors folder.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function handleErrorPages(): void
+    {
+        //  Leave the framework error pages alone when switched off
+        if (! config('essentials.defaults.error_pages', true)) {
+            return;
+        }
+
+        //  Add the package views as the last path, for the framework's error lookup
+        config(['view.paths' => [
+            ...config('view.paths'),
+            essentials_path('resources/views')],
+        ]);
+
+        //  Add it to the view finder as well, which already holds the original paths
+        View::addLocation(essentials_path('resources/views'));
     }
 
     /**
@@ -48,13 +74,16 @@ class ViewServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the package components as <x-essentials::name>.
+     * Register the package components as <x-essentials::name>, anonymous or class-based.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
     protected function handleAnonymousComponents(): void
     {
         Blade::anonymousComponentPath(essentials_path('resources/views/components'), 'essentials');
+
+        //  Register the components that need logic as classes
+        Blade::componentNamespace('Nyumbani\\Essentials\\Views\\Components', 'essentials');
     }
 
     /**

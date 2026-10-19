@@ -20,11 +20,28 @@ The sidebar, drawer and user menu are run by the package's `shell.js`, which the
 ## Formatting helpers and the file input come from the package
 The app imports `helpers.js` once in its js (`import '../../vendor/nyumbani/essentials/resources/js/helpers';`) and installs `pluralize` with npm; it defines `money`, `numeric`, `parseNumber`, `pluralize`, `prettify`, `formatDate` and `formatDateTime` on `window`, mirroring the PHP helpers, so do not write your own `$store.helpers`. For file uploads use `<x-essentials::file-input>`, with `file-input.js` imported the same way: `import '../../vendor/nyumbani/essentials/resources/js/file-input';`.
 
+## The modal comes from the package
+Use `<x-essentials::modal>` for every modal; do not build your own. It runs on the Alpine UI `x-dialog` directive, so install `@alpinejs/ui` with npm and import `modal.js` once in the app's js: `import '../../vendor/nyumbani/essentials/resources/js/modal';`. Open it with `x-model` (or `wire:model`), the `trigger` slot, or by name: give it `name="edit-customer"` and `$dispatch('open-modal', 'edit-customer')` (`close-modal` closes it; the button that dispatches must sit inside an Alpine scope, so give its wrapper a bare `x-data`), which is the way to open one from a row injected into a data table.
+
+Props: `title`, `size` (`sm`, `md`, `lg`, `xl`, `full`; never a hand-written width), `position="right"` for a slide-over, `error-bag` (reopens it when that named bag has errors after a failed save), `:dismissable="false"` (ignores Escape and outside clicks), `src` (loads the body from that route the first time it opens), `:close-button="false"` and `:show-title="false"`. Fill the `action` slot for the footer, which stays pinned while the body scrolls. On small screens it is a bottom sheet. It dispatches `modal-closed` on close.
+
+## No @php in views
+Avoid `@php` blocks in views. A component computes values in its class. A page, partial or layout, which has no class, gets its values from the controller (or a view composer for a shared partial). Use `@php` only when there is truly no other place, for example a one-off `@php($i = 0)` counter.
+
+## Favicons come from the package
+The shared layout links the Nyumbani favicons, apple-touch icon and web manifest, served by the package. Do not add your own `<link rel="icon">` or favicon files to an app. The manifest takes the app's name and `essentials.branding.theme_color`.
+
+## Import classes with @use
+Always import a class a view references with `@use('Vendor\Namespace\ClassName')` at the top of the file and use the short name. Never write a fully qualified class name inline in a view.
+
+## Confirm with the browser's confirm()
+Ask for confirmation (deleting, voiding, any destructive action) with the native `confirm()` on the form or button: `onsubmit="return confirm('Delete this record?')"`. Do not build a confirmation modal or a custom confirm component.
+
 ## Auth pages come from the package
 Login, forgot-password and reset-password are the same in every Nyumbani app and are provided by `nyumbani/essentials`. Do not build your own.
 
 ## Anonymous components
-Build reusable markup as anonymous `<x-*>` components with `@props()`. Never create class-based components in `app/View/Components`. Reserve `@include` for layout glue (sidebar, navbar, alerts). A component that needs a short script carries it at the bottom of its file in `@pushOnce('js')`, so it works wherever it is used. A component with a long script keeps it in a file in `resources/js`, registered with `Alpine.data` inside `alpine:init`, which the app imports once.
+Build reusable markup as anonymous `<x-*>` components with `@props()`, as long as the component only prints what it is given. A component that has to work something out (a class list, a width from a size, a default from the session) is a class-based component in `app/View/Components` (`Nyumbani\Essentials\Views\Components` in the package) that computes it in the constructor or a method. Reserve `@include` for layout glue (sidebar, navbar, alerts). A component that needs a short script carries it at the bottom of its file in `@pushOnce('js')`, so it works wherever it is used. A component with a long script keeps it in a file in `resources/js`, registered with `Alpine.data` inside `alpine:init`, which the app imports once.
 
 ## No inline PHP
 Never write `@php ... @endphp` blocks to compute data. Move it to the controller, a view composer (registered in `ViewServiceProvider`), or the owning DataTable class. Reading `$errors` or `old()` inline is fine. Never inline a fully-qualified class name; add `@use('Vendor\Class')` at the top of the file.
@@ -49,3 +66,6 @@ Keep inline `x-data="{ ... }"` for trivial state only (a couple of keys). Regist
 
 ## Design tokens
 Import the shared theme from the package in the app's Tailwind css (`@import '../../vendor/nyumbani/essentials/resources/css/theme.css';`) and use its primary and secondary colour scales. Do not define your own palette. Buttons use `.btn` with `.btn-primary` or `.btn-secondary` from the shared theme (plus `.btn-sm` or `.btn-lg`), never raw colour utilities. Design mobile-first and meet WCAG AA.
+
+## 1.5 units between cards
+Cards sit 1.5 spacing units apart, never more. Space them with `gap-1.5` (or `gap-x-1.5` and `gap-y-1.5`), `m-1.5` (`mx-1.5`, `my-1.5`), `space-x-1.5` and `space-y-1.5`, or `p-1.5` (`px-1.5`, `py-1.5`) on the container, and do not use larger steps such as `gap-4` or `mb-4` between cards. Spacing inside a card, such as its padding and the gap between its fields, is separate and follows the design.
