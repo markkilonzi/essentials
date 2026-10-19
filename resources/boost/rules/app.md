@@ -64,3 +64,9 @@ Do not add DTO or readonly value-object classes. Use arrays or `fluent()`.
 
 ## Keep dead code out
 No empty stub methods, no commented-out methods or classes, and no routes pointing at them. Implement the action or delete it and any UI that calls it.
+
+## Stateless helpers vs services
+Stateless utility functions with no dependencies (formatting, casting, paths) are global functions guarded by `function_exists()`. Anything that needs service resolution, view rendering or shared state is a class under `app/Services`, exposed through a facade when a static entry point is needed.
+
+## Formatting helpers are forgiving
+Helpers that format a value accept null or bad input and return it unchanged. They never throw, and date helpers return a string, not a `Carbon`.

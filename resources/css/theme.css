@@ -76,4 +76,18 @@
             @apply bg-secondary hover:bg-secondary-light text-white shadow-sm hover:shadow-md focus-visible:ring-secondary-light;
         }
     }
+
+    #toast-container {
+        body:has([data-shell]) &.toast-top-left {
+            @apply top-32! left-4! lg:left-54!;
+        }
+
+        & > div {
+            opacity: 1 !important;
+
+            &.toast-success, &.toast-error {
+                @apply bg-primary-dark/95!;
+            }
+        }
+    }
 }

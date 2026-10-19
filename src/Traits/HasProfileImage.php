@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
- * HasProfileImage trait giving a model a single, replaceable profile image
+ * HasProfileImage trait giving a model a single, replaceable profile image; the model defines its own uploads() relation
  *
  * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
  */
@@ -19,7 +19,7 @@ trait HasProfileImage
      */
     public function profileImage(): MorphOne
     {
-        return $this->morphOne(config('essentials.models.upload'), 'owner')
+        return $this->morphOne($this->uploads()->getRelated()::class, 'owner')
             ->ofMany(['id' => 'max'], fn ($query) => $query->where('type', 'profile-image'));
     }
 

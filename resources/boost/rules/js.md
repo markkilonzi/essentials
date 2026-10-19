@@ -6,7 +6,7 @@ paths:
 # Js
 
 ## Header comment for every function
-Every function keeps a `/* --- ... --- */` header comment describing what it does.
+Every function, event listener and option object gets a `/** ... */` block comment above it with a one-line description, e.g. `/** Add a keydown event listener to the document */` laid out over three lines. The description says what it does, in a short phrase.
 
 ## Single-statement functions skip the inline comment
 When a function body is exactly one statement (one top-level `;`), it keeps its header comment but gets no inline `//` comment above the statement. This holds however many lines the statement spans.

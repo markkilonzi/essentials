@@ -1,11 +1,11 @@
-@extends('essentials::layouts.auth')
+@extends('essentials::layouts.guest')
 
 @section('title', 'Forgot your password')
 @section('heading', 'Get a password reset link')
 @section('description', 'Enter your email address to receive a password reset link.')
 
 @section('content')
-    <form method="POST" action="{{ route('password.email') }}">
+    <form method="POST" action="{{ route('password.email') }}" x-data="{ busy: false }" x-on:submit="busy = true">
         @csrf
 
         <div class="mb-5">

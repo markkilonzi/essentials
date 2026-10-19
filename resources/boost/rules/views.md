@@ -8,6 +8,15 @@ paths:
 ## Audience-first folders
 Views are grouped by audience: `admins/{pages,partials}`, `system-admins/{pages,partials}`, with shared `layouts` and `components`. Modal components live in `components/{audience}/modal`.
 
+## Pages use the shared layout
+Signed-in pages `@extends('essentials::layouts.portal')`, and sign-in pages `@extends('essentials::layouts.guest')`; both extend the common `essentials::layouts.app`. A portal page fills its sections: `title`, `sidebar`, `content`, plus optional `brand`, `navbar`, `user-menu` and `banner`, and `@push('actions')`. The page content section is always called `content`. The layout sends a guest to login as a safety net; routes are still protected with the `auth` middleware. While a user is impersonated, the layout shows a bar under the page header; its Leave button posts to the package's `essentials.impersonation.leave` route, which returns the user to their home route. Build the sidebar from `<x-essentials::nav-link>` and `<x-essentials::nav-group>` in the app's own partial.
+
+## Flash messages are toastr toasts
+The shared layout raises each flash message with toastr. The app installs `toastr` with npm and imports the package setup once in its js: `import '../../vendor/nyumbani/essentials/resources/js/toastr';`. Do not write your own toast setup.
+
+## The shell script comes from the package
+The sidebar, drawer and user menu are run by the package's `shell.js`, which the app imports once in its js after toastr: `import '../../vendor/nyumbani/essentials/resources/js/shell';`. It uses no Alpine. The sign-in pages' busy-button stopgap is `guest.js`, imported the same way: `import '../../vendor/nyumbani/essentials/resources/js/guest';`.
+
 ## Auth pages come from the package
 Login, forgot-password and reset-password are the same in every Nyumbani app and are provided by `nyumbani/essentials`. Do not build your own.
 

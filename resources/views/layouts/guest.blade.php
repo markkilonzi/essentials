@@ -1,4 +1,4 @@
-@extends('essentials::layouts.base')
+@extends('essentials::layouts.app')
 
 @section('body')
     <div class="min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url('{{ route('essentials.image', 'auth-background.jpg') }}')">
@@ -32,10 +32,6 @@
                         <h1 class="text-3xl font-semibold text-secondary-dark">@yield('heading')</h1>
                         <p class="mt-2 text-gray-500">@yield('description')</p>
                     </div>
-
-                    @if (session('status'))
-                        <p class="mb-5 rounded-md bg-primary/10 p-3 text-sm font-medium text-primary-dark" role="status">{{ session('status') }}</p>
-                    @endif
 
                     @yield('content')
                 </main>
