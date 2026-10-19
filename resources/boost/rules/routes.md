@@ -19,3 +19,6 @@ Type-hint models in controller methods; do not use `Route::bind()` or manual `fi
 
 ## Comments and unused routes
 Route-file comments use the `//  ` format, and each group's label must match its controller. Only declare routes whose controller method is implemented.
+
+## Name the parameters in route()
+Pass route parameters as a keyed array, never a bare model: `route('customers.show', ['customer' => $customer])`, not `route('customers.show', $customer)`. This applies in views, controllers, tests and anywhere else `route()` is called.

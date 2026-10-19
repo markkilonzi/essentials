@@ -1748,10 +1748,22 @@ document.addEventListener("alpine:init", () => {
 		loaded: !1,
 		loading: !1,
 		failed: !1,
+		confirming: !1,
+		data: {},
 		init() {
 			this.$watch("open", (t) => {
-				t && e.src && this.load();
+				t && e.src && this.load(), this.back();
 			}), e.reopen && this.$nextTick(() => this.open = !0);
+		},
+		advance() {
+			let e = this.$refs.body.querySelector("form");
+			e && e.reportValidity() && (this.data = Object.fromEntries(new FormData(e)), this.confirming = !0);
+		},
+		back() {
+			this.confirming = !1, this.data = {};
+		},
+		submitted(t) {
+			e.confirm && !this.confirming && (t.preventDefault(), this.advance());
 		},
 		show(t) {
 			e.name && t === e.name && (this.open = !0);

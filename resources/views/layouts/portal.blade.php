@@ -13,7 +13,7 @@
 
             {{--  Page header and the impersonation bar  --}}
             <div class="sticky top-16 z-10">
-                <div class="relative min-h-14 bg-cover bg-center bg-no-repeat" style="background-image: url('{{ route('essentials.image', 'shell-header.jpeg') }}')">
+                <div class="relative min-h-14 bg-cover bg-center bg-no-repeat" style="background-image: url('{{ route('essentials.image', ['image' => 'shell-header.jpeg']) }}')">
                     <div class="absolute inset-0 bg-black/70"></div>
                     <div class="relative flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 text-white lg:px-6">
                         <div>

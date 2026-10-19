@@ -23,9 +23,11 @@ Every Nyumbani app uses the package modal, `<x-essentials::modal>`. Never write 
 | `error-bag` | none | Reopens when that bag has errors |
 | `dismissable` | `true` | `false` is a static backdrop: Escape and outside clicks do nothing |
 | `src` | none | URL of an HTML fragment loaded on first open |
+| `confirm` | `false` | Two-step review before the form posts (see Two-step confirmation) |
+| `continue-label`, `back-label` | `Continue`, `Back` | Text of the confirm buttons |
 | `close-button`, `show-title` | `true` | Hide the X or the title bar |
 
-Slots: `trigger` (opens on click), the default slot (body), `action` (footer pinned below the scrolling body).
+Slots: `trigger` (opens on click), the default slot (body), `action` (footer pinned below the scrolling body), `review` (step two of a `confirm` modal).
 
 ## Patterns
 Trigger and body:
@@ -47,8 +49,25 @@ Reopen after a failed save: give the modal an `error-bag` and post `@bag('same-n
 
 Remote content: pass `src` and return a Blade fragment, not a full page, from that route. The loader shows while it loads and a retry link shows on failure. It loads once per page, and again only after a failure.
 
+## Two-step confirmation
+Use `confirm` to review a form before it posts. The default slot is step one (the form, with an `id`), `review` is step two and the `action` slot holds the real submit button, pointed at the form with `form="id"`. Continue runs the browser's native validation (`reportValidity()`), so use normal `required`, `minlength` and `pattern` attributes. The review reads what was typed from `data`, for example `x-text="data.name"`. The Enter key acts as Continue, and the modal always opens on step one.
+```blade
+<x-essentials::modal confirm error-bag="new-customer" title="New customer">
+    <form id="new-customer-form" method="POST" action="{{ route('customers.store') }}">
+        @csrf
+        @bag('new-customer')
+        <input name="name" required minlength="3">
+    </form>
+    <x-slot:review>Name: <span x-text="data.name"></span></x-slot:review>
+    <x-slot:action><button type="submit" form="new-customer-form" class="btn btn-primary">Save</button></x-slot:action>
+</x-essentials::modal>
+```
+The review reads `data` keyed by each field's `name`, so every field needs a `name`. Fields with no name, values held only in Alpine state, fields removed with `x-if`, checkbox groups and `name[]` are not in `data`; a select gives its value, not its label. A submit during step one is intercepted before the form's own `x-on:submit` or `wire:submit` runs, and those handlers run only in step two. The steps animate with `x-transition`.
+
+Do not hand-roll `confirm == true` toggles or a `type="button"` Continue that skips validation.
+
 ## Confirmations
-Use native `confirm()`, for example `onclick="return confirm('Delete this record?')"` or `x-on:click="confirm('...') || $event.preventDefault()"`. Do not build a confirm modal.
+Use native `confirm()`, for example `onclick="return confirm('Delete this record?')"` or `x-on:click="confirm('...') || $event.preventDefault()"`. Do not build a confirm modal for destructive actions.
 
 ## Rules
 - Buttons inside use `btn btn-primary`. Every button is primary.

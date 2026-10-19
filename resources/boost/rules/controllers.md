@@ -37,3 +37,9 @@ Order plain listings with `->latest('id')` (qualified with the table for joined 
 
 ## Views receive fluent objects
 Convert service-layer arrays with `fluent($array)` before passing them to views, so views read `$data->property`. Map nested arrays with `fluent($data)->map(fn ($item) => fluent($item))`.
+
+## Name the parameters in route()
+Pass route parameters as a keyed array, never a bare model: `route('customers.show', ['customer' => $customer])`, not `route('customers.show', $customer)`. This applies in views, controllers, tests and anywhere else `route()` is called.
+
+## Typed accessors only for boolean, date and enum input
+Read boolean, date and enum request input with `->boolean()`, `->date()` and `->enum()`. Use plain property or array access for strings and numbers, not `->string()` or `->integer()`.

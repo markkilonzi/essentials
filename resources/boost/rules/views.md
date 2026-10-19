@@ -71,3 +71,9 @@ Import the shared theme from the package in the app's Tailwind css (`@import '..
 
 ## 1.5 units between cards
 Cards sit 1.5 spacing units apart, never more. Space them with `gap-1.5` (or `gap-x-1.5` and `gap-y-1.5`), `m-1.5` (`mx-1.5`, `my-1.5`), `space-x-1.5` and `space-y-1.5`, or `p-1.5` (`px-1.5`, `py-1.5`) on the container, and do not use larger steps such as `gap-4` or `mb-4` between cards. Spacing inside a card, such as its padding and the gap between its fields, is separate and follows the design.
+
+## Name the parameters in route()
+Pass route parameters as a keyed array, never a bare model: `route('customers.show', ['customer' => $customer])`, not `route('customers.show', $customer)`. This applies in views, controllers, tests and anywhere else `route()` is called.
+
+## Review a form before saving with the modal's confirm option
+When a form needs a review step before it posts, use `<x-essentials::modal confirm>` with a `review` slot and a submit in the `action` slot. Do not write hand-rolled two-step toggles with `x-show="confirm"`; they skip native validation or let Enter bypass the review.

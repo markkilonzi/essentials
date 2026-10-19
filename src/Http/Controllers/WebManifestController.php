@@ -23,8 +23,8 @@ class WebManifestController
             'name' => $name,
             'short_name' => $name,
             'icons' => [
-                ['src' => route('essentials.image', 'android-chrome-192x192.png'), 'sizes' => '192x192', 'type' => 'image/png'],
-                ['src' => route('essentials.image', 'android-chrome-512x512.png'), 'sizes' => '512x512', 'type' => 'image/png'],
+                ['src' => route('essentials.image', ['image' => 'android-chrome-192x192.png']), 'sizes' => '192x192', 'type' => 'image/png'],
+                ['src' => route('essentials.image', ['image' => 'android-chrome-512x512.png']), 'sizes' => '512x512', 'type' => 'image/png'],
             ],
             'theme_color' => $color,
             'background_color' => '#ffffff',

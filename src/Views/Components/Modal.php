@@ -44,6 +44,9 @@ class Modal extends Component
         public ?string $errorBag = null,
         public bool $dismissable = true,
         public ?string $src = null,
+        public bool $confirm = false,
+        public string $continueLabel = 'Continue',
+        public string $backLabel = 'Back',
     ) {
         //  Check whether the panel slides in from the right
         $this->isSlideOver = $position === 'right';

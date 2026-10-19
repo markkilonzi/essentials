@@ -14,7 +14,7 @@
             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" /></svg>
         </button>
         <a href="{{ $docs->url() }}" class="flex items-center gap-3">
-            <img src="{{ route('essentials.image', 'icon-secondary.png') }}" alt="Nyumbani" class="h-8 w-8 object-contain">
+            <img src="{{ route('essentials.image', ['image' => 'icon-secondary.png']) }}" alt="Nyumbani" class="h-8 w-8 object-contain">
             <span class="text-sm font-bold uppercase tracking-[.2rem]">Nyumbani</span>
             <span class="rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white">{{ $docs->name }} docs</span>
         </a>

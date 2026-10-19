@@ -18,6 +18,8 @@ document.addEventListener('alpine:init', () => {
         loaded: false,
         loading: false,
         failed: false,
+        confirming: false,
+        data: {},
 
         /**
          * Reopen after a failed save and load the body on the first open
@@ -26,10 +28,46 @@ document.addEventListener('alpine:init', () => {
             //  Load the remote body the first time the modal opens
             this.$watch('open', (isOpen) => {
                 if (isOpen && config.src) this.load();
+
+                //  Start a confirmation modal on its form every time it opens
+                this.back();
             });
 
             //  Reopen when the page came back with errors for this modal
             if (config.reopen) this.$nextTick(() => (this.open = true));
+        },
+
+        /**
+         * Move to the review once the browser accepts the form, keeping what was typed for the review to show
+         */
+        advance() {
+            //  Find the form in the body
+            const form = this.$refs.body.querySelector('form');
+
+            //  Stay on the form when the browser rejects a field, which shows its own message
+            if (! form || ! form.reportValidity()) return;
+
+            //  Keep the values for the review
+            this.data = Object.fromEntries(new FormData(form));
+            this.confirming = true;
+        },
+
+        /**
+         * Return to the form
+         */
+        back() {
+            this.confirming = false;
+            this.data = {};
+        },
+
+        /**
+         * Treat a submit during the form step, such as the Enter key, as Continue, so the review is never skipped
+         */
+        submitted(event) {
+            if (config.confirm && ! this.confirming) {
+                event.preventDefault();
+                this.advance();
+            }
         },
 
         /**

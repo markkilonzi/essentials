@@ -11,7 +11,7 @@ An error bag keeps the validation errors of one form apart from every other form
 
 ## The view
 ```blade
-<form method="POST" action="{{ route('houses.update', $house) }}">
+<form method="POST" action="{{ route('houses.update', ['house' => $house]) }}">
     @csrf
     @bag($bag = 'house-'.$house->id)
 
@@ -39,7 +39,7 @@ When validation fails, the bag is the posted `_error_bag`, then the Form Request
 Give `<x-essentials::modal>` the same name in `error-bag` and it reopens after a failed save with the errors showing:
 ```blade
 <x-essentials::modal name="edit-customer" error-bag="edit-customer" title="Edit customer">
-    <form method="POST" action="{{ route('customers.update', $customer) }}">
+    <form method="POST" action="{{ route('customers.update', ['customer' => $customer]) }}">
         @csrf
         @bag('edit-customer')
         ...
@@ -54,7 +54,7 @@ A modal with one fixed bag may set `protected $errorBag = 'edit-customer';` on t
 
 ## Testing
 ```php
-$this->post(route('houses.update', $house), ['_error_bag' => 'house-1', 'name' => ''])
+$this->post(route('houses.update', ['house' => $house]), ['_error_bag' => 'house-1', 'name' => ''])
     ->assertSessionHasErrors('name', null, 'house-1')
     ->assertSessionDoesntHaveErrors('name', 'default');
 ```

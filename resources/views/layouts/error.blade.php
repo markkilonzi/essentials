@@ -16,7 +16,7 @@
             {{--  Logo  --}}
             <a href="{{ url('/') }}" class="mb-6 inline-flex items-center gap-3" aria-label="{{ config('app.name') }}">
                 <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-                    <img src="{{ route('essentials.image', 'icon-secondary.png') }}" alt="" class="h-7 w-7">
+                    <img src="{{ route('essentials.image', ['image' => 'icon-secondary.png']) }}" alt="" class="h-7 w-7">
                 </span>
                 <span class="text-xl font-semibold">{{ config('app.name') }}</span>
             </a>

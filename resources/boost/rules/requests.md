@@ -25,3 +25,6 @@ Use `$request->safe()->field` (or `$this->field` inside the request's own method
 
 ## No empty authorize()
 Do not define an `authorize()` that just returns `true`.
+
+## Typed accessors only for boolean, date and enum input
+Read boolean, date and enum request input with `->boolean()`, `->date()` and `->enum()`. Use plain property or array access for strings and numbers, not `->string()` or `->integer()`.

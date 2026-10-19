@@ -13,7 +13,7 @@
         <p>Add <code>@@bag</code> inside the form and read the errors from the same bag. That is the whole feature.</p>
         <x-essentials::docs.code lang="blade" title="resources/views/customers/edit.blade.php">
             @verbatim
-            <form method="POST" action="{{ route('customers.update', $customer) }}">
+            <form method="POST" action="{{ route('customers.update', ['customer' => $customer]) }}">
                 @csrf
                 @bag($bag = 'customer-'.$customer->id)
 
@@ -56,7 +56,7 @@
         <x-essentials::docs.code lang="blade">
             @verbatim
             <x-essentials::modal name="edit-customer" error-bag="edit-customer" title="Edit customer">
-                <form method="POST" action="{{ route('customers.update', $customer) }}">
+                <form method="POST" action="{{ route('customers.update', ['customer' => $customer]) }}">
                     @csrf
                     @bag('edit-customer')
                     ...
@@ -73,7 +73,7 @@
     <x-essentials::docs.section id="testing" title="Testing">
         <x-essentials::docs.code title="tests/Feature/CustomerTest.php">
             it('keeps the errors in the form that failed', function () {
-                $this->post(route('customers.update', $customer), ['_error_bag' => 'customer-5', 'name' => ''])
+                $this->post(route('customers.update', ['customer' => $customer]), ['_error_bag' => 'customer-5', 'name' => ''])
                     ->assertSessionHasErrors('name', null, 'customer-5')
                     ->assertSessionDoesntHaveErrors('name', 'default');
             });
