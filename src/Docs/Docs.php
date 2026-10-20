@@ -128,7 +128,6 @@ class Docs
                 'error-pages' => 'Error pages',
             ]],
             ['title' => 'Tooling', 'pages' => [
-                'messaging' => 'Messaging',
                 'logging' => 'Logging to Discord',
             ]],
             ['title' => 'Conventions', 'pages' => [

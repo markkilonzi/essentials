@@ -10,7 +10,6 @@ use Nyumbani\Essentials\Docs\DocsRegistry;
 use Nyumbani\Essentials\Providers\DefaultsServiceProvider;
 use Nyumbani\Essentials\Providers\FortifyServiceProvider;
 use Nyumbani\Essentials\Providers\MacroServiceProvider;
-use Nyumbani\Essentials\Providers\MessagingServiceProvider;
 use Nyumbani\Essentials\Providers\ViewServiceProvider;
 
 class EssentialsServiceProvider extends ServiceProvider
@@ -42,9 +41,6 @@ class EssentialsServiceProvider extends ServiceProvider
 
         //  Register the Fortify defaults
         $this->app->register(FortifyServiceProvider::class);
-
-        //  Register messaging
-        $this->app->register(MessagingServiceProvider::class);
     }
 
     /**
