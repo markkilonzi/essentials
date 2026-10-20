@@ -38,6 +38,7 @@ return [
         'debugbar' => true,
         'context' => true,
         'error_pages' => true,
+        'messaging' => true,
     ],
 
     /*
@@ -52,5 +53,27 @@ return [
     'branding' => [
         'description' => env('ESSENTIALS_DESCRIPTION'),
         'theme_color' => env('ESSENTIALS_THEME_COLOR', '#d97706'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Messaging
+    |--------------------------------------------------------------------------
+    |
+    | Every message goes out through Nyumbani Connect. Messages are queued, sent
+    | at most rate_limit_per_second jobs a second, and retried when Connect fails.
+    |
+    */
+    'messaging' => [
+        'rate_limit_per_second' => 4,
+        'connect' => [
+            'base_url' => env('NYUMBANI_CONNECT_BASE_URL'),
+            'access_token' => env('NYUMBANI_CONNECT_TOKEN'),
+            'sms' => [
+                'enabled' => env('ESSENTIALS_SMS_ENABLED', true),
+                'sender_id' => env('ESSENTIALS_SMS_SENDER_ID', 'NYUMBANI'),
+                'uri' => 'api/sms/send',
+            ],
+        ],
     ],
 ];

@@ -127,16 +127,17 @@ class Docs
                 'alerts-and-loader' => 'Alerts and loader',
                 'error-pages' => 'Error pages',
             ]],
+            ['title' => 'Tooling', 'pages' => [
+                'messaging' => 'Messaging',
+                'logging' => 'Logging to Discord',
+            ]],
             ['title' => 'Conventions', 'pages' => [
+                'rules-and-skills' => 'Rules and skills',
                 'code-style' => 'Code style',
                 'app-code' => 'Application code',
                 'http-layer' => 'HTTP layer',
                 'data-layer' => 'Models and data',
                 'view-layer' => 'Views and scripts',
-            ]],
-            ['title' => 'Tooling', 'pages' => [
-                'rules-and-skills' => 'Rules and skills',
-                'logging' => 'Logging to Discord',
             ]],
         ], 'essentials::docs.pages');
     }
