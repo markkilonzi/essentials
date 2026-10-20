@@ -6,7 +6,7 @@
 @section('content')
     <x-essentials::docs.section id="layouts" title="The layouts">
         <x-essentials::docs.table :columns="['Layout', 'Use for', 'Sections']" :rows="[
-            ['essentials::layouts.portal', 'Signed-in pages with a sidebar and navbar', 'title, content, banner, sidebar, actions (stack)'],
+            ['essentials::layouts.portal', 'Signed-in pages with a sidebar and navbar', 'title, content, banner, sidebar, brand, navbar, user-menu, actions (stack)'],
             ['essentials::layouts.guest', 'Sign-in, reset and other public pages', 'heading, description, content'],
             ['essentials::layouts.error', 'Error pages', 'code, heading, detail, icon, actions'],
             ['essentials::layouts.app', 'The base document the others extend', 'title, body, styles and js (stacks)'],
@@ -61,8 +61,34 @@
         </x-essentials::docs.code>
     </x-essentials::docs.section>
 
+    <x-essentials::docs.section id="sections" title="Every section of the portal layout">
+        <x-essentials::docs.table :columns="['Section', 'Where it shows', 'Notes']" :rows="[
+            ['title', 'The page header and the browser tab', 'Required. The tab reads Title - App name.'],
+            ['content', 'The page body', 'Always called content.'],
+            ['sidebar', 'The left navigation', 'Fill it with nav-link and nav-group.'],
+            ['banner', 'Above the content', 'Optional notices, such as a trial warning.'],
+            ['brand', 'The navbar, beside the menu button', 'Defaults to the app name.'],
+            ['navbar', 'The navbar, before the user menu', 'Optional extras such as a search box.'],
+            ['user-menu', 'The user dropdown, above Logout', 'Optional links such as Profile.'],
+            ['actions (stack)', 'The right of the page header', 'Use @push(\'actions\') for page buttons.'],
+        ]" />
+        <p>The portal layout needs a signed-in user: a guest is redirected to <code>login</code>, or gets a 401 when the request expects JSON. The sidebar shows the user's <code>avatar</code> (from <code>HasProfileImage</code>), or a generated one.</p>
+        <p>While a user is impersonating another, a bar under the page header says so and offers <strong>Leave</strong>. It shows when the user model has <code>isImpersonated()</code>, which the impersonation package adds. See <a href="{{ $docs->url('authentication') }}#impersonation">Authentication</a>.</p>
+    </x-essentials::docs.section>
+
     <x-essentials::docs.section id="branding" title="Favicons and manifest">
         <p>The base layout links the shared house-in-hand favicons, the Apple touch icon, a web manifest named after your app and a theme colour. They are served by the package, so no app copies icon files. Change the colour with <code>ESSENTIALS_THEME_COLOR</code>.</p>
+            <x-essentials::docs.example title="The shared images, served by the package">
+            <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
+                @foreach (['icon-primary.png', 'icon-secondary.png', 'loader.svg', 'favicon-32x32.png', 'apple-touch-icon.png', 'android-chrome-192x192.png', 'auth-background.jpg', 'shell-header.jpeg', 'shell-sidebar.jpeg'] as $image)
+                    <figure class="rounded-md border border-gray-200 p-2 text-center">
+                        <div class="flex h-20 items-center justify-center bg-gray-100"><img src="{{ route('essentials.image', ['image' => $image]) }}" alt="{{ $image }}" class="max-h-20 max-w-full object-contain"></div>
+                        <figcaption class="mt-1 break-all text-[11px] text-gray-500">{{ $image }}</figcaption>
+                    </figure>
+                @endforeach
+            </div>
+            <p class="mt-3 text-sm text-gray-500">Use one with <code>route('essentials.image', ['image' => 'icon-secondary.png'])</code>. Apps need no copies.</p>
+        </x-essentials::docs.example>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="rules" title="View rules">

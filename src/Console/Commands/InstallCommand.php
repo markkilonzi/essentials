@@ -18,9 +18,11 @@ class InstallCommand extends Command
     protected const RULE_PREFIX = 'nyumbani-';
 
     /**
-     * The package whose guidelines and skills Boost should load.
+     * The packages whose guidelines and skills Boost should load, which Essentials requires.
+     *
+     * @var list<string>
      */
-    protected const BOOST_PACKAGE = 'nyumbani/essentials';
+    protected const BOOST_PACKAGES = ['nyumbani/essentials', 'nyumbani/daraja', 'nyumbani/messaging'];
 
     /**
      * The name and signature of the console command.
@@ -225,7 +227,7 @@ class InstallCommand extends Command
     }
 
     /**
-     * Add Essentials to the packages Boost loads from, which it keeps in boost.json.
+     * Add Essentials, Daraja and Messaging to the packages Boost loads from, which it keeps in boost.json.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -240,7 +242,7 @@ class InstallCommand extends Command
 
         //  Merge it into the packages Boost already loads
         $settings = json_decode(File::get($path), true) ?? [];
-        $settings['packages'] = array_values(array_unique([...($settings['packages'] ?? []), self::BOOST_PACKAGE]));
+        $settings['packages'] = array_values(array_unique([...($settings['packages'] ?? []), ...self::BOOST_PACKAGES]));
 
         //  Save the settings
         File::put($path, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");

@@ -15,6 +15,16 @@
             ['503', 'Back in a moment'],
         ]" />
         <p>Each page has the Nyumbani logo, the status code in a gradient, and an action: Sign in, Take me home, Go back or Try again.</p>
+            <x-essentials::docs.example title="Live: every error page, as a user sees it">
+            <div x-data="{ code: '404' }">
+                <div class="mb-3 flex flex-wrap gap-1.5">
+                    @foreach (['401', '403', '404', '419', '429', '500', '503'] as $code)
+                        <button type="button" class="btn btn-primary btn-sm" x-bind:class="code === '{{ $code }}' ? '' : 'opacity-60'" x-on:click="code = '{{ $code }}'">{{ $code }}</button>
+                    @endforeach
+                </div>
+                <iframe title="Error page preview" loading="lazy" class="h-[32rem] w-full rounded-md border border-gray-200" x-bind:src="@js(url(request()->route('package').'/docs/samples/errors')) + '/' + code"></iframe>
+            </div>
+        </x-essentials::docs.example>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="loading" title="How they load">

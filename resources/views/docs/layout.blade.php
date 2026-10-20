@@ -57,7 +57,7 @@
                 <p class="mb-2 text-xs font-bold uppercase tracking-widest text-primary-dark">{{ $docs->sections()->first(fn ($section) => array_key_exists($current, $section['pages']))['title'] }}</p>
                 <h1 class="text-4xl font-bold tracking-tight text-secondary-dark">@yield('page')</h1>
                 <p class="mt-3 text-lg leading-relaxed text-gray-500">@yield('lead')</p>
-                <div class="mt-4 h-1 w-16 rounded-full bg-linear-to-r from-primary-light to-primary"></div>
+                <div class="mt-4 h-1 w-16 rounded-full bg-linear-to-r from-primary to-primary-dark"></div>
 
                 <div class="mt-10">
                     @yield('content')

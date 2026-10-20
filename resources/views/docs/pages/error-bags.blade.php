@@ -32,6 +32,23 @@
         <x-essentials::docs.callout type="tip" title="Nothing on the Form Request">
             The Form Request needs no trait, no <code>prepareForValidation()</code> line and no <code>failedValidation()</code> override. It also works with <code>$request->validate()</code> in a controller.
         </x-essentials::docs.callout>
+            <x-essentials::docs.example title="Live: three forms, one page, one set of rules">
+            <p class="mb-3 text-sm text-gray-500">Leave a name blank in any form and save it. Only that form shows the error; the others stay clean. The fields have no <code>required</code> attribute here, so the server does the validating.</p>
+            <div class="grid gap-1.5 md:grid-cols-3">
+                @foreach ([1, 2, 3] as $row)
+                    <form method="POST" action="{{ route('essentials.docs.samples.form', ['package' => request()->route('package')]) }}" class="rounded-md border border-gray-200 p-3">
+                        @csrf
+                        @bag('row-'.$row)
+                        <label for="row-{{ $row }}-name">Customer {{ $row }}</label>
+                        <input id="row-{{ $row }}-name" name="name" type="text" value="{{ $errors->hasBag('row-'.$row) ? old('name') : '' }}" placeholder="e.g. Jane Wanjiru" aria-invalid="{{ $errors->getBag('row-'.$row)->has('name') ? 'true' : 'false' }}">
+                        @error('name', 'row-'.$row)
+                            <span class="mt-1 block text-xs text-red-600" role="alert">{{ $message }}</span>
+                        @enderror
+                        <button type="submit" class="btn btn-primary btn-sm mt-3">Save</button>
+                    </form>
+                @endforeach
+            </div>
+        </x-essentials::docs.example>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="how" title="How it works">

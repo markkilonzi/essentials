@@ -30,5 +30,12 @@
             @endverbatim
         </x-essentials::docs.code>
         <x-essentials::docs.callout type="tip">The guard resets when the page is restored from the browser's back button, so a returning user is not stuck with a spinning button.</x-essentials::docs.callout>
+            <x-essentials::docs.example title="Live: press each button">
+            <iframe name="docs-null-target" title="Ignored" class="hidden"></iframe>
+            <form method="POST" action="about:blank" target="docs-null-target" class="flex flex-wrap gap-1.5" x-data x-on:submit="setTimeout(() => $el.dispatchEvent(new Event('reset-loading')), 2000)">
+                <button type="submit" class="btn btn-primary">Guarded (resets after 2 seconds for this demo)</button>
+            </form>
+            <p class="mt-3 text-sm text-gray-500">A real page navigates away, so the button stays disabled until it does. This demo posts to a hidden frame, so it resets the button with a <code>reset-loading</code> event after two seconds.</p>
+        </x-essentials::docs.example>
     </x-essentials::docs.section>
 @endsection

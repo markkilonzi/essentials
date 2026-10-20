@@ -9,14 +9,26 @@
         <x-essentials::docs.code lang="json" title="database/seeders/data/permissions.json">
             {
                 "admin": {
-                    "invoices": ["invoices.view", "invoices.create"],
-                    "users": ["users.view", "users.manage"]
+                    "invoices": ["view-invoices", "create-invoice"],
+                    "users": ["view-users", "create-user"]
                 },
                 "clerk": {
-                    "invoices": ["invoices.view"]
+                    "invoices": ["view-invoices"]
                 }
             }
         </x-essentials::docs.code>
+    </x-essentials::docs.section>
+
+    <x-essentials::docs.section id="how" title="How it fits together">
+        <x-essentials::docs.steps :steps="[
+            ['title' => 'Write permissions.json', 'actor' => 'You, once per change', 'detail' => 'The one source of truth: each role, its groups and the permissions in each group. It lives in the repository, so every environment gets the same roles.', 'code' => 'clerk > invoices > view-invoices'],
+            ['title' => 'Sync it', 'actor' => 'php artisan nyumbani:permissions, on every deploy', 'detail' => 'Creates or updates the roles and permissions, gives new permissions to users who already hold the role, and deletes permissions you removed from the file.'],
+            ['title' => 'Assign a role to a user', 'actor' => 'Your app, when a user is created', 'detail' => 'assignDefaultPermissions gives the user the role and syncs exactly that role\'s permissions from the file.', 'code' => '$user->assignDefaultPermissions(\'clerk\');'],
+            ['title' => 'Check it in a policy', 'actor' => 'Your policies', 'detail' => 'Ask for the permission, never the role. Allowed or denied follows from the file alone.', 'code' => 'return $user->hasPermissionTo(\'view-invoices\');'],
+        ]" />
+        <x-essentials::docs.callout type="note" title="Needs a group column">
+            The command stores each permission's area in a <code>group</code> column of the permissions table, so add that column to the permission migration of <code>spatie/laravel-permission</code>.
+        </x-essentials::docs.callout>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="sync" title="Sync it">
@@ -24,6 +36,12 @@
             php artisan nyumbani:permissions
         </x-essentials::docs.code>
         <p>The command creates the roles and permissions, gives new permissions to users who already hold the role, and deletes permissions that were removed from the file. Run it on every deploy.</p>
+        <x-essentials::docs.table :columns="['You change the file by', 'The sync']" :rows="[
+            ['Adding a permission to a role', 'Creates it, and gives it to every existing user who holds that role.'],
+            ['Removing a permission', 'Deletes it from the database, and so from every user and role.'],
+            ['Adding a role', 'Creates the role. Users are not moved into it.'],
+            ['Moving a permission to another group', 'Updates its group.'],
+        ]" />
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="models" title="On your models">
@@ -39,6 +57,15 @@
             $user->assignDefaultPermissions('clerk');
             User::defaultPermissionsFor('clerk');
         </x-essentials::docs.code>
-        <p>Give the app's <code>Role</code> model <code>HasRoleList</code> to list the role names from the same file, for a select box.</p>
+        <x-essentials::docs.code title="In a policy">
+            use App\Models\User;
+
+            public function viewAny(User $user): bool
+            {
+                return $user->hasPermissionTo('view-invoices');
+            }
+        </x-essentials::docs.code>
+        <p>Name permissions as kebab-case verb-noun: plural for a list (<code>view-invoices</code>), singular for one record (<code>create-invoice</code>). Check permissions in policies, never roles.</p>
+        <p>Give the app's <code>Role</code> model <code>HasRoleList</code> to list the role names from the same file, for a select box: <code>Role::list()</code> returns <code>['admin', 'clerk']</code>. <code>HasUserPermissions</code> is an older copy of <code>HasPermissions</code>; use <code>HasPermissions</code>.</p>
     </x-essentials::docs.section>
 @endsection

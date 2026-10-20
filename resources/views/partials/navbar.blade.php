@@ -13,7 +13,7 @@
         <details data-menu class="relative">
             <summary class="flex cursor-pointer list-none items-center marker:hidden hover:text-gray-900">
                 <span class="mr-2 whitespace-nowrap text-base">{{ user()->name }}</span>
-                <svg class="h-4 w-4 text-primary-light" fill="currentColor" viewBox="0 0 20 20"><path d="M5.23 7.21a1 1 0 0 1 1.41 0L10 10.59l3.36-3.38a1 1 0 1 1 1.41 1.42l-4.06 4.08a1 1 0 0 1-1.41 0L5.23 8.63a1 1 0 0 1 0-1.42z"/></svg>
+                <svg class="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20"><path d="M5.23 7.21a1 1 0 0 1 1.41 0L10 10.59l3.36-3.38a1 1 0 1 1 1.41 1.42l-4.06 4.08a1 1 0 0 1-1.41 0L5.23 8.63a1 1 0 0 1 0-1.42z"/></svg>
             </summary>
 
             <div class="absolute right-0 top-full z-50 mt-2 w-48 rounded-md border border-gray-200 bg-white p-0.5 drop-shadow-xl">

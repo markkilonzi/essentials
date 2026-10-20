@@ -9,6 +9,7 @@ use Nyumbani\Essentials\Docs\Docs;
 use Nyumbani\Essentials\Docs\DocsRegistry;
 use Nyumbani\Essentials\Providers\DefaultsServiceProvider;
 use Nyumbani\Essentials\Providers\FortifyServiceProvider;
+use Nyumbani\Essentials\Providers\LoggingServiceProvider;
 use Nyumbani\Essentials\Providers\MacroServiceProvider;
 use Nyumbani\Essentials\Providers\ViewServiceProvider;
 
@@ -41,6 +42,9 @@ class EssentialsServiceProvider extends ServiceProvider
 
         //  Register the Fortify defaults
         $this->app->register(FortifyServiceProvider::class);
+
+        //  Register the discord log driver
+        $this->app->register(LoggingServiceProvider::class);
     }
 
     /**

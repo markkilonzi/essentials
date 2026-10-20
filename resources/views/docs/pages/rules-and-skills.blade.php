@@ -24,6 +24,7 @@
             ['nyumbani-ui-theme', 'Buttons, toasts and the loader.'],
             ['nyumbani-error-bags', 'Several forms on one page, the bag directive and reopening a modal after a failed save.'],
         ]" />
+        <p>Other Nyumbani packages ship their own skills the same way. <code>nyumbani/daraja</code> adds <code>nyumbani-daraja-payments</code> and <code>nyumbani-daraja-webhooks</code>; <code>nyumbani/messaging</code> adds <code>nyumbani-messaging</code>. Add each package to <code>boost.json</code> and run <code>php artisan boost:update</code>. Their docs are in the switcher at the top of this page.</p>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="read" title="Read the rules">

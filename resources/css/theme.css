@@ -6,11 +6,9 @@
 @source '../views/**/*.blade.php';
 
 @theme {
-    --color-primary-darkest: #5c3506;
     --color-primary-darker: #7a4708;
     --color-primary-dark: #9a5204;
     --color-primary: #d97706;
-    --color-primary-light: #f2a93b;
 
     --color-secondary-dark: #0f1419;
     --color-secondary: #1f2937;
@@ -75,7 +73,7 @@
 
         /* Every button is primary: .btn-secondary is kept so existing markup does not change colour */
         &.btn-primary, &.btn-secondary {
-            @apply bg-primary-darker hover:bg-primary-darkest text-white shadow-sm hover:shadow-md focus-visible:ring-primary-dark;
+            @apply bg-primary-darker hover:bg-primary-dark text-white shadow-sm hover:shadow-md focus-visible:ring-primary-dark;
         }
     }
 

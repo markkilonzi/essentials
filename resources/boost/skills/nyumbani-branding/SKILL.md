@@ -36,7 +36,7 @@ Import the shared theme once in the app's Tailwind css:
 @import 'tailwindcss';
 @import '../../vendor/nyumbani/essentials/resources/css/theme.css';
 ```
-Use the tokens `primary`, `primary-dark`, `primary-light`, `primary-darker`, `primary-darkest` and `secondary*`. Do not hard-code hex colors for brand surfaces.
+Use the tokens `primary`, `primary-dark`, `primary-darker` and `secondary*`. Do not hard-code hex colors for brand surfaces.
 
 ## Rules
 - Use `@use` for any class in a view and never `@php`.

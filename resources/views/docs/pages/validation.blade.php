@@ -30,13 +30,17 @@
 
     <x-essentials::docs.section id="rules" title="Rules">
         <x-essentials::docs.table :columns="['Rule', 'Accepts']" :rows="[
-            ['KenyanNumberValid', 'A Kenyan mobile number such as 0712345678, 254712345678 or +254712345678.'],
+            ['KenyanNumberValid', 'A Kenyan mobile number: an optional 0, 254 or +254, then 7xx or 10x/11x, then six more digits. So 0712345678, 254712345678, +254712345678, 712345678 and 0110123456 pass; 071234567 (one digit short) and 0212345678 (a landline) fail.'],
             ['PhoneNumberValid', 'An international number of 7 to 15 digits, with an optional leading +.'],
         ]" />
     </x-essentials::docs.section>
 
+    <x-essentials::docs.playground demo="phone-rules" title="Try the phone rules" :fields="[
+        ['name' => 'number', 'label' => 'A phone number', 'value' => '0712345678', 'placeholder' => 'e.g. 0712345678, +254712345678 or 071234567'],
+    ]" />
+
     <x-essentials::docs.section id="clean-name" title="CleanName cast">
-        <p>Collapses repeated spaces and title-cases a name on the way in. It never changes what is read back.</p>
+        <p>Collapses repeated spaces and title-cases a name on the way in. It never changes what is read back. It only cleans values that are non-empty strings.</p>
         <x-essentials::docs.code>
             use Illuminate\Database\Eloquent\Model;
             use Nyumbani\Essentials\Casts\CleanName;
@@ -45,8 +49,15 @@
             {
                 return ['name' => CleanName::class];
             }
+
+            //  "  jane    WANJIRU " is stored as "Jane Wanjiru"
+            $customer->name = '  jane    WANJIRU ';
         </x-essentials::docs.code>
     </x-essentials::docs.section>
+
+    <x-essentials::docs.playground demo="clean-name" title="Try the cast" :fields="[
+        ['name' => 'name', 'label' => 'A name as typed', 'value' => '  jane    WANJIRU ', 'placeholder' => 'e.g.   jane    WANJIRU'],
+    ]" />
 
     <x-essentials::docs.section id="error-bags" title="Error bags">
         <p>When several forms share a page, each needs its own errors. See <a href="{{ $docs->url('error-bags') }}">Error bags</a> for the <code>@@bag</code> directive.</p>

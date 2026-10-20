@@ -4,8 +4,18 @@
 @section('lead', 'Add the package to an app in five short steps.')
 
 @section('content')
+    <x-essentials::docs.section id="before" title="Before you start">
+        <x-essentials::docs.table :columns="['You need', 'Why']" :rows="[
+            ['PHP 8.3 or newer, Laravel 12 or 13', 'What the package supports.'],
+            ['Livewire', 'Every Nyumbani app uses it. It starts Alpine, which the modal and shell rely on.'],
+            ['Tailwind CSS 4 and Vite', 'The theme is a Tailwind 4 file, and the layouts load resources/css/app.css and resources/js/app.js with @vite.'],
+            ['A User model and a users table', 'Fortify signs these in. The model implements HasHomeRoute, see Authentication.'],
+            ['An Organization model', 'Only if your app is multi-tenant. Some traits and the log context look for it.'],
+        ]" />
+    </x-essentials::docs.section>
+
     <x-essentials::docs.section id="require" title="1. Require the package">
-        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it.</p>
+        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it, and the two other Nyumbani packages, <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code>, so there is nothing more to require for M-Pesa or SMS.</p>
         <x-essentials::docs.code lang="bash" title="Terminal">
             composer require nyumbani/essentials
         </x-essentials::docs.code>
@@ -21,19 +31,24 @@
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="scripts" title="3. Import the scripts">
-        <p>Import one file. It holds every Nyumbani script together with the packages they need, so there is nothing to install with npm.</p>
-        <x-essentials::docs.code lang="js" title="resources/js/app.js">
-            import '../../vendor/nyumbani/essentials/resources/dist/essentials.js';
-        </x-essentials::docs.code>
-        <p>Prefer to take only some of them? Import the scripts one by one from the same folder instead. They carry what they need, so there is still nothing to install.</p>
-        <x-essentials::docs.code lang="js" title="resources/js/app.js">
-            import '../../vendor/nyumbani/essentials/resources/dist/toastr.js';
-            import '../../vendor/nyumbani/essentials/resources/dist/shell.js';
-            import '../../vendor/nyumbani/essentials/resources/dist/submit.js';
-            import '../../vendor/nyumbani/essentials/resources/dist/file-input.js';
-            import '../../vendor/nyumbani/essentials/resources/dist/modal.js';
-            import '../../vendor/nyumbani/essentials/resources/dist/helpers.js';
-        </x-essentials::docs.code>
+        <p>Import one file. It holds every Nyumbani script together with the packages they need, so there is nothing to install with npm. Prefer to take only some of them? Choose the second tab: the scripts carry what they need, so there is still nothing to install.</p>
+        <x-essentials::docs.tabs :labels="['Everything (recommended)', 'Some scripts']">
+            <x-essentials::docs.tab label="Everything (recommended)">
+                <x-essentials::docs.code lang="js" title="resources/js/app.js">
+                    import '../../vendor/nyumbani/essentials/resources/dist/essentials.js';
+                </x-essentials::docs.code>
+            </x-essentials::docs.tab>
+            <x-essentials::docs.tab label="Some scripts">
+                <x-essentials::docs.code lang="js" title="resources/js/app.js">
+                    import '../../vendor/nyumbani/essentials/resources/dist/toastr.js';
+                    import '../../vendor/nyumbani/essentials/resources/dist/shell.js';
+                    import '../../vendor/nyumbani/essentials/resources/dist/submit.js';
+                    import '../../vendor/nyumbani/essentials/resources/dist/file-input.js';
+                    import '../../vendor/nyumbani/essentials/resources/dist/modal.js';
+                    import '../../vendor/nyumbani/essentials/resources/dist/helpers.js';
+                </x-essentials::docs.code>
+            </x-essentials::docs.tab>
+        </x-essentials::docs.tabs>
         <x-essentials::docs.table :columns="['Included', 'What it does']" :rows="[
             ['toasts', 'The alert toasts, with toastr and jQuery bundled in.'],
             ['shell', 'The sidebar, drawer and user menu.'],
@@ -67,6 +82,17 @@
             @endsection
             @endverbatim
         </x-essentials::docs.code>
+    </x-essentials::docs.section>
+
+    <x-essentials::docs.section id="check" title="Check that it works">
+        <ol>
+            <li>Run <code>npm run build</code> so Vite compiles the theme and scripts.</li>
+            <li>Open <code>/login</code>. You should see the Nyumbani sign-in page with the app name.</li>
+            <li>Open <code>/{{ $docs->path() }}</code> locally. The docs you are reading appear.</li>
+            <li>Visit a page that does not exist. You should get the friendly 404 with the logo.</li>
+        </ol>
+        <p>Something missing? The sign-in page unstyled means the theme import is missing or <code>npm run build</code> has not run. A page full of unstyled toasts means the scripts were not imported.</p>
+        <p>Next, build a page with the <a href="{{ $docs->url('quick-start') }}">Quick start</a>.</p>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="publish" title="5. Install the rules and Boost">

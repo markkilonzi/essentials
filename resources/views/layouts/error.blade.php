@@ -23,7 +23,7 @@
 
             {{--  The big code, with the icon bouncing over the middle digit  --}}
             <div class="relative mb-2 select-none">
-                <p class="bg-linear-to-b from-primary-light to-primary bg-clip-text text-[9rem] font-bold leading-none tracking-tighter text-transparent sm:text-[12rem]">@yield('code')</p>
+                <p class="bg-linear-to-b from-primary to-primary-dark bg-clip-text text-[9rem] font-bold leading-none tracking-tighter text-transparent sm:text-[12rem]">@yield('code')</p>
                 <div class="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center">
                     <span class="flex h-20 w-20 animate-bounce items-center justify-center rounded-2xl bg-white/10 text-white shadow-2xl ring-1 ring-white/30 backdrop-blur-sm sm:h-24 sm:w-24">
                         <svg class="h-10 w-10 sm:h-12 sm:w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">@yield('icon')</svg>
@@ -39,7 +39,7 @@
                 @hasSection('actions')
                     @yield('actions')
                 @endif
-                <a href="{{ url('/') }}" class="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 font-medium text-secondary-dark shadow-lg transition hover:bg-primary-light focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                <a href="{{ url('/') }}" class="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 font-medium text-secondary-dark shadow-lg transition hover:bg-primary-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
                     Take me home
                 </a>
