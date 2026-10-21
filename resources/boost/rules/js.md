@@ -12,3 +12,6 @@ Every function, event listener and option object gets a `/** ... */` block comme
 When a function body is exactly one statement (one top-level `;`), it keeps its header comment but gets no inline `//` comment above the statement. This holds however many lines the statement spans.
 
 Functions with two or more top-level statements keep a `//  ` comment before each. Statements nested inside the single statement (e.g. in a callback) still follow the normal comment rule.
+
+## Chain method calls one per line
+When a statement calls two or more methods in a row on an object, put the object on the first line and each call on its own line, indented once: `document` then `.querySelector('[data-menu]')` then `.addEventListener(...)`. A single call stays on one line. Give each chained statement the usual `//  ` comment above it.
