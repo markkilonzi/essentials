@@ -151,6 +151,9 @@ PHP;
         //  Add the discord log channel
         $this->addLogChannel();
 
+        //  Add the Vite aliases every Nyumbani app shares
+        $this->addViteAliases();
+
         //  Add the package's imports
         $this->addImports();
 
@@ -351,14 +354,20 @@ PHP;
         //  Find the stylesheet
         $css = resource_path('css/app.css');
 
+        //  Import by the @vendor alias when the Vite config has it, and by the relative path when it does not
+        $vendor = $this->hasViteAlias('@vendor') ? '@vendor' : '../../vendor';
+
         //  The theme goes after the Tailwind import, unless it is already imported
         if (File::exists($css) && ! str_contains(File::get($css), 'nyumbani/essentials/resources/css/theme.css')) {
             //  Add the import
-            File::append($css, "\n@import '../../vendor/nyumbani/essentials/resources/css/theme.css';\n");
+            File::append($css, "\n@import '{$vendor}/nyumbani/essentials/resources/css/theme.css';\n");
 
             //  Say what was imported
             info('Imported the theme in resources/css/app.css.');
         }
+
+        //  Tell Tailwind to scan the app's enums, data tables and their config, where classes are written in PHP
+        $this->addSources($css);
 
         //  Find the script
         $js = resource_path('js/app.js');
@@ -366,7 +375,7 @@ PHP;
         //  The scripts go first, so they load before Livewire starts, unless they are already imported
         if (File::exists($js) && ! str_contains(File::get($js), 'nyumbani/essentials/resources/dist/essentials.js')) {
             //  Add the import
-            File::prepend($js, "import '../../vendor/nyumbani/essentials/resources/dist/essentials.js';\n");
+            File::prepend($js, "import '{$vendor}/nyumbani/essentials/resources/dist/essentials.js';\n");
 
             //  Say what was imported
             info('Imported the scripts in resources/js/app.js.');
@@ -375,11 +384,195 @@ PHP;
         //  Livewire starts the Alpine every Nyumbani script needs, so the script must start it unless it already does
         if (File::exists($js) && ! str_contains(File::get($js), 'Livewire.start(')) {
             //  Add the import and the start after the existing code
-            File::append($js, "\nimport { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm';\n\n//  Start Livewire, which starts the Alpine it bundles\nLivewire.start();\n");
+            File::append($js, "\nimport { Livewire } from '{$vendor}/livewire/livewire/dist/livewire.esm';\n\n//  Start Livewire, which starts the Alpine it bundles\nLivewire.start();\n");
 
             //  Say what was started
             info('Started Livewire in resources/js/app.js.');
         }
+
+        //  Move the relative paths an earlier run wrote to the aliases, once the config has them
+        $this->useAliasesInImports($css, $js);
+    }
+
+    /**
+     * Tell whether vite.config.js defines an alias.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function hasViteAlias(string $alias): bool
+    {
+        return File::exists(base_path('vite.config.js')) && str_contains(File::get(base_path('vite.config.js')), "'{$alias}'");
+    }
+
+    /**
+     * Replace the relative paths of the vendor files and the app sources an earlier run wrote with their aliases, for each alias the Vite config has.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function useAliasesInImports(string $css, string $js): void
+    {
+        //  The relative paths to swap, by file, for the alias that replaces each
+        $swaps = [
+            $css => [
+                "'../../vendor/nyumbani/essentials/" => ['@vendor', "'@vendor/nyumbani/essentials/"],
+                ...collect(InstallChecklist::APP_SOURCES)->mapWithKeys(fn (string $alias, string $relative) => ["@source '{$relative}'" => [strstr($alias, '/', true), "@source '{$alias}'"]])->all(),
+            ],
+            $js => [
+                "'../../vendor/nyumbani/essentials/" => ['@vendor', "'@vendor/nyumbani/essentials/"],
+                "'../../vendor/livewire/livewire/" => ['@vendor', "'@vendor/livewire/livewire/"],
+            ],
+        ];
+
+        foreach ($swaps as $file => $replacements) {
+            //  Skip a file the app does not have
+            if (! File::exists($file)) {
+                continue;
+            }
+
+            //  Swap each path whose alias the config has
+            $content = File::get($file);
+
+            foreach ($replacements as $from => [$alias, $to]) {
+                if ($this->hasViteAlias($alias)) {
+                    $content = str_replace($from, $to, $content);
+                }
+            }
+
+            //  Keep the file as it was when nothing changed
+            if ($content !== File::get($file)) {
+                File::put($file, $content);
+
+                info('Moved the imports in '.str_replace(base_path().'/', '', $file).' to the Vite aliases.');
+            }
+        }
+    }
+
+    /**
+     * Add the shared Vite aliases to vite.config.js, each only when it is missing, and keep the file only if Node accepts it.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function addViteAliases(): void
+    {
+        //  Find the config
+        $path = base_path('vite.config.js');
+
+        //  Nothing to add to without one
+        if (! File::exists($path)) {
+            return;
+        }
+
+        //  Keep the aliases the config does not have yet
+        $original = File::get($path);
+        $missing = collect(InstallChecklist::APP_ALIASES)
+            ->reject(fn (string $folder, string $alias) => str_contains($original, "'{$alias}'") || str_contains($original, "\"{$alias}\""));
+
+        //  Leave the config alone when it has them all
+        if ($missing->isEmpty()) {
+            return;
+        }
+
+        //  Write each one the way the config already writes its paths
+        $usesPath = str_contains($original, 'path.resolve(dirname');
+        $lines = $missing
+            ->map(fn (string $folder, string $alias) => $usesPath ? "'{$alias}': path.resolve(dirname, '{$folder}')," : "'{$alias}': fileURLToPath(new URL('./{$folder}', import.meta.url)),")
+            ->values()
+            ->all();
+
+        //  Add them, or say why this config has to be edited by hand
+        $updated = $this->withAliases($original, $lines, ! $usesPath);
+
+        if ($updated === null || ! $this->isValidJavaScript($updated)) {
+            note('vite.config.js was left as it is. Add the '.implode(', ', $missing->keys()->all()).' aliases to resolve.alias by hand.');
+
+            return;
+        }
+
+        //  Keep the edited config
+        File::put($path, $updated);
+
+        //  Say what was added
+        info('Added the '.implode(', ', $missing->keys()->all()).' aliases to vite.config.js.');
+    }
+
+    /**
+     * Put alias lines into a Vite config: inside the alias object it has, or in a new resolve setting at the top of defineConfig, and null when the config has neither a place for them nor room for one.
+     *
+     * @param  array<int, string>  $lines
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function withAliases(string $config, array $lines, bool $needsUrlImport): ?string
+    {
+        //  Indent the lines to sit in an alias object
+        $indented = collect($lines)->map(fn (string $line) => '            '.$line)->implode("\n");
+
+        //  Add to the alias object the config already has
+        if (preg_match('/alias:\s*\{/', $config)) {
+            $updated = preg_replace('/(alias:\s*\{)/', "$1\n{$indented}", $config, 1);
+        } elseif (str_contains($config, 'resolve') || ! preg_match('/defineConfig\(\s*\{/', $config)) {
+            //  A resolve setting of its own, or nothing to add to: leave it for the developer
+            return null;
+        } else {
+            //  Start the config with a resolve setting
+            $updated = preg_replace('/(defineConfig\(\s*\{)/', "$1\n    resolve: {\n        alias: {\n{$indented}\n        },\n    },", $config, 1);
+        }
+
+        //  The url helper the lines use must be imported
+        if ($needsUrlImport && ! str_contains($updated, 'fileURLToPath }')) {
+            $updated = "import { fileURLToPath } from 'node:url';\n".$updated;
+        }
+
+        return $updated;
+    }
+
+    /**
+     * Tell whether Node accepts the code as a module, which is false when Node is not installed.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function isValidJavaScript(string $code): bool
+    {
+        //  Write the code where Node can read it as a module
+        $file = sys_get_temp_dir().'/nyumbani-'.uniqid().'.mjs';
+        File::put($file, $code);
+
+        //  Ask Node to parse it without running it
+        $valid = rescue(fn () => Process::run(['node', '--check', $file])->successful(), false, false);
+
+        //  Clean up
+        File::delete($file);
+
+        return $valid;
+    }
+
+    /**
+     * Add the @source lines for the app's PHP files that hold classes, each only when it is missing.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function addSources(string $css): void
+    {
+        //  Nothing to add to without a stylesheet
+        if (! File::exists($css)) {
+            return;
+        }
+
+        //  Keep the lines the stylesheet does not have yet, in either form
+        $missing = collect(InstallChecklist::APP_SOURCES)
+            ->reject(fn (string $alias, string $relative) => str_contains(File::get($css), "@source '{$relative}'") || str_contains(File::get($css), "@source '{$alias}'"))
+            ->map(fn (string $alias, string $relative) => "@source '".($this->hasViteAlias(strstr($alias, '/', true)) ? $alias : $relative)."';");
+
+        //  Leave the stylesheet alone when it has them all
+        if ($missing->isEmpty()) {
+            return;
+        }
+
+        //  Add them after what is already there
+        File::append($css, "\n".$missing->implode("\n")."\n");
+
+        //  Say what was added
+        info('Added the enum, data table and config sources in resources/css/app.css.');
     }
 
     /**

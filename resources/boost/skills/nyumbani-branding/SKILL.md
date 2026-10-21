@@ -11,7 +11,7 @@ The package owns the look and the shell. An app extends it and only supplies con
 
 ## Layouts
 - `essentials::layouts.app`: the base document. Includes favicons, the manifest, the theme-color meta, `@vite`, toasts (`essentials::partials.alerts`) and the `styles` and `js` stacks.
-- `essentials::layouts.portal`: signed-in shell with sidebar and navbar. Sections: `title`, `content`, `banner`, `sidebar`, and the `actions` stack.
+- `essentials::layouts.portal`: signed-in shell with sidebar and navbar. Sections: `title`, `content` (drawn inside the layout's card, `bg-gray-100 shadow-xs`; add no outer card), `banner` (above the card), `sidebar`, and the `actions` stack.
 - `essentials::layouts.auth`: authentication pages only (sign-in, forgot password, reset password), which Essentials already ships. Sections: `heading`, `description`, `content`. Not for other public pages.
 - `essentials::layouts.error`: error pages, see the nyumbani-error-pages skill.
 

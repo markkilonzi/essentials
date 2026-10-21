@@ -17,6 +17,33 @@ use Throwable;
 class InstallChecklist
 {
     /**
+     * The Vite aliases every Nyumbani app has, by alias, for the folder each one points at, relative to the app root.
+     *
+     * @var array<string, string>
+     */
+    public const APP_ALIASES = [
+        '@node-modules' => 'node_modules',
+        '@public' => 'public',
+        '@resources' => 'resources',
+        '@vendor' => 'vendor',
+        '@storage' => 'storage',
+        '@enums' => 'app/Enums',
+        '@data-tables' => 'app/DataTables',
+        '@config' => 'config',
+    ];
+
+    /**
+     * The app files Tailwind must scan for classes, by path relative to resources/css/app.css, with the Vite alias form of each.
+     *
+     * @var array<string, string>
+     */
+    public const APP_SOURCES = [
+        '../../app/Enums/*.php' => '@enums/*.php',
+        '../../app/DataTables/**/*.php' => '@data-tables/**/*.php',
+        '../../config/dt-tables.php' => '@config/dt-tables.php',
+    ];
+
+    /**
      * Get every check as a list of label, state (pass, fail or optional) and how to fix it
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
@@ -28,6 +55,8 @@ class InstallChecklist
 
         return [
             $this->item('Theme imported in resources/css/app.css', $this->fileHas(resource_path('css/app.css'), 'nyumbani/essentials/resources/css/theme.css'), "Add @import '../../vendor/nyumbani/essentials/resources/css/theme.css'; after the Tailwind import."),
+            $this->item('Enums, data tables and their config scanned in resources/css/app.css', collect(self::APP_SOURCES)->every(fn (string $alias, string $relative) => $this->fileHas(resource_path('css/app.css'), "@source '{$relative}'") || $this->fileHas(resource_path('css/app.css'), "@source '{$alias}'")), 'Add @source lines for app/Enums, app/DataTables and config/dt-tables.php to resources/css/app.css.'),
+            $this->item('Vite aliases in vite.config.js', collect(array_keys(self::APP_ALIASES))->every(fn (string $alias) => $this->fileHas(base_path('vite.config.js'), "'{$alias}'")), 'Add the '.implode(', ', array_keys(self::APP_ALIASES)).' aliases to resolve.alias in vite.config.js.'),
             $this->item('Scripts imported in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'nyumbani/essentials/resources/dist/essentials.js'), "Add import '../../vendor/nyumbani/essentials/resources/dist/essentials.js'; before Livewire starts."),
             $this->item('Livewire started in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'Livewire.start('), "Add import { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm'; and Livewire.start(); to resources/js/app.js."),
             $this->item('User model implements HasHomeRoute', is_a($user, HasHomeRoute::class, true), 'Implement Nyumbani\Essentials\Contracts\HasHomeRoute and add homeRoute().'),

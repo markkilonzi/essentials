@@ -235,7 +235,7 @@
     <x-docs::section id="sections" title="Every section of the portal layout">
         <x-docs::table :columns="['Section', 'Where it shows', 'Notes']" :rows="[
             ['title', 'The page header and the browser tab', 'Required. The tab reads Title - App name.'],
-            ['content', 'The page body', 'Always called content.'],
+            ['content', 'The page body, inside the card every portal page sits in', 'Always called content. The layout draws the card (light grey with a soft shadow), so do not add an outer card of your own.'],
             ['sidebar', 'The left navigation', 'Fill it with nav-link and nav-group.'],
             ['banner', 'Above the content', 'Optional notices, such as a trial warning.'],
             ['brand', 'The navbar, beside the menu button', 'Defaults to the app name.'],

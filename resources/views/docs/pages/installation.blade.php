@@ -23,11 +23,16 @@
     </x-docs::section>
 
     <x-docs::section id="theme" title="2. Import the theme">
-        <p>Import the shared theme once in the app's Tailwind file. It sets the colours, form styles and the button classes, and tells Tailwind to scan the package's views, its view components and its scripts for classes, so the modal, the loader and the submit spinner are styled without any setting of yours.</p>
+        <p>Import the shared theme once in the app's Tailwind file. It sets the colours, form styles and the button classes, and tells Tailwind to scan the package's views, its view components and its scripts for classes, so the modal, the loader and the submit spinner are styled without any setting of yours. Classes your app writes in PHP are not scanned by the theme, so add a <code>@@source</code> line for each place: your enums, your data tables and the data tables config.</p>
         <x-docs::code lang="css" title="resources/css/app.css">
             @import 'tailwindcss';
             @import '../../vendor/nyumbani/essentials/resources/css/theme.css';
+
+            @source '../../app/Enums/*.php';
+            @source '../../app/DataTables/**/*.php';
+            @source '../../config/dt-tables.php';
         </x-docs::code>
+        <p><code>php artisan nyumbani:install</code> adds these three lines for you, as it does the import. Once <code>vite.config.js</code> has the shared aliases, it writes them as <code>@@vendor/nyumbani/essentials/resources/css/theme.css</code>, <code>@@enums/*.php</code> and so on, and moves the relative paths of an earlier run to the aliases. The relative paths shown here work in any app.</p>
     </x-docs::section>
 
     <x-docs::section id="scripts" title="3. Import the scripts">
@@ -114,7 +119,8 @@
             ['Migrations', 'Publishes one migration that creates the permission tables with the group column built in, and the activity log migration. An app that already has Spatie\'s permission migration without the column gets a small one that adds it.', 'Skips any the app already has.'],
             ['Log channel', 'Adds the discord channel to config/logging.php, with the driver\'s defaults for level, throttle and message length. You still add discord to the log stack.', 'Skips it if the app has a discord channel, or if the file has no channels list.'],
             ['.env.example', 'Adds the keys the packages read, blank.', 'Adds only the keys that are missing. Your .env is never touched.'],
-            ['Imports', 'Adds the theme to resources/css/app.css and the scripts to resources/js/app.js, and starts Livewire there (which starts the Alpine it bundles).', 'Adds a line only if it is not there, and does not start Livewire twice.'],
+            ['Vite aliases', 'Adds @node-modules, @public, @resources, @vendor, @storage, @enums, @data-tables and @config to resolve.alias in vite.config.js, and keeps the file only if Node accepts it.', 'Adds only the aliases that are missing. Leaves a config with its own resolve setting, or with no defineConfig, as it is and tells you what to add.'],
+            ['Imports', 'Adds the theme and the @source lines for enums, data tables and their config to resources/css/app.css, and the scripts to resources/js/app.js, and starts Livewire there (which starts the Alpine it bundles). Uses the @vendor, @enums, @data-tables and @config aliases when vite.config.js has them, and the relative paths when it does not.', 'Adds a line only if it is not there, does not start Livewire twice, and moves an earlier relative path to its alias.'],
             ['permissions.json', 'Creates a starter database/seeders/data/permissions.json.', 'Skips it if it exists.'],
             ['Roles and permissions', 'Runs php artisan nyumbani:permissions, which syncs the roles and permissions from database/seeders/data/permissions.json. It needs the permission tables, so on a first install it says to run php artisan migrate and then run the installer again.', 'Runs every time the tables exist, which is safe: it only creates what is missing, gives new permissions to users who hold the role and deletes the ones removed from the file.'],
             ['Storage link', 'Links public/storage for uploads.', 'Skips it if the link exists.'],
@@ -127,6 +133,8 @@
         <p>The installer never edits your application code. When it finishes it prints what it found and what is left for you:</p>
         <x-docs::code lang="text" title="Setup checklist">
             Theme imported in resources/css/app.css ............ done
+            Vite aliases in vite.config.js ..................... done
+            Enums, data tables and their config scanned ........ done
             Scripts imported in resources/js/app.js ............ done
             Livewire started in resources/js/app.js ............ done
             User model implements HasHomeRoute ................. done

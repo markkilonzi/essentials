@@ -40,7 +40,9 @@
             {{--  Content  --}}
             <main class="px-2 pb-3.5 pt-1.5">
                 @yield('banner')
-                <div class="relative">
+
+                {{--  The card every page sits in  --}}
+                <div class="relative bg-gray-100 shadow-xs">
                     @yield('content')
                 </div>
             </main>
