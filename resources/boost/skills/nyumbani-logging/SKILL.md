@@ -16,7 +16,6 @@ Essentials registers a `discord` log driver, the way Laravel ships a `slack` one
     'driver' => 'discord',
     'url' => env('DISCORD_WEBHOOK_URL'),
     'username' => env('APP_NAME', 'Nyumbani'),
-    'level' => env('DISCORD_LOG_LEVEL', 'error'),
 ],
 
 'stack' => [
@@ -24,6 +23,8 @@ Essentials registers a `discord` log driver, the way Laravel ships a `slack` one
     'channels' => ['daily', 'discord'],
 ],
 ```
+`nyumbani:install` adds the `discord` channel for you when `config/logging.php` has none, with only `driver`, `url` and `username`, so the options below keep their defaults. Add `discord` to the stack's `channels` (or `LOG_STACK=daily,discord`) yourself.
+
 `DISCORD_WEBHOOK_URL` is a secret: only in the git-ignored `.env`, blank in `.env.example`.
 
 ## Options

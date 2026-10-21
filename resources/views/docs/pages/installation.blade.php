@@ -19,7 +19,7 @@
         <x-essentials::docs.code lang="bash" title="Terminal">
             composer require nyumbani/essentials
         </x-essentials::docs.code>
-        <p>Laravel discovers the service providers on its own, so there is nothing to register.</p>
+        <p>Laravel discovers the service providers on its own, so there is nothing to register. Daraja and Messaging come with it, but Laravel Boost loads AI skills only from packages your app lists itself, so step 5 also adds them to your <code>composer.json</code>.</p>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="theme" title="2. Import the theme">
@@ -105,12 +105,14 @@
         <x-essentials::docs.table :columns="['Step', 'What it does', 'On a rerun']" :rows="[
             ['Rules', 'Copies the Nyumbani rules into .ai/rules and rebuilds the index.', 'Replaces them with the newest, and removes rules the package no longer ships.'],
             ['Config files', 'Publishes config/essentials.php, daraja.php, messaging.php, permission.php and activitylog.php.', 'Skips any that exist, so your edits stay.'],
-            ['Migrations', 'Publishes the permission tables, the permission group column and the activity log table.', 'Skips any the app already has.'],
+            ['Migrations', 'Publishes one migration that creates the permission tables with the group column built in, and the activity log migration. An app that already has Spatie\'s permission migration without the column gets a small one that adds it.', 'Skips any the app already has.'],
+            ['Log channel', 'Adds the discord channel to config/logging.php, with the driver\'s defaults for level, throttle and message length. You still add discord to the log stack.', 'Skips it if the app has a discord channel, or if the file has no channels list.'],
             ['.env.example', 'Adds the keys the packages read, blank.', 'Adds only the keys that are missing. Your .env is never touched.'],
             ['Imports', 'Adds the theme to resources/css/app.css and the scripts to resources/js/app.js.', 'Adds a line only if it is not there.'],
             ['permissions.json', 'Creates a starter database/seeders/data/permissions.json.', 'Skips it if it exists.'],
             ['Storage link', 'Links public/storage for uploads.', 'Skips it if the link exists.'],
-            ['Boost', 'Installs laravel/boost as a dev dependency if it is missing. The first time, runs boost:install with its own questions. Adds Essentials, Daraja and Messaging to boost.json, and refreshes the guidelines and skills.', 'Only refreshes.'],
+            ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires nyumbani/daraja and nyumbani/messaging in your composer.json if you only have them through Essentials. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there.'],
+            ['Boost', 'The first time, runs boost:install with its own questions. Adds Essentials, Daraja and Messaging, and their skills, to boost.json, uses Claude Code as the agent when none is chosen, and refreshes the guidelines and skills.', 'Only refreshes.'],
         ]" />
         <p>With <code>--no-interaction</code> (what Composer runs) it never asks: Boost's first install turns guidelines, skills and MCP all on.</p>
 

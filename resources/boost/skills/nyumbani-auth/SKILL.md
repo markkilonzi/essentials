@@ -34,6 +34,9 @@ After signing in a user goes to the page they were trying to reach, or else to `
 ## The throttle and the username
 `essentials.fortify.max_attempts` (5) is the sign-in attempts a minute for each username and IP address. The form follows `config('fortify.username')`: set it to `phone_number` and the field, label and input type change with it.
 
+## Roles and permissions on the user model
+Use `Nyumbani\Essentials\Traits\HasPermissions` (it brings Spatie's roles and `assignDefaultPermissions()`). Do not import `Spatie\Permission\Traits\HasPermissions` by mistake: the name is the same, but it has no roles and no default permissions. `nyumbani:install` flags the wrong one in its checklist.
+
 ## Impersonation
 Add `Lab404\Impersonate\Models\Impersonate` to the user model. While a user is impersonated, the portal layout shows a bar under the page header with a Leave button that posts to `essentials.impersonation.leave`, which signs back in as the original user and sends them to their home route. Decide who may impersonate with a policy (`Gate::authorize('impersonate', $user)`), then call `user()->impersonate($user)`.
 

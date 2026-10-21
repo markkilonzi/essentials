@@ -15,7 +15,7 @@
 
     <x-essentials::docs.section id="skills" title="Skills">
         <p>Skills teach an AI agent how to use a part of the package. Laravel Boost finds them in the package's <code>resources/boost/skills</code> folder.</p>
-        <p>You do not run Boost yourself. The first time, <code>nyumbani:install</code> runs <code>boost:install</code> and asks Boost's own questions about agents (a non-interactive run turns guidelines, skills and MCP all on). Every time, it adds <code>nyumbani/essentials</code>, <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code> to <code>boost.json</code> and runs <code>boost:update</code>, so rules, guidelines and skills stay current with one command.</p>
+        <p>You do not run Boost yourself. The first time, <code>nyumbani:install</code> runs <code>boost:install</code> and asks Boost's own questions about agents (a non-interactive run turns guidelines, skills and MCP all on). Boost reads skills only from packages your app requires itself, so the installer first makes sure <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code> are in your <code>composer.json</code> next to Essentials. Every time, it adds <code>nyumbani/essentials</code>, <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code> to <code>boost.json</code>, lists their skills there (<code>boost:update</code> installs only the skills named in <code>boost.json</code>), uses Claude Code as the agent when none is chosen, and runs <code>boost:update</code>, so rules, guidelines and skills stay current with one command.</p>
         <x-essentials::docs.table :columns="['Skill', 'Covers']" :rows="[
             ['nyumbani-modal', 'The modal component and its options.'],
             ['nyumbani-error-pages', 'The shipped error pages and how to change them.'],
@@ -23,6 +23,7 @@
             ['nyumbani-ui-theme', 'Buttons, toasts and the loader.'],
             ['nyumbani-error-bags', 'Several forms on one page, the bag directive and reopening a modal after a failed save.'],
             ['nyumbani-logging', 'The discord log driver, its options and why records do not arrive.'],
+            ['nyumbani-install', 'Running nyumbani:install, its setup checklist and how to fix each item.'],
             ['nyumbani-auth', 'Sign-in, password reset, home routes, the login throttle and impersonation.'],
             ['nyumbani-helpers', 'Formatting helpers in PHP, Blade and JavaScript, and the period filter.'],
         ]" />

@@ -26,8 +26,8 @@
             ['title' => 'Assign a role to a user', 'actor' => 'Your app, when a user is created', 'detail' => 'assignDefaultPermissions gives the user the role and syncs exactly that role\'s permissions from the file.', 'code' => '$user->assignDefaultPermissions(\'clerk\');'],
             ['title' => 'Check it in a policy', 'actor' => 'Your policies', 'detail' => 'Ask for the permission, never the role. Allowed or denied follows from the file alone.', 'code' => 'return $user->hasPermissionTo(\'view-invoices\');'],
         ]" />
-        <x-essentials::docs.callout type="note" title="Needs a group column">
-            The command stores each permission's area in a <code>group</code> column of the permissions table, so add that column to the permission migration of <code>spatie/laravel-permission</code>.
+        <x-essentials::docs.callout type="note" title="The group column">
+            <code>nyumbani:install</code> publishes a migration that creates the permission tables with a nullable <code>group</code> column, which <code>nyumbani:permissions</code> fills from the file. An app that published Spatie's own migration earlier gets a small one that adds the column instead. Run <code>php artisan migrate</code> after the installer.
         </x-essentials::docs.callout>
     </x-essentials::docs.section>
 
@@ -45,6 +45,9 @@
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="models" title="On your models">
+        <x-essentials::docs.callout type="warning" title="Two traits are called HasPermissions">
+            Spatie ships <code>Spatie\Permission\Traits\HasPermissions</code>, which has no roles and no default permissions. Import <code>Nyumbani\Essentials\Traits\HasPermissions</code>, which adds both. The installer's checklist tells you when the Spatie one is imported.
+        </x-essentials::docs.callout>
         <x-essentials::docs.code>
             use Illuminate\Foundation\Auth\User as Authenticatable;
             use Nyumbani\Essentials\Traits\HasPermissions;

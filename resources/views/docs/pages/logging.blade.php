@@ -5,16 +5,15 @@
 
 @section('content')
     <x-essentials::docs.section id="channel" title="Add the channel">
-        <p>The package registers a <code>discord</code> log driver, the way Laravel ships a <code>slack</code> one. A channel only names the driver and its options; you write no handler and no taps.</p>
+        <p>The package registers a <code>discord</code> log driver, the way Laravel ships a <code>slack</code> one. A channel only names the driver and its options; you write no handler and no taps. <code>php artisan nyumbani:install</code> adds this channel to <code>config/logging.php</code> for you, unless the app already has a <code>discord</code> channel:</p>
         <x-essentials::docs.code title="config/logging.php">
             'discord' => [
                 'driver' => 'discord',
                 'url' => env('DISCORD_WEBHOOK_URL'),
                 'username' => env('APP_NAME', 'Nyumbani'),
-                'level' => env('DISCORD_LOG_LEVEL', 'error'),
             ],
         </x-essentials::docs.code>
-        <p>Add <code>discord</code> to the <code>stack</code> channel's list to receive errors there:</p>
+        <p>Everything else uses the defaults in the table below. Then add <code>discord</code> to the <code>stack</code> channel's list, for example through <code>LOG_STACK=daily,discord</code> in <code>.env</code>, to receive errors there:</p>
         <x-essentials::docs.code title="config/logging.php">
             'stack' => [
                 'driver' => 'stack',
@@ -59,7 +58,6 @@
     <x-essentials::docs.section id="env" title="Environment">
         <x-essentials::docs.code lang="bash" title=".env">
             DISCORD_WEBHOOK_URL=
-            DISCORD_LOG_LEVEL=error
         </x-essentials::docs.code>
         <x-essentials::docs.callout type="warning">The webhook URL is a secret. Keep it in <code>.env</code> only.</x-essentials::docs.callout>
 

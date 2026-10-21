@@ -14,7 +14,7 @@
             ['HasUploads', 'File behaviour for the app Upload model: URL, size, extension and image check.'],
             ['HasProfileImage', 'A single replaceable profile image with an avatar fallback.'],
             ['HasKenyans', 'Realistic Kenyan names and safe fake phone numbers for factories.'],
-            ['HasPermissions, HasUserPermissions, HasRoleList', 'Default roles and permissions from permissions.json.'],
+            ['HasPermissions, HasUserPermissions, HasRoleList', 'Default roles and permissions from permissions.json. Import Nyumbani\\Essentials\\Traits\\HasPermissions, not Spatie\\Permission\\Traits\\HasPermissions, which has the same name but no roles.'],
         ]" />
             <x-essentials::docs.playground demo="model-traits" title="Try the model and enum traits" :fields="[
             ['name' => 'amount', 'label' => 'An amount (try a negative one)', 'value' => '-250', 'placeholder' => 'e.g. 1500 or -250'],

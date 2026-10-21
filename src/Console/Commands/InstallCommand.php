@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Laravel\Boost\Console\InstallCommand as BoostInstallCommand;
 use Laravel\Boost\Rules\RuleRepository;
+use Nyumbani\Essentials\Console\Support\DirectRequirements;
 use Nyumbani\Essentials\Console\Support\InstallChecklist;
+use ParseError;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Process\Process as SymfonyProcess;
 
@@ -57,12 +59,16 @@ class InstallCommand extends Command
      * @var array<string, string>
      */
     protected const MIGRATION_TAGS = [
-        'permission-migrations' => 'create_permission_tables',
         'activitylog-migrations' => 'create_activity_log_table',
     ];
 
     /**
-     * The migration Essentials adds to the permissions table, which has to run after the Spatie one that creates it.
+     * The migration Essentials ships to create the permission tables, with the group column built in.
+     */
+    protected const PERMISSIONS_MIGRATION = 'create_permission_tables';
+
+    /**
+     * The migration that adds the group column to permission tables an app created earlier without it.
      */
     protected const GROUP_MIGRATION = 'update_permissions_table_add_group_column';
 
@@ -75,8 +81,27 @@ class InstallCommand extends Command
         'ESSENTIALS_CURRENCY', 'ESSENTIALS_THEME_COLOR', 'ESSENTIALS_DESCRIPTION',
         'DARAJA_ENVIRONMENT', 'DARAJA_SHORT_CODE', 'DARAJA_CONSUMER_KEY', 'DARAJA_CONSUMER_SECRET', 'DARAJA_PASS_KEY', 'DARAJA_TILL_NUMBER',
         'NYUMBANI_CONNECT_BASE_URL', 'NYUMBANI_CONNECT_TOKEN', 'MESSAGING_SMS_ENABLED', 'MESSAGING_SMS_SENDER_ID',
-        'DISCORD_WEBHOOK_URL', 'DISCORD_LOG_LEVEL',
+        'DISCORD_WEBHOOK_URL',
     ];
+
+    /**
+     * The discord log channel added to config/logging.php, which leaves the level, throttle and message length to the driver's defaults.
+     */
+    protected const DISCORD_CHANNEL = <<<'PHP'
+        'discord' => [
+            'driver' => 'discord',
+            'url' => env('DISCORD_WEBHOOK_URL'),
+            'username' => env('APP_NAME', 'Nyumbani'),
+        ],
+
+PHP;
+
+    /**
+     * The packages an app must require itself, because Boost ignores the guidelines and skills of indirect ones.
+     *
+     * @var list<string>
+     */
+    protected const DIRECT_PACKAGES = ['nyumbani/daraja', 'nyumbani/messaging'];
 
     /**
      * The environment variable that marks the second pass of the command, so a Boost that still cannot be loaded never loops.
@@ -107,8 +132,8 @@ class InstallCommand extends Command
         //  Greet the developer
         intro('Nyumbani install');
 
-        //  Install Boost first when it is missing, and let a fresh process finish, since its classes are not loaded here
-        if (! $this->isBoostInstalled()) {
+        //  Install what is missing first, and let a fresh process finish, since the new classes are not loaded here
+        if (! $this->isBoostInstalled() || $this->missingPackages() !== []) {
             return $this->installBoostAndContinue();
         }
 
@@ -120,6 +145,9 @@ class InstallCommand extends Command
 
         //  Prepare the app's own files, adding only what is missing
         $this->addEnvKeys();
+
+        //  Add the discord log channel
+        $this->addLogChannel();
 
         //  Add the package's imports
         $this->addImports();
@@ -178,17 +206,53 @@ class InstallCommand extends Command
             info("Published the {$name} migration.");
         }
 
-        //  The group column is copied last, so its timestamp is never earlier than the table's, which the Spatie publish stamps
-        if (File::glob(database_path('migrations/*_'.self::GROUP_MIGRATION.'.php')) === []) {
-            //  Make sure the migrations folder exists
-            File::ensureDirectoryExists(database_path('migrations'));
+        //  The permission tables come from Essentials' own migration, which already has the group column, so one file does it all
+        $this->publishPermissionsMigration();
+    }
 
-            //  Copy the stub under a timestamped name
-            File::copy(essentials_path('database/migrations/'.self::GROUP_MIGRATION.'.php.stub'), database_path('migrations/'.now()->format('Y_m_d_His').'_'.self::GROUP_MIGRATION.'.php'));
+    /**
+     * Give the app the permission tables with the group column: its own full migration for a new app, or the small one that adds the column to tables created without it.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function publishPermissionsMigration(): void
+    {
+        //  Find any permission tables migration the app already has
+        $existing = File::glob(database_path('migrations/*_'.self::PERMISSIONS_MIGRATION.'.php'));
 
-            //  Say what was published
-            info('Published the '.self::GROUP_MIGRATION.' migration.');
+        //  A new app gets Essentials' migration, which creates the tables with the group column
+        if ($existing === []) {
+            $this->copyMigration(self::PERMISSIONS_MIGRATION);
+
+            return;
         }
+
+        //  A migration that already has the group column, or an upgrade for it, needs nothing more
+        $hasGroup = collect($existing)->contains(fn (string $path) => str_contains(File::get($path), "'group'"));
+
+        if ($hasGroup || File::glob(database_path('migrations/*_'.self::GROUP_MIGRATION.'.php')) !== []) {
+            return;
+        }
+
+        //  Otherwise add the column to the tables the app created earlier
+        $this->copyMigration(self::GROUP_MIGRATION);
+    }
+
+    /**
+     * Copy one of Essentials' migration stubs into the app under a timestamped name.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function copyMigration(string $name): void
+    {
+        //  Make sure the migrations folder exists
+        File::ensureDirectoryExists(database_path('migrations'));
+
+        //  Copy the stub under a timestamped name
+        File::copy(essentials_path("database/migrations/{$name}.php.stub"), database_path('migrations/'.now()->format('Y_m_d_His')."_{$name}.php"));
+
+        //  Say what was published
+        info("Published the {$name} migration.");
     }
 
     /**
@@ -220,6 +284,51 @@ class InstallCommand extends Command
 
         //  Say what was added
         info("Added {$missing->count()} keys to .env.example.");
+    }
+
+    /**
+     * Add the discord log channel to config/logging.php, unless the app has one already, and only when the file still parses as PHP afterwards.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function addLogChannel(): void
+    {
+        //  Nothing to add to when the app has no logging config
+        $path = config_path('logging.php');
+
+        if (! File::exists($path)) {
+            return;
+        }
+
+        //  Keep the discord channel the app already has
+        $content = File::get($path);
+
+        if (preg_match('/[\'"]discord[\'"]\s*=>/', $content)) {
+            return;
+        }
+
+        //  Put it before the stack channel, or first in the channels list when there is no stack
+        $updated = str_contains($content, "        'stack' => [")
+            ? preg_replace("/^(        'stack' => \[)/m", self::DISCORD_CHANNEL.'$1', $content, 1)
+            : preg_replace("/('channels' => \[\R)/", '$1'.self::DISCORD_CHANNEL, $content, 1);
+
+        //  Leave the file alone when the channels list was not found
+        if ($updated === null || $updated === $content) {
+            return;
+        }
+
+        //  Never write a file that no longer parses
+        try {
+            token_get_all($updated, TOKEN_PARSE);
+        } catch (ParseError) {
+            return;
+        }
+
+        //  Save it
+        File::put($path, $updated);
+
+        //  Say what was added
+        info('Added the discord channel to config/logging.php. Add discord to LOG_STACK to use it.');
     }
 
     /**
@@ -332,40 +441,91 @@ class InstallCommand extends Command
     }
 
     /**
-     * Require Boost as a dev dependency, then run the command again in a fresh process, which can load it.
+     * Require what is missing, Boost and the Nyumbani packages Boost would otherwise ignore, then run the command again in a fresh process, which can load them.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
     protected function installBoostAndContinue(): int
     {
-        //  A second pass that still finds no Boost stops here instead of looping
+        //  A second pass that still finds something missing stops here instead of looping
         if (getenv(self::RESTARTED)) {
             //  Say how to do it by hand
-            error('laravel/boost is still not available after installing it. Run composer require laravel/boost --dev, then run this command again.');
+            error('Something is still missing after installing it. Run composer require laravel/boost --dev and composer require '.implode(' ', self::DIRECT_PACKAGES).', then run this command again.');
 
             //  Stop
             return self::FAILURE;
         }
 
-        //  Ask first when someone is there to answer
-        if ($this->input->isInteractive() && ! confirm('Laravel Boost is missing. Install it now with composer require laravel/boost --dev?', default: true)) {
-            //  Respect the answer
-            error('Laravel Boost is needed for the rules, guidelines and skills. Run composer require laravel/boost --dev, then run this command again.');
+        //  Install Boost when it is missing
+        if (! $this->isBoostInstalled()) {
+            //  Ask first when someone is there to answer
+            if ($this->input->isInteractive() && ! confirm('Laravel Boost is missing. Install it now with composer require laravel/boost --dev?', default: true)) {
+                //  Respect the answer
+                error('Laravel Boost is needed for the rules, guidelines and skills. Run composer require laravel/boost --dev, then run this command again.');
 
-            return self::FAILURE;
+                return self::FAILURE;
+            }
+
+            //  Stop when Composer cannot install it
+            if (! $this->requireBoost()) {
+                //  Say how to do it by hand
+                error('Could not install laravel/boost. Run composer require laravel/boost --dev, then run this command again.');
+
+                //  Stop
+                return self::FAILURE;
+            }
         }
 
-        //  Stop when Composer cannot install it
-        if (! $this->requireBoost()) {
-            //  Say how to do it by hand
-            error('Could not install laravel/boost. Run composer require laravel/boost --dev, then run this command again.');
+        //  Require the Nyumbani packages the app only gets through Essentials, since Boost loads only the packages an app requires itself
+        $missing = $this->missingPackages();
 
-            //  Stop
-            return self::FAILURE;
+        if ($missing !== []) {
+            //  Say why
+            info('Boost only loads packages the app requires itself, so '.implode(' and ', $missing).' must be required directly.');
+
+            //  Stop when Composer cannot require them
+            if (! $this->requirePackages($missing)) {
+                //  Say how to do it by hand
+                error('Could not require '.implode(' and ', $missing).'. Run composer require '.implode(' ', $missing).', then run this command again.');
+
+                //  Stop
+                return self::FAILURE;
+            }
         }
 
-        //  Finish the setup where Boost is loaded
+        //  Finish the setup where the new packages are loaded
         return $this->restart();
+    }
+
+    /**
+     * Get the list of Nyumbani packages the app does not require itself, which Boost would ignore.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function missingPackages(): array
+    {
+        return (new DirectRequirements)->missing(self::DIRECT_PACKAGES);
+    }
+
+    /**
+     * Run composer require for a list of packages behind a spinner, and show what Composer said if it fails.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function requirePackages(array $packages): bool
+    {
+        //  Run composer while a spinner shows
+        $result = spin(
+            fn () => Process::path(base_path())->forever()->run(['composer', 'require', ...$packages, '--no-interaction']),
+            'Requiring '.implode(' and ', $packages).'...',
+        );
+
+        //  Show what Composer said when it failed
+        if ($result->failed()) {
+            note(trim($result->errorOutput() ?: $result->output()));
+        }
+
+        return $result->successful();
     }
 
     /**
@@ -525,8 +685,32 @@ class InstallCommand extends Command
         $settings = json_decode(File::get($path), true) ?? [];
         $settings['packages'] = array_values(array_unique([...($settings['packages'] ?? []), ...self::BOOST_PACKAGES]));
 
+        //  List the packages' skills too, since boost:update installs only the skills named here and finds new ones only by asking
+        $settings['skills'] = array_values(array_unique([...($settings['skills'] ?? []), ...$this->packageSkills()]));
+
+        //  A non-interactive first install picks no agent, and boost:update refuses to run without one, so default to Claude Code
+        if (empty($settings['agents'])) {
+            $settings['agents'] = ['claude_code'];
+        }
+
         //  Save the settings
         File::put($path, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+    }
+
+    /**
+     * Get the names of the skills the three Nyumbani packages ship, read from their folders in vendor.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function packageSkills(): array
+    {
+        return collect(self::BOOST_PACKAGES)
+            ->map(fn (string $package) => base_path("vendor/{$package}/resources/boost/skills"))
+            ->filter(fn (string $folder) => File::isDirectory($folder))
+            ->flatMap(fn (string $folder) => File::directories($folder))
+            ->map(fn (string $skill) => basename($skill))
+            ->values()
+            ->all();
     }
 
     /**

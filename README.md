@@ -27,4 +27,4 @@ Start with Installation, then Quick start, then Anatomy of a feature.
 
 ## Configuration
 
-Publish `config/essentials.php` with `php artisan vendor:publish --tag=essentials-config`. Every key has a working default; see the Configuration docs page.
+`php artisan nyumbani:install` publishes `config/essentials.php`; to publish it again by hand, run `php artisan vendor:publish --tag=essentials-config`. Every key has a working default; see the Configuration docs page.
