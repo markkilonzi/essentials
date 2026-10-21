@@ -68,6 +68,30 @@
         <x-docs::rule title="Audience folders with a shared base">
             <p>Requests live in plural audience folders. Rules shared by more than one audience go in a base request at the root of <code>app/Http/Requests</code>, which each audience class extends, merging extra rules through <code>parent::rules()</code>. Do not put shared rules on the model.</p>
         </x-docs::rule>
+        <x-docs::rule title="One request for store and update">
+            <p>Create one Form Request per resource and use it for both <code>store</code> and <code>update</code>, named after the model: <code>CustomerRequest</code>, not <code>StoreCustomerRequest</code> and <code>UpdateCustomerRequest</code>. Where the rules differ, branch on the route's model, which only an update has. Split into two requests only when the rules share almost nothing.</p>
+            <x-docs::code lang="php" title="app/Http/Requests/Admins/CustomerRequest.php">
+                use App\Models\Customer;
+                use Illuminate\Foundation\Http\FormRequest;
+                use Illuminate\Validation\Rule;
+
+                class CustomerRequest extends FormRequest
+                {
+                    /**
+                     * Get the rules for creating and for updating a customer
+                     *
+                     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+                     */
+                    public function rules(): array
+                    {
+                        //  Define the unique rule, ignoring the customer being updated
+                        $unique = Rule::unique(Customer::class)->ignore($this->route('customer'));
+
+                        return ['email' => ['required', 'email', $unique]];
+                    }
+                }
+            </x-docs::code>
+        </x-docs::rule>
         <x-docs::rule title="Messages and attributes live on the request">
             <p>Define <code>messages()</code> and <code>attributes()</code> on the Form Request, never in lang files. Every wildcard rule, such as <code>items.*.quantity</code>, needs a matching <code>attributes()</code> entry. The same goes for inline <code>validateWithBag()</code> calls, which take the attributes as the fourth argument.</p>
         </x-docs::rule>

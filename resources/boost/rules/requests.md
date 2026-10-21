@@ -8,6 +8,16 @@ paths:
 ## Audience folders with shared bases
 Requests are split by plural audience folder (`Admins/`, `SystemAdmins/`, `Customers/`, `Vendors/`). Rules shared by more than one audience live in a base request at the root of `app/Http/Requests`, which each audience class extends, merging extra rules through `parent::rules()`. Do not put shared rules on the model.
 
+## One request for store and update
+Create one Form Request per resource and reuse it for both `store` and `update`, named after the model: `CustomerRequest`, never `StoreCustomerRequest` and `UpdateCustomerRequest`. Type-hint the same class in both actions. Where the rules differ, branch inside the request on the route's model, which only an update has: `Rule::unique(Customer::class)->ignore($this->route('customer'))` ignores the record being updated and ignores nothing when creating. Use `$this->isMethod('POST')` or `$this->isMethod('PUT')` only for a rule that cannot be expressed by the route's model. Split into two requests only when the rules truly share almost nothing.
+
+```php
+//  Define the unique rule, ignoring the customer being updated
+$unique = Rule::unique(Customer::class)->ignore($this->route('customer'));
+
+return ['email' => ['required', 'email', $unique]];
+```
+
 ## Messages and attributes live on the request
 Define `messages()` and `attributes()` on the Form Request, never in lang files. Any wildcard rule (e.g. `items.*.quantity`) needs a matching `attributes()` entry. The same applies to inline `validateWithBag()` calls, which take the attributes as the fourth argument.
 
