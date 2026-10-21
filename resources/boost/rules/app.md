@@ -48,8 +48,29 @@ Use descriptive full names with no abbreviations. Boolean methods and properties
 ## Document every class property
 Every declared property gets a PHPDoc block with a one-line description only, no `@var` tag. Constructor-promoted properties are documented by the constructor's docblock.
 
-## Wrap multi-step writes in DB::transaction()
-Use `DB::transaction(fn () => ...)` closures. Never call `beginTransaction()`, `commit()` or `rollBack()` manually.
+## Every database write runs in a DB::transaction()
+Put every create, update and delete in a `DB::transaction()` closure, together with everything written alongside it, such as the activity log entry, so they succeed or fail as one. This holds for a single write too, because its activity log entry is a second write. Never call `beginTransaction()`, `commit()` or `rollBack()` manually.
+
+Keep what cannot be rolled back outside the closure and after it: sending an SMS or email, dispatching jobs and events, calling an HTTP API, and the redirect with its alert. A job that reads the saved rows is dispatched after the transaction, or with `afterCommit()`.
+
+```php
+//  Delete the customer and log it as one unit
+DB::transaction(function () use ($customer) {
+    //  Delete the customer
+    $customer->delete();
+
+    //  Log the deletion
+    activity()
+        ->performedOn($customer)
+        ->event('customer-deleted')
+        ->log('Deleted customer '.$customer->name);
+});
+
+//  Tell the user, once the changes are saved
+return redirect()
+    ->route('customers.index')
+    ->alert('success', trans('alerts.customers.deleted', ['name' => $customer->name]));
+```
 
 ## Prefer constructor injection over service location
 Use constructor or method injection, or explicit `new X(...)`, or the class's own static `make()` factory. Do not use `app()` or `resolve()` as a service locator. The only exception is `app(Class::class, [...])` for a class that needs runtime constructor arguments the container cannot resolve.

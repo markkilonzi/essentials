@@ -29,12 +29,20 @@ Create tenant-owned records through the tenant's relation, e.g. `$tenant->custom
 ## Log every mutation
 Every create, update, activate or deactivate records an activity with a kebab-case `subject-verbed` event name. The call has four links, so it is chained one per line, as the chaining rule in `app.md` says.
 
+Write the change and its log inside one `DB::transaction()`, as the transaction rule in `app.md` says.
+
 ```php
-//  Log the deletion
-activity()
-    ->performedOn($customer)
-    ->event('customer-deleted')
-    ->log('Deleted customer '.$customer->name);
+//  Delete the customer and log it as one unit
+DB::transaction(function () use ($customer) {
+    //  Delete the customer
+    $customer->delete();
+
+    //  Log the deletion
+    activity()
+        ->performedOn($customer)
+        ->event('customer-deleted')
+        ->log('Deleted customer '.$customer->name);
+});
 ```
 
 ## Flash feedback through alerts keys

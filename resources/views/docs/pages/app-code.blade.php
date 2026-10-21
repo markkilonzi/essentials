@@ -35,12 +35,27 @@
 
     <x-docs::section id="idioms" title="Laravel idioms">
         <x-docs::rule title="DB::transaction() closures">
-            <p>Wrap multi-step writes in <code>DB::transaction(fn () =&gt; ...)</code>. Never call <code>beginTransaction()</code>, <code>commit()</code> or <code>rollBack()</code> by hand.</p>
-            <x-docs::code lang="php" title="app/Models/Order.php">
+            <p>Put every create, update and delete in a <code>DB::transaction()</code>, together with what is written alongside it, such as the activity log entry. That holds for a single write too, because its log entry is a second write. Never call <code>beginTransaction()</code>, <code>commit()</code> or <code>rollBack()</code> by hand. Keep what cannot be rolled back after the transaction: SMS, email, jobs, events, HTTP calls and the redirect.</p>
+            <x-docs::code lang="php" title="app/Http/Controllers/Admins/CustomerController.php">
                 @verbatim
                 use Illuminate\Support\Facades\DB;
 
-                DB::transaction(fn () => $order->markPaid());
+                //  Delete the customer and log it as one unit
+                DB::transaction(function () use ($customer) {
+                    //  Delete the customer
+                    $customer->delete();
+
+                    //  Log the deletion
+                    activity()
+                        ->performedOn($customer)
+                        ->event('customer-deleted')
+                        ->log('Deleted customer '.$customer->name);
+                });
+
+                //  Tell the user, once the changes are saved
+                return redirect()
+                    ->route('customers.index')
+                    ->alert('success', trans('alerts.customers.deleted', ['name' => $customer->name]));
                 @endverbatim
             </x-docs::code>
 
