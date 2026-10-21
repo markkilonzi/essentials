@@ -52,6 +52,15 @@
         <p>Put an icon span before an input, or a password toggle after it, and the input makes room for it: <code>&lt;span data-icon&gt;</code> before gives left padding, and a following <code>[data-password-toggle]</code> gives right padding.</p>
     </x-docs::section>
 
+    <x-docs::section id="tables" title="Table headers">
+        <p>Every <code>&lt;table&gt;</code> gets a faint grey header (<code>bg-gray-100</code>) with small, bold, dark text (<code>text-secondary</code>) and a grey line under it, with no class needed. It is the default for the data tables too, so a list never needs its own header colour. The data tables config <code>nyumbani:install</code> publishes uses the Tailwind theme, so its buttons are <code>btn btn-sm btn-primary</code> and its search inputs and selects use <code>rounded-lg border px-3 py-1.5 text-sm</code>.</p>
+        <x-docs::table :columns="['Part', 'Default']" :rows="[
+            ['Header background', 'bg-gray-100'],
+            ['Header text', 'text-secondary, text-xs, font-bold, tracking-wider'],
+            ['Header line', 'border-b border-gray-200'],
+        ]" />
+    </x-docs::section>
+
     <x-docs::section id="file-input" title="File input">
         <p><code>&lt;x-essentials::file-input&gt;</code> replaces the browser's file field with a preview: a thumbnail for an image, the name and size otherwise, and an <em>Upload file</em> or <em>Change file</em> link. Pass the record's current upload to show what is already saved.</p>
         <x-docs::code lang="blade">

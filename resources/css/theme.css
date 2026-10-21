@@ -60,6 +60,15 @@
         @apply cursor-pointer;
     }
 
+    /* Table headers, which every list uses, including the data tables: a faint grey bar with dark text */
+    table thead {
+        @apply bg-gray-100;
+
+        th {
+            @apply border-b border-gray-200 text-xs font-bold tracking-wider text-secondary;
+        }
+    }
+
     [x-cloak] {
         display: none !important;
     }

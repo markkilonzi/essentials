@@ -57,6 +57,17 @@ class InstallCommand extends Command
     ];
 
     /**
+     * The classes the Tailwind data tables theme gives its buttons, inputs and selects.
+     *
+     * @var array<string, string>
+     */
+    protected const TAILWIND_DATA_TABLE_CLASSES = [
+        'buttons' => 'btn btn-sm btn-primary',
+        'input' => 'rounded-lg border px-3 py-1.5 text-sm',
+        'select' => 'rounded-lg border px-3 py-1.5 text-sm',
+    ];
+
+    /**
      * The migration tags to publish, with the name of the migration each one creates.
      *
      * @var array<string, string>
@@ -206,6 +217,11 @@ PHP;
 
             //  Say what was published
             info("Published config/{$file}.");
+
+            //  Give the data tables the Nyumbani look, in the copy just published only, so an app's own edits stay
+            if ($tag === 'dt-tables-config') {
+                $this->useTailwindDataTables();
+            }
         }
 
         //  Go through the migrations, skipping any the app already has under that name, since each publish adds a new timestamped copy
@@ -224,6 +240,38 @@ PHP;
 
         //  The permission tables come from Essentials' own migration, which already has the group column, so one file does it all
         $this->publishPermissionsMigration();
+    }
+
+    /**
+     * Set the freshly published data tables config to the Tailwind theme and the Nyumbani button, input and select classes.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function useTailwindDataTables(): void
+    {
+        //  Read the config just published
+        $path = config_path('dt-tables.php');
+
+        if (! File::exists($path)) {
+            return;
+        }
+
+        //  Use the Tailwind theme by default
+        $config = preg_replace("/('theme'\s*=>\s*)'[^']*'/", "$1'tailwind'", File::get($path), 1);
+
+        //  Give the Tailwind theme the Nyumbani classes
+        $config = preg_replace_callback("/('tailwind'\s*=>\s*\[)(.*?)(\n\s*\],)/s", function (array $block) {
+            $classes = collect(self::TAILWIND_DATA_TABLE_CLASSES)
+                ->reduce(fn (string $content, string $value, string $key) => preg_replace("/('{$key}'\s*=>\s*)'[^']*'/", "$1'{$value}'", $content, 1), $block[2]);
+
+            return $block[1].$classes.$block[3];
+        }, $config, 1);
+
+        //  Keep the result
+        File::put($path, $config);
+
+        //  Say what was set
+        info('Set the data tables to the Tailwind theme.');
     }
 
     /**
