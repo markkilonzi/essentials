@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Laravel\Boost\Console\InstallCommand as BoostInstallCommand;
 use Laravel\Boost\Rules\RuleRepository;
+use Nyumbani\Docs\DocsRegistry;
 use Nyumbani\Essentials\Console\Support\DirectRequirements;
 use Nyumbani\Essentials\Console\Support\InstallChecklist;
-use Nyumbani\Essentials\Docs\DocsRegistry;
 use ParseError;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Process\Process as SymfonyProcess;
@@ -366,6 +366,15 @@ PHP;
 
             //  Say what was imported
             info('Imported the scripts in resources/js/app.js.');
+        }
+
+        //  Livewire starts the Alpine every Nyumbani script needs, so the script must start it unless it already does
+        if (File::exists($js) && ! str_contains(File::get($js), 'Livewire.start(')) {
+            //  Add the import and the start after the existing code
+            File::append($js, "\nimport { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm';\n\n//  Start Livewire, which starts the Alpine it bundles\nLivewire.start();\n");
+
+            //  Say what was started
+            info('Started Livewire in resources/js/app.js.');
         }
     }
 

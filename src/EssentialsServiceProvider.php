@@ -3,10 +3,10 @@
 namespace Nyumbani\Essentials;
 
 use Illuminate\Support\ServiceProvider;
+use Nyumbani\Docs\DocsRegistry;
 use Nyumbani\Essentials\Console\Commands\InstallCommand;
 use Nyumbani\Essentials\Console\Commands\PermissionsCommand;
-use Nyumbani\Essentials\Docs\Docs;
-use Nyumbani\Essentials\Docs\DocsRegistry;
+use Nyumbani\Essentials\Docs\EssentialsDocs;
 use Nyumbani\Essentials\Providers\DefaultsServiceProvider;
 use Nyumbani\Essentials\Providers\FortifyServiceProvider;
 use Nyumbani\Essentials\Providers\LoggingServiceProvider;
@@ -27,9 +27,6 @@ class EssentialsServiceProvider extends ServiceProvider
 
         //  Load the configuration file
         $this->mergeConfigFrom(essentials_path('config/essentials.php'), 'essentials');
-
-        //  Keep the docs of every Nyumbani package in one place
-        $this->app->singleton(DocsRegistry::class);
 
         //  Register the Blade directives
         $this->app->register(ViewServiceProvider::class);
@@ -61,7 +58,7 @@ class EssentialsServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(essentials_path('lang'), 'essentials');
 
         //  Add the docs of Essentials
-        $this->app->make(DocsRegistry::class)->register(Docs::essentials());
+        $this->app->make(DocsRegistry::class)->register(EssentialsDocs::describe());
 
         //  Load the routes
         $this->loadRoutesFrom(essentials_path('routes/web.php'));

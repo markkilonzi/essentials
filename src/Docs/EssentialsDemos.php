@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Monolog\Level;
 use Monolog\LogRecord;
+use Nyumbani\Docs\Docs;
 use Nyumbani\Essentials\Casts\CleanName;
 use Nyumbani\Essentials\Logging\Discord\DiscordWebhookHandler;
 use Nyumbani\Essentials\Rules\KenyanNumberValid;

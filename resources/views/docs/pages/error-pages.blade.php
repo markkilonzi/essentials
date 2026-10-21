@@ -1,11 +1,11 @@
-@extends('essentials::docs.layout')
+@extends('docs::layout')
 
 @section('page', 'Error pages')
 @section('lead', 'A friendly page for every common error, with the Nyumbani logo and a clear next step.')
 
 @section('content')
-    <x-essentials::docs.section id="shipped" title="What ships">
-        <x-essentials::docs.table :columns="['Code', 'Heading']" :rows="[
+    <x-docs::section id="shipped" title="What ships">
+        <x-docs::table :columns="['Code', 'Heading']" :rows="[
             ['401', 'Hold on, who are you?'],
             ['403', 'Staff only beyond this door'],
             ['404', 'Page not found'],
@@ -15,7 +15,7 @@
             ['503', 'Back in a moment'],
         ]" />
         <p>Each page has the Nyumbani logo, the status code in a gradient, and an action: Sign in, Take me home, Go back or Try again.</p>
-            <x-essentials::docs.example title="Live: every error page, as a user sees it">
+            <x-docs::example title="Live: every error page, as a user sees it">
             <div x-data="{ code: '404' }">
                 <div class="mb-3 flex flex-wrap gap-1.5">
                     @foreach (['401', '403', '404', '419', '429', '500', '503'] as $code)
@@ -24,15 +24,15 @@
                 </div>
                 <iframe title="Error page preview" loading="lazy" class="h-[32rem] w-full rounded-md border border-gray-200" x-bind:src="@js(url(request()->route('package').'/docs/samples/errors')) + '/' + code"></iframe>
             </div>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="loading" title="How they load">
+    <x-docs::section id="loading" title="How they load">
         <p>The package adds its views folder to the view paths, so Laravel finds the pages without publishing anything. A page in the app's own <code>resources/views/errors</code> still wins. Switch them off with <code>essentials.defaults.error_pages</code>.</p>
-    </x-essentials::docs.section>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="custom" title="Add or change a page">
-        <x-essentials::docs.code lang="blade" title="resources/views/errors/410.blade.php">
+    <x-docs::section id="custom" title="Add or change a page">
+        <x-docs::code lang="blade" title="resources/views/errors/410.blade.php">
             @verbatim
             @extends('essentials::layouts.error')
 
@@ -46,9 +46,9 @@
                 <a href="{{ url('/') }}" class="btn btn-primary btn-lg">Take me home</a>
             @endsection
             @endverbatim
-        </x-essentials::docs.code>
-        <x-essentials::docs.callout type="tip" title="Wording">
+        </x-docs::code>
+        <x-docs::callout type="tip" title="Wording">
             Keep it warm and brief. Never blame the user, and say maintenance on a 503.
-        </x-essentials::docs.callout>
-    </x-essentials::docs.section>
+        </x-docs::callout>
+    </x-docs::section>
 @endsection

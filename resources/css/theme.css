@@ -5,6 +5,12 @@
 
 @source '../views/**/*.blade.php';
 
+/* The modal's transition classes are written in its PHP class */
+@source '../../src/Views/**/*.php';
+
+/* Classes written in the scripts, such as the submit button's spinner */
+@source '../js/**/*.js';
+
 @theme {
     --color-primary-darker: #7a4708;
     --color-primary-dark: #9a5204;
@@ -88,39 +94,6 @@
             &.toast-success, &.toast-error, &.toast-info, &.toast-warning {
                 @apply bg-primary-dark/95!;
             }
-        }
-    }
-
-    /* The body copy of the Nyumbani docs */
-    .docs-prose {
-        @apply text-[15px] leading-7 text-gray-600;
-
-        & p {
-            @apply my-3;
-        }
-
-        & h3 {
-            @apply mb-2 mt-7 text-lg font-semibold text-secondary-dark;
-        }
-
-        & ul {
-            @apply my-3 list-disc space-y-1.5 pl-6 marker:text-primary;
-        }
-
-        & ol {
-            @apply my-3 list-decimal space-y-1.5 pl-6 marker:font-semibold marker:text-primary;
-        }
-
-        & a {
-            @apply font-medium text-primary-dark underline decoration-primary/40 underline-offset-2 hover:decoration-primary;
-        }
-
-        & :not(pre) > code {
-            @apply rounded bg-primary/10 px-1.5 py-0.5 text-[13px] text-primary-darker;
-        }
-
-        & pre code.hljs {
-            @apply bg-transparent;
         }
     }
 }

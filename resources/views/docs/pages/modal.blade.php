@@ -1,12 +1,12 @@
-@extends('essentials::docs.layout')
+@extends('docs::layout')
 
 @section('page', 'Modal')
 @section('lead', 'One dialog for every app: centred, slide-over, bottom sheet on phones, and able to load its own content.')
 
 @section('content')
-    <x-essentials::docs.section id="basic" title="A basic modal">
+    <x-docs::section id="basic" title="A basic modal">
         <p>Never build a one-off modal. Use <code>&lt;x-essentials::modal&gt;</code>. The <code>trigger</code> slot opens it, the default slot is the body, and the <code>action</code> slot is a footer pinned below the scrolling body.</p>
-        <x-essentials::docs.code lang="blade">
+        <x-docs::code lang="blade">
             @verbatim
             <x-essentials::modal title="Add customer">
                 <x-slot:trigger>
@@ -23,8 +23,8 @@
                 </x-slot:action>
             </x-essentials::modal>
             @endverbatim
-        </x-essentials::docs.code>
-            <x-essentials::docs.example title="Live: a trigger slot, x-model, and a long body with a pinned footer">
+        </x-docs::code>
+            <x-docs::example title="Live: a trigger slot, x-model, and a long body with a pinned footer">
             <div x-data="{ plain: false, wide: false }" class="flex flex-wrap gap-1.5">
                 <x-essentials::modal title="Opened with a trigger slot">
                     <x-slot:trigger><span class="btn btn-primary btn-sm">Trigger slot</span></x-slot:trigger>
@@ -55,11 +55,11 @@
                     </x-slot:action>
                 </x-essentials::modal>
             </div>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="props" title="Props">
-        <x-essentials::docs.table :columns="['Prop', 'Default', 'Use']" :rows="[
+    <x-docs::section id="props" title="Props">
+        <x-docs::table :columns="['Prop', 'Default', 'Use']" :rows="[
             ['title', 'none', 'The heading of the title bar.'],
             ['size', 'md', 'sm, md, lg, xl or full. Any other value is used as a Tailwind class, such as max-w-2xl.'],
             ['position', 'center', 'right makes a slide-over.'],
@@ -69,7 +69,7 @@
             ['src', 'none', 'A URL whose HTML is loaded the first time the modal opens.'],
             ['close-button, show-title', 'true', 'Hide the close button or the title bar.'],
         ]" />
-            <x-essentials::docs.example title="Live: every size">
+            <x-docs::example title="Live: every size">
             <div class="flex flex-wrap gap-1.5">
                 @foreach (['sm', 'md', 'lg', 'xl', 'full'] as $size)
                     <x-essentials::modal title="Size {{ $size }}" :size="$size">
@@ -78,27 +78,27 @@
                     </x-essentials::modal>
                 @endforeach
             </div>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="slide-over" title="Slide-over and sizes">
-        <x-essentials::docs.code lang="blade">
+    <x-docs::section id="slide-over" title="Slide-over and sizes">
+        <x-docs::code lang="blade">
             @verbatim
             <x-essentials::modal title="Filters" position="right" size="lg">...</x-essentials::modal>
             @endverbatim
-        </x-essentials::docs.code>
+        </x-docs::code>
         <p>On small screens a centred modal becomes a bottom sheet with a handle, so it is easy to reach with a thumb.</p>
-            <x-essentials::docs.example title="Live: a slide-over">
+            <x-docs::example title="Live: a slide-over">
             <x-essentials::modal position="right" title="Slide-over">
                 <x-slot:trigger><span class="btn btn-primary btn-sm">Open the slide-over</span></x-slot:trigger>
                 <p class="p-4">It takes the full height, so it suits edit forms and detail views. On a phone, a centred modal becomes a bottom sheet instead.</p>
             </x-essentials::modal>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="events" title="Open and close by event">
+    <x-docs::section id="events" title="Open and close by event">
         <p>Give the modal a <code>name</code>, then dispatch an event from anywhere. <code>$dispatch</code> only works inside an Alpine scope, so add <code>x-data</code> to the wrapper when the button has none.</p>
-        <x-essentials::docs.code lang="blade">
+        <x-docs::code lang="blade">
             @verbatim
             <x-essentials::modal name="edit-customer" title="Edit customer">...</x-essentials::modal>
 
@@ -106,9 +106,9 @@
                 <button type="button" class="btn btn-primary" x-on:click="$dispatch('open-modal', 'edit-customer')">Edit</button>
             </div>
             @endverbatim
-        </x-essentials::docs.code>
+        </x-docs::code>
         <p>Close it with <code>$dispatch('close-modal', 'edit-customer')</code>. When the user closes it themselves, the modal dispatches <code>modal-closed</code>. To bind its open state to your own Alpine or Livewire state, put <code>x-model</code> or <code>wire:model</code> on the tag.</p>
-            <x-essentials::docs.example title="Live: open and close by event">
+            <x-docs::example title="Live: open and close by event">
             <div x-data class="flex flex-wrap gap-1.5">
                 <button type="button" class="btn btn-primary btn-sm" x-on:click="$dispatch('open-modal', 'docs-by-event')">Open by event</button>
             </div>
@@ -121,14 +121,14 @@
                     </div>
                 </x-slot:action>
             </x-essentials::modal>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="error-bag" title="Reopen after a failed save">
+    <x-docs::section id="error-bag" title="Reopen after a failed save">
         <p>A user fills in a form inside a modal and saves. If the server rejects it, a normal redirect reloads the page and the modal is gone, along with what the user was doing. Give the modal an <strong>error bag</strong> and it reopens by itself, with the errors showing and the typed values kept.</p>
 
         <h3>Set it up in four steps</h3>
-        <x-essentials::docs.steps :steps="[
+        <x-docs::steps :steps="[
             ['title' => 'Name the modal and its bag', 'actor' => 'The modal tag', 'detail' => 'Give the modal a name and an error-bag. Using the same word for both keeps it easy to follow.', 'code' => '<x-essentials::modal name=\'edit-customer\' error-bag=\'edit-customer\' ...>'],
             ['title' => 'Post the bag name with the form', 'actor' => 'Inside the form', 'detail' => 'Put the bag directive inside the form, with the same name. It prints a hidden _error_bag input, which tells Laravel which bag to put the errors in.', 'code' => ''.'@'.'bag(\'edit-customer\')'],
             ['title' => 'Validate as usual', 'actor' => 'Your Form Request or controller', 'detail' => 'Nothing changes on the server. When validation fails, Laravel redirects back and fills the posted bag. The Form Request needs no trait and no override.'],
@@ -136,7 +136,7 @@
         ]" />
 
         <h3>The whole thing</h3>
-        <x-essentials::docs.code lang="blade" title="resources/views/customers/index.blade.php">
+        <x-docs::code lang="blade" title="resources/views/customers/index.blade.php">
             @verbatim
             <x-essentials::modal name="edit-customer" error-bag="edit-customer" title="Edit customer">
                 <form method="POST" action="{{ route('customers.update', ['customer' => $customer]) }}">
@@ -157,8 +157,8 @@
                 </form>
             </x-essentials::modal>
             @endverbatim
-        </x-essentials::docs.code>
-        <x-essentials::docs.code title="app/Http/Requests/Admins/UpdateCustomerRequest.php">
+        </x-docs::code>
+        <x-docs::code title="app/Http/Requests/Admins/UpdateCustomerRequest.php">
             use Illuminate\Foundation\Http\FormRequest;
 
             class UpdateCustomerRequest extends FormRequest
@@ -171,7 +171,7 @@
                     return ['name' => $name];
                 }
             }
-        </x-essentials::docs.code>
+        </x-docs::code>
 
         <h3>How it works</h3>
         <ol>
@@ -183,7 +183,7 @@
         <p>A modal only reopens for its own bag, so a failed save in one modal never opens another. On a page with several forms, give each its own bag name. See <a href="{{ $docs->url('error-bags') }}">Error bags</a>.</p>
 
         <h3>If it does not reopen</h3>
-        <x-essentials::docs.table :columns="['Symptom', 'Likely cause', 'Fix']" :rows="[
+        <x-docs::table :columns="['Symptom', 'Likely cause', 'Fix']" :rows="[
             ['The page reloads and the modal stays closed', 'The modal has no error-bag, or the name differs from the one in '.'@'.'bag.', 'Use the same string in error-bag and '.'@'.'bag.'],
             ['It reopens but shows no message', 'The view reads '.'@'.'error(\'name\') without the bag, which only reads the default bag.', 'Pass the bag as the second argument: '.'@'.'error(\'name\', \'edit-customer\').'],
             ['The fields are empty after the failure', 'The input value does not use old().', 'Use old(\'name\') when $errors->hasBag(...) is true, else the saved value.'],
@@ -192,7 +192,7 @@
         ]" />
         <p>A modal that always uses one bag can set it on the Form Request instead, with <code>protected $errorBag = 'edit-customer';</code>, and skip <code>@@bag</code>.</p>
 
-            <x-essentials::docs.example title="Live: reopen after a failed save">
+            <x-docs::example title="Live: reopen after a failed save">
             <p class="mb-3 text-sm text-gray-500">Save with fewer than 3 letters. The server rejects it and the page returns with this modal open and the error inside. Save a longer name to see the success toast.</p>
             <div x-data>
                 <button type="button" class="btn btn-primary btn-sm" x-on:click="$dispatch('open-modal', 'docs-bag-modal')">Open the form</button>
@@ -210,27 +210,27 @@
                     <button type="submit" class="btn btn-primary btn-sm mt-3">Save</button>
                 </form>
             </x-essentials::modal>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="remote" title="Remote content">
+    <x-docs::section id="remote" title="Remote content">
         <p>Pass <code>src</code> and return a Blade fragment, not a full page, from that route. The Nyumbani loader shows while it loads, a retry link shows if it fails, and the content is fetched once.</p>
-        <x-essentials::docs.code lang="blade">
+        <x-docs::code lang="blade">
             @verbatim
             <x-essentials::modal title="Customer history" src="{{ route('customers.history', ['customer' => $customer]) }}" size="lg" />
             @endverbatim
-        </x-essentials::docs.code>
-            <x-essentials::docs.example title="Live: content loaded on demand">
+        </x-docs::code>
+            <x-docs::example title="Live: content loaded on demand">
             <p class="mb-3 text-sm text-gray-500">The first open shows the loader for a second, then the content. Close it and open it again: the time does not change, because it is only fetched once.</p>
             <x-essentials::modal title="Loaded on demand" :src="route('essentials.docs.samples.modal-content', ['package' => request()->route('package')])">
                 <x-slot:trigger><span class="btn btn-primary btn-sm">Open remote content</span></x-slot:trigger>
             </x-essentials::modal>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="confirm" title="Two-step confirmation">
+    <x-docs::section id="confirm" title="Two-step confirmation">
         <p>Add <code>confirm</code> to show a review before a form posts. The first step is your form. <strong>Continue</strong> runs the browser's own validation, so required fields, patterns and lengths report as usual. The second step shows your <code>review</code> slot, and the <code>action</code> slot holds the real submit button.</p>
-        <x-essentials::docs.code lang="blade" title="resources/views/customers/create.blade.php">
+        <x-docs::code lang="blade" title="resources/views/customers/create.blade.php">
             @verbatim
             <x-essentials::modal confirm name="new-customer" error-bag="new-customer" title="New customer">
                 <form id="new-customer-form" method="POST" action="{{ route('customers.store') }}" class="p-4">
@@ -248,8 +248,8 @@
                 </x-slot:action>
             </x-essentials::modal>
             @endverbatim
-        </x-essentials::docs.code>
-        <x-essentials::docs.table :columns="['Piece', 'What it does']" :rows="[
+        </x-docs::code>
+        <x-docs::table :columns="['Piece', 'What it does']" :rows="[
             ['confirm', 'Turns the two steps on.'],
             ['default slot', 'Step one. Put the form here. It stays on the page during the review, so it still posts.'],
             ['review slot', 'Step two. Read what was typed with data.field_name, for example data.name.'],
@@ -266,7 +266,7 @@
         </ul>
         <h3>What the review can read</h3>
         <p>When Continue passes, the modal copies every field of the form into <code>data</code>, keyed by the field's <code>name</code> attribute. A field named <code>phone_number</code> is <code>data.phone_number</code>. The values are read from the page as it stands, so Alpine <code>x-model</code> and Livewire <code>wire:model</code> inputs work.</p>
-        <x-essentials::docs.table :columns="['Case', 'Result']" :rows="[
+        <x-docs::table :columns="['Case', 'Result']" :rows="[
             ['Input, textarea, select with a name', 'Its current value. A select gives the option value, so show a label yourself.'],
             ['Input with no name', 'Not in data. Give it a name.'],
             ['Value held only in Alpine state, or a custom dropdown', 'Not in data. Write it to a hidden input with a name.'],
@@ -274,10 +274,10 @@
             ['Checkbox group or name[]', 'Only one value. Show these yourself.'],
         ]" />
         <p>The <code>review</code> slot sits outside the form, so it cannot see the form's own <code>x-data</code>. It reads <code>data</code> only.</p>
-        <x-essentials::docs.callout type="note" title="Not a confirm dialog">
+        <x-docs::callout type="note" title="Not a confirm dialog">
             This reviews a form before saving. To confirm a destructive action, use the browser's <code>confirm()</code> as below.
-        </x-essentials::docs.callout>
-            <x-essentials::docs.example title="Live: review before saving">
+        </x-docs::callout>
+            <x-docs::example title="Live: review before saving">
             <x-essentials::modal confirm name="docs-confirm" error-bag="docs-confirm" title="New customer">
                 <x-slot:trigger><span class="btn btn-primary btn-sm">Add a customer</span></x-slot:trigger>
 
@@ -299,19 +299,19 @@
                     <button type="submit" form="docs-confirm-form" class="btn btn-primary">Save customer</button>
                 </x-slot:action>
             </x-essentials::modal>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="static" title="Static backdrop and confirmations">
-        <x-essentials::docs.code lang="blade">
+    <x-docs::section id="static" title="Static backdrop and confirmations">
+        <x-docs::code lang="blade">
             @verbatim
             <x-essentials::modal title="Finish setup" :dismissable="false" :close-button="false">...</x-essentials::modal>
             @endverbatim
-        </x-essentials::docs.code>
-        <x-essentials::docs.callout type="note" title="No confirm dialog">
+        </x-docs::code>
+        <x-docs::callout type="note" title="No confirm dialog">
             Ask for confirmation with the browser's <code>confirm()</code>. Do not build a confirm modal.
-        </x-essentials::docs.callout>
-            <x-essentials::docs.example title="Live: a static backdrop, and confirming with confirm()">
+        </x-docs::callout>
+            <x-docs::example title="Live: a static backdrop, and confirming with confirm()">
             <div x-data class="flex flex-wrap gap-1.5">
                 <button type="button" class="btn btn-primary btn-sm" x-on:click="$dispatch('open-modal', 'docs-static')">Open the static modal</button>
                 <button type="button" class="btn btn-primary btn-sm" x-on:click="if (confirm('Raise a warning toast?')) toastr.warning('You confirmed it.')">Ask first</button>
@@ -325,6 +325,6 @@
                     </div>
                 </x-slot:action>
             </x-essentials::modal>
-        </x-essentials::docs.example>
-    </x-essentials::docs.section>
+        </x-docs::example>
+    </x-docs::section>
 @endsection

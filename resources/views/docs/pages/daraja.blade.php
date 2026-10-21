@@ -1,37 +1,37 @@
-@extends('essentials::docs.layout')
+@extends('docs::layout')
 
 @section('page', 'Daraja')
 @section('lead', 'M-Pesa for every Nyumbani app: take payments through Safaricom Daraja and know when they land.')
 
 @section('content')
-    <x-essentials::docs.section id="what" title="What it is">
+    <x-docs::section id="what" title="What it is">
         <p><code>nyumbani/daraja</code> is a small client for Safaricom's Daraja API. Essentials requires it, so it is already installed in every Nyumbani app and there is nothing more to require. It has its own docs, because it needs only Laravel and can be used on its own.</p>
-        <x-essentials::docs.card title="Open the Daraja docs" href="{{ route('essentials.docs', ['package' => 'nyumbani-daraja']) }}">Installation, a walkthrough of a first payment, every call, and the callbacks Safaricom sends.</x-essentials::docs.card>
-    </x-essentials::docs.section>
+        <x-docs::card title="Open the Daraja docs" href="{{ route('docs.page', ['package' => 'nyumbani-daraja']) }}">Installation, a walkthrough of a first payment, every call, and the callbacks Safaricom sends.</x-docs::card>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="offers" title="What it gives you">
-        <x-essentials::docs.table :columns="['Piece', 'Use it to']" :rows="[
+    <x-docs::section id="offers" title="What it gives you">
+        <x-docs::table :columns="['Piece', 'Use it to']" :rows="[
             ['Daraja::stkPush()', 'Prompt a customer to pay on their phone.'],
             ['Daraja::registerC2BUrls()', 'Hear about every payment made to your paybill or till.'],
             ['Daraja::pullTransactions()', 'Fetch the payments a callback may have missed.'],
             ['EnsureRequestIsFromSafaricom', 'Let only Safaricom reach your callback routes.'],
             ['daraja_phone()', 'Turn any Kenyan number into the 254XXXXXXXXX format Daraja expects.'],
         ]" />
-    </x-essentials::docs.section>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="taste" title="A first taste">
-        <x-essentials::docs.code>
+    <x-docs::section id="taste" title="A first taste">
+        <x-docs::code>
             use Nyumbani\Daraja\Daraja;
             use Nyumbani\Daraja\ShortCode;
 
             $shortCode = new ShortCode('174379', $key, $secret, passKey: $passKey);
 
             Daraja::for($shortCode)->sandbox()->stkPush('0712345678', 100, 'INV-1', 'Order payment', route('hooks.daraja.stk'));
-        </x-essentials::docs.code>
+        </x-docs::code>
         <p>Credentials never go in config: you build a <code>ShortCode</code> wherever your app keeps them, so one app can serve several paybills. The Daraja docs explain the rest, with live examples of every request.</p>
-    </x-essentials::docs.section>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="agents" title="For AI agents">
+    <x-docs::section id="agents" title="For AI agents">
         <p>The skills <code>nyumbani-daraja-payments</code> and <code>nyumbani-daraja-webhooks</code> load through Boost with the rest of Essentials. See <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a>.</p>
-    </x-essentials::docs.section>
+    </x-docs::section>
 @endsection

@@ -1,11 +1,11 @@
-@extends('essentials::docs.layout')
+@extends('docs::layout')
 
 @section('page', 'Helpers')
 @section('lead', 'The same formatting in PHP, Blade and JavaScript, so a figure looks identical everywhere.')
 
 @section('content')
-    <x-essentials::docs.section id="php" title="PHP helpers">
-        <x-essentials::docs.table :columns="['Helper', 'Returns', 'Example']" :rows="[
+    <x-docs::section id="php" title="PHP helpers">
+        <x-docs::table :columns="['Helper', 'Returns', 'Example']" :rows="[
             ['user()', 'The signed-in user or null', 'user()->name'],
             ['money($amount, $showCurrency = true)', 'Formatted money', 'money(1500) gives KES 1,500.00'],
             ['numeric($number, $decimals = 2)', 'A number with separators', 'numeric(1200.5) gives 1,200.50'],
@@ -18,20 +18,20 @@
             ['format_humans($date)', 'A relative time', '2 hours ago'],
             ['format_minutes($minutes)', 'Hours and minutes', '1h 30m'],
         ]" />
-        <x-essentials::docs.playground demo="money" title="Try the number helpers" :fields="[
+        <x-docs::playground demo="money" title="Try the number helpers" :fields="[
             ['name' => 'amount', 'label' => 'Amount', 'value' => '1500.5', 'placeholder' => 'e.g. 1500.5, or text to see it left alone'],
             ['name' => 'total', 'label' => 'Total, for the percentage', 'value' => '6000', 'placeholder' => 'e.g. 6000'],
         ]" />
-        <x-essentials::docs.playground demo="dates" title="Try the date helpers" :fields="[
+        <x-docs::playground demo="dates" title="Try the date helpers" :fields="[
             ['name' => 'date', 'label' => 'Pick a date and time', 'type' => 'datetime', 'value' => '2026-03-12T14:30'],
             ['name' => 'text', 'label' => 'Or type any text (wins over the picker)', 'value' => '', 'placeholder' => 'e.g. tomorrow, or not a date to see it returned unchanged'],
         ]" />
-        <x-essentials::docs.playground demo="text" title="Try the text helpers" :fields="[
+        <x-docs::playground demo="text" title="Try the text helpers" :fields="[
             ['name' => 'text', 'label' => 'Text to prettify', 'value' => 'order_status-paid', 'placeholder' => 'e.g. order_status'],
             ['name' => 'minutes', 'label' => 'Minutes', 'value' => '90', 'placeholder' => 'e.g. 90'],
         ]" />
         <p>The formatting helpers are forgiving. <code>numeric()</code> and <code>money()</code> leave a value that is not a number as it is, and the date helpers return a value they cannot parse as it came, so a bad value shows up on the page instead of crashing it.</p>
-        <x-essentials::docs.code>
+        <x-docs::code>
             money(1500);                  // KES 1,500.00
             money(1500, false);           // 1,500.00
             money(null);                  // null
@@ -42,12 +42,12 @@
             format_date('not a date');    // not a date
             format_minutes(90);           // 1h 30m
             format_minutes(45);           // 45m
-        </x-essentials::docs.code>
-    </x-essentials::docs.section>
+        </x-docs::code>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="blade" title="Blade directives">
+    <x-docs::section id="blade" title="Blade directives">
         <p>Each helper has a directive, so views never need <code>@@php</code>.</p>
-        <x-essentials::docs.code lang="blade">
+        <x-docs::code lang="blade">
             @verbatim
             @money($invoice->total)
             @numeric($count, 0)
@@ -60,12 +60,12 @@
             @currency
             @bag('row-1')
             @endverbatim
-        </x-essentials::docs.code>
-    </x-essentials::docs.section>
+        </x-docs::code>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="js" title="JavaScript helpers">
+    <x-docs::section id="js" title="JavaScript helpers">
         <p>The same names exist on <code>window</code> once <code>helpers.js</code> is loaded, and read the currency from the <code>data-currency</code> attribute the layout sets on <code>&lt;html&gt;</code>.</p>
-        <x-essentials::docs.code lang="js">
+        <x-docs::code lang="js">
             money(1500);               // KES 1,500.00
             numeric(1200.5, 2);        // 1,200.50
             numeric(1200.5);           // 1,201 (no decimals unless you ask)
@@ -74,13 +74,13 @@
             prettify('order_status');  // Order Status
             formatDate(order.created_at);      // 12 Mar 2026
             formatDateTime(order.created_at);  // Thu, 12 Mar 2026, 02:30 pm
-        </x-essentials::docs.code>
-        <x-essentials::docs.callout type="warning" title="The JavaScript helpers differ in three ways">
+        </x-docs::code>
+        <x-docs::callout type="warning" title="The JavaScript helpers differ in three ways">
             <ul class="list-disc pl-5">
                 <li><code>numeric()</code> defaults to <strong>0</strong> decimals in JavaScript and <strong>2</strong> in PHP, so pass the decimals when you need both to match.</li>
                 <li><code>formatDateTime()</code> adds the weekday and a lower-case <code>pm</code>; <code>format_date_time()</code> in PHP does not.</li>
                 <li>A date JavaScript cannot read gives <code>Invalid date</code> (or <code>Not provided</code> when empty), where PHP returns the input unchanged.</li>
             </ul>
-        </x-essentials::docs.callout>
-    </x-essentials::docs.section>
+        </x-docs::callout>
+    </x-docs::section>
 @endsection

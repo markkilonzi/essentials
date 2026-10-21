@@ -1,38 +1,38 @@
-@extends('essentials::docs.layout')
+@extends('docs::layout')
 
 @section('page', 'Alerts and loader')
 @section('lead', 'Tell the user what happened, and show them something while they wait.')
 
 @section('content')
-    <x-essentials::docs.section id="macro" title="The alert() macro">
+    <x-docs::section id="macro" title="The alert() macro">
         <p>The package adds <code>alert($type, $message)</code> to redirects. It works on <code>back()</code>, on <code>redirect()->route(...)</code> and on any other redirect response, and flashes the toast for the next page.</p>
-        <x-essentials::docs.code title="app/Http/Controllers/InvoiceController.php">
+        <x-docs::code title="app/Http/Controllers/InvoiceController.php">
             return back()->alert('success', trans('alerts.invoices.saved'));
 
             return redirect()->route('invoices.index')->alert('error', trans('alerts.invoices.failed'));
-        </x-essentials::docs.code>
+        </x-docs::code>
         <ul>
             <li>The types are <code>success</code>, <code>error</code>, <code>warning</code> and <code>info</code>.</li>
             <li><code>redirect()->alert(...)</code> with no route goes back to the previous page, the same as <code>back()->alert(...)</code>.</li>
             <li>The toast is flashed to the session under <code>alert</code> (<code>type</code> and <code>message</code>), and the layout turns it into a toast. A Laravel <code>status</code> flash, such as the one Fortify sets, also shows as a success toast.</li>
             <li>Put the text in a lang file, never in the controller.</li>
         </ul>
-    </x-essentials::docs.section>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="toasts" title="Toasts">
+    <x-docs::section id="toasts" title="Toasts">
         <p>Flash from a controller and the layout shows it. Every type uses the same colour, so pass the honest type for the meaning.</p>
-        <x-essentials::docs.code>
+        <x-docs::code>
             return back()->alert('success', __('alerts.customer_saved'));
-        </x-essentials::docs.code>
+        </x-docs::code>
         <p>From JavaScript, the toastr global is available:</p>
-        <x-essentials::docs.code lang="js">
+        <x-docs::code lang="js">
             toastr.success('Saved');
             toastr.error('Could not save');
-        </x-essentials::docs.code>
+        </x-docs::code>
         <p>A Laravel <code>status</code> flash, such as the one Fortify sets, also shows as a success toast.</p>
-    </x-essentials::docs.section>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="try" title="Try the toasts">
+    <x-docs::section id="try" title="Try the toasts">
         <p>These buttons raise the same toasts that <code>back()->alert()</code> shows after a redirect. Change the text and press a type.</p>
         <div x-data="{ message: 'The customer Jane Wanjiru was saved.' }" class="not-prose my-5 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <label for="toast-message">Message</label>
@@ -44,27 +44,27 @@
             </div>
         </div>
         <p>Every type has the same colour, so the word you choose is the meaning: pick the honest one.</p>
-    </x-essentials::docs.section>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="examples" title="Which type, when">
-        <x-essentials::docs.table :columns="['Type', 'Use it when', 'Example text']" :rows="[
+    <x-docs::section id="examples" title="Which type, when">
+        <x-docs::table :columns="['Type', 'Use it when', 'Example text']" :rows="[
             ['success', 'The action did what the user asked.', 'The customer Jane Wanjiru was saved.'],
             ['error', 'The action failed and nothing changed.', 'The payment could not be started. Please try again.'],
             ['warning', 'It worked, but the user should look again, or it only partly worked.', 'The invoice was saved, but 2 tenants have no phone number.'],
             ['info', 'Something to know that is not a result.', 'Reminders are sent every morning at 8:00.'],
         ]" />
-    </x-essentials::docs.section>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="controller" title="From a controller">
+    <x-docs::section id="controller" title="From a controller">
         <p>Each type, as a controller would send it. The text lives in <code>lang/en/alerts.php</code>, with <code>:placeholder</code> values filled by the second argument of <code>trans()</code>.</p>
-        <x-essentials::docs.tabs :labels="['success', 'error', 'warning', 'info']">
-            <x-essentials::docs.tab label="success">
-                <x-essentials::docs.code title="app/Http/Controllers/Admins/CustomerController.php">
+        <x-docs::tabs :labels="['success', 'error', 'warning', 'info']">
+            <x-docs::tab label="success">
+                <x-docs::code title="app/Http/Controllers/Admins/CustomerController.php">
                     return back()->alert('success', trans('alerts.customers.saved', ['name' => $customer->name]));
-                </x-essentials::docs.code>
-            </x-essentials::docs.tab>
-            <x-essentials::docs.tab label="error">
-                <x-essentials::docs.code title="app/Http/Controllers/Admins/PaymentController.php">
+                </x-docs::code>
+            </x-docs::tab>
+            <x-docs::tab label="error">
+                <x-docs::code title="app/Http/Controllers/Admins/PaymentController.php">
                     use Nyumbani\Daraja\Daraja;
                     use Nyumbani\Daraja\Exceptions\DarajaException;
 
@@ -73,45 +73,45 @@
                     } catch (DarajaException) {
                         return back()->alert('error', trans('alerts.payments.unreachable'));
                     }
-                </x-essentials::docs.code>
-            </x-essentials::docs.tab>
-            <x-essentials::docs.tab label="warning">
-                <x-essentials::docs.code title="app/Http/Controllers/Admins/InvoiceController.php">
+                </x-docs::code>
+            </x-docs::tab>
+            <x-docs::tab label="warning">
+                <x-docs::code title="app/Http/Controllers/Admins/InvoiceController.php">
                     return redirect()->route('invoices.index')
                         ->alert('warning', trans('alerts.invoices.saved_without_phones', ['count' => $missing]));
-                </x-essentials::docs.code>
-            </x-essentials::docs.tab>
-            <x-essentials::docs.tab label="info">
-                <x-essentials::docs.code title="app/Http/Controllers/Admins/ReminderController.php">
+                </x-docs::code>
+            </x-docs::tab>
+            <x-docs::tab label="info">
+                <x-docs::code title="app/Http/Controllers/Admins/ReminderController.php">
                     return back()->alert('info', trans('alerts.reminders.schedule'));
-                </x-essentials::docs.code>
-            </x-essentials::docs.tab>
-        </x-essentials::docs.tabs>
-        <x-essentials::docs.code title="lang/en/alerts.php">
+                </x-docs::code>
+            </x-docs::tab>
+        </x-docs::tabs>
+        <x-docs::code title="lang/en/alerts.php">
             return [
                 'customers' => ['saved' => 'The customer :name was saved.'],
                 'payments' => ['unreachable' => 'The payment could not be started. Please try again.'],
                 'invoices' => ['saved_without_phones' => 'The invoice was saved, but :count tenants have no phone number.'],
                 'reminders' => ['schedule' => 'Reminders are sent every morning at 8:00.'],
             ];
-        </x-essentials::docs.code>
-    </x-essentials::docs.section>
+        </x-docs::code>
+    </x-docs::section>
 
-    <x-essentials::docs.section id="loader" title="Loader">
+    <x-docs::section id="loader" title="Loader">
         <p>The animated Nyumbani mark. Use it for any wait the user can see. Do not invent another spinner.</p>
         <div class="not-prose my-5 flex flex-wrap items-center justify-around gap-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
             <x-essentials::loader size="md" message="Nyumbani is loading this for you..." />
         </div>
-        <x-essentials::docs.code lang="blade">
+        <x-docs::code lang="blade">
             @verbatim
             <x-essentials::loader />
             <x-essentials::loader size="md" message="Nyumbani is loading this for you..." />
             <x-essentials::loader message="" />
             @endverbatim
-        </x-essentials::docs.code>
-        <x-essentials::docs.table :columns="['Prop', 'Default', 'Use']" :rows="[
+        </x-docs::code>
+        <x-docs::table :columns="['Prop', 'Default', 'Use']" :rows="[
             ['message', 'Nyumbani is processing your data...', 'The pulsing text. Pass an empty string to hide it, because null falls back to the default.'],
             ['size', 'lg', 'sm, md or lg.'],
         ]" />
-    </x-essentials::docs.section>
+    </x-docs::section>
 @endsection
