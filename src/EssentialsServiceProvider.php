@@ -68,6 +68,27 @@ class EssentialsServiceProvider extends ServiceProvider
             essentials_path('config/essentials.php') => config_path('essentials.php'),
         ], 'essentials-config');
 
+        //  Publish the data tables config, which its own package offers no tag for
+        $this->publishes([
+            package_path('config/dt-tables.php') => config_path('dt-tables.php'),
+        ], 'dt-tables-config');
+
+        //  Publish the permission tables migration, with the group column built in, and the small one for tables an app created without it, each under a timestamped name
+        $stamp = now()->format('Y_m_d_His');
+
+        $this->publishes([
+            essentials_path('database/migrations/create_permission_tables.php.stub') => database_path("migrations/{$stamp}_create_permission_tables.php"),
+        ], 'essentials-permissions-migration');
+
+        $this->publishes([
+            essentials_path('database/migrations/update_permissions_table_add_group_column.php.stub') => database_path("migrations/{$stamp}_update_permissions_table_add_group_column.php"),
+        ], 'essentials-permissions-group-migration');
+
+        //  Publish the starter permissions file
+        $this->publishes([
+            essentials_path('resources/stubs/permissions.json') => database_path('seeders/data/permissions.json'),
+        ], 'essentials-permissions');
+
         //  Register the Artisan commands
         if ($this->app->runningInConsole()) {
             $this->commands([InstallCommand::class, PermissionsCommand::class]);

@@ -53,6 +53,7 @@ class InstallCommand extends Command
         'messaging-config' => 'messaging.php',
         'permission-config' => 'permission.php',
         'activitylog-config' => 'activitylog.php',
+        'dt-tables-config' => 'dt-tables.php',
     ];
 
     /**
@@ -65,14 +66,18 @@ class InstallCommand extends Command
     ];
 
     /**
-     * The migration Essentials ships to create the permission tables, with the group column built in.
+     * The name of the migration Essentials ships to create the permission tables, with the group column built in, and the tag that publishes it.
      */
     protected const PERMISSIONS_MIGRATION = 'create_permission_tables';
 
+    protected const PERMISSIONS_MIGRATION_TAG = 'essentials-permissions-migration';
+
     /**
-     * The migration that adds the group column to permission tables an app created earlier without it.
+     * The name of the migration that adds the group column to permission tables an app created earlier without it, and the tag that publishes it.
      */
     protected const GROUP_MIGRATION = 'update_permissions_table_add_group_column';
+
+    protected const GROUP_MIGRATION_TAG = 'essentials-permissions-group-migration';
 
     /**
      * The environment keys the packages read, which .env.example should list.
@@ -233,7 +238,7 @@ PHP;
 
         //  A new app gets Essentials' migration, which creates the tables with the group column
         if ($existing === []) {
-            $this->copyMigration(self::PERMISSIONS_MIGRATION);
+            $this->publishMigration(self::PERMISSIONS_MIGRATION_TAG, self::PERMISSIONS_MIGRATION);
 
             return;
         }
@@ -246,21 +251,18 @@ PHP;
         }
 
         //  Otherwise add the column to the tables the app created earlier
-        $this->copyMigration(self::GROUP_MIGRATION);
+        $this->publishMigration(self::GROUP_MIGRATION_TAG, self::GROUP_MIGRATION);
     }
 
     /**
-     * Copy one of Essentials' migration stubs into the app under a timestamped name.
+     * Publish one of Essentials' migrations by its tag, which gives it a timestamped name.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function copyMigration(string $name): void
+    protected function publishMigration(string $tag, string $name): void
     {
-        //  Make sure the migrations folder exists
-        File::ensureDirectoryExists(database_path('migrations'));
-
-        //  Copy the stub under a timestamped name
-        File::copy(essentials_path("database/migrations/{$name}.php.stub"), database_path('migrations/'.now()->format('Y_m_d_His')."_{$name}.php"));
+        //  Publish the migration
+        $this->callSilent('vendor:publish', ['--tag' => [$tag]]);
 
         //  Say what was published
         info("Published the {$name} migration.");
@@ -590,11 +592,8 @@ PHP;
             return;
         }
 
-        //  Make sure the folder exists
-        File::ensureDirectoryExists(dirname($path));
-
-        //  Write a starter with one role and its permissions
-        File::put($path, json_encode(['admin' => ['users' => ['view-users', 'create-user', 'update-user', 'delete-user']]], JSON_PRETTY_PRINT)."\n");
+        //  Publish the starter, which has one role and its permissions
+        $this->callSilent('vendor:publish', ['--tag' => ['essentials-permissions']]);
 
         //  Say what was created
         info('Created database/seeders/data/permissions.json.');

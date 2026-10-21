@@ -115,7 +115,7 @@
         <p>The installer does the following, and each step only adds what is missing:</p>
         <x-docs::table :columns="['Step', 'What it does', 'On a rerun']" :rows="[
             ['Rules', 'Copies the Nyumbani rules into .ai/rules and rebuilds the index.', 'Replaces them with the newest, and removes rules the package no longer ships.'],
-            ['Config files', 'Publishes config/essentials.php, daraja.php, messaging.php, permission.php and activitylog.php.', 'Skips any that exist, so your edits stay.'],
+            ['Config files', 'Publishes config/essentials.php, daraja.php, messaging.php, permission.php, activitylog.php and dt-tables.php.', 'Skips any that exist, so your edits stay.'],
             ['Migrations', 'Publishes one migration that creates the permission tables with the group column built in, and the activity log migration. An app that already has Spatie\'s permission migration without the column gets a small one that adds it.', 'Skips any the app already has.'],
             ['Log channel', 'Adds the discord channel to config/logging.php, with the driver\'s defaults for level, throttle and message length. You still add discord to the log stack.', 'Skips it if the app has a discord channel, or if the file has no channels list.'],
             ['.env.example', 'Adds the keys the packages read, blank.', 'Adds only the keys that are missing. Your .env is never touched.'],
