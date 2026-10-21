@@ -7,7 +7,7 @@
     <x-essentials::docs.section id="layouts" title="The layouts">
         <x-essentials::docs.table :columns="['Layout', 'Use for', 'Sections']" :rows="[
             ['essentials::layouts.portal', 'Signed-in pages with a sidebar and navbar', 'title, content, banner, sidebar, brand, navbar, user-menu, actions (stack)'],
-            ['essentials::layouts.guest', 'Sign-in, reset and other public pages', 'heading, description, content'],
+            ['essentials::layouts.auth', 'Authentication pages only: sign-in, forgot password and reset password', 'heading, description, content'],
             ['essentials::layouts.error', 'Error pages', 'code, heading, detail, icon, actions'],
             ['essentials::layouts.app', 'The base document the others extend', 'title, body, styles and js (stacks)'],
         ]" />
@@ -15,36 +15,56 @@
 
     <x-essentials::docs.section id="gallery" title="Extend each layout">
         <p>Every Nyumbani page extends one of four layouts. Pick the tab for the kind of page you are building: it shows what the layout is for and the code of a page that extends it.</p>
-        <x-essentials::docs.tabs :labels="['Portal', 'Guest', 'Error', 'App']">
+        <x-essentials::docs.tabs :labels="['Portal', 'Auth', 'Error', 'App']">
             <x-essentials::docs.tab label="Portal">
-                <p>For every signed-in page: the sidebar, the navbar, the page header and the content. A guest who reaches it is sent to <code>login</code>.</p>
-                <x-essentials::docs.code lang="blade" title="resources/views/customers/index.blade.php">
+                <p>For every signed-in page: the sidebar, the navbar, the page header and the content. A guest who reaches it is sent to <code>login</code>. The sidebar is the same on every page, so define it once and let your pages extend an app layout, in three small files.</p>
+
+                <h3>1. The app layout</h3>
+                <p>Extend the portal once, and name the view that holds your menu in its <code>sidebar</code> section. Every page extends this file. The portal renders the view for you.</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/layouts/app.blade.php">
                     @verbatim
                     @extends('essentials::layouts.portal')
 
+                    @section('sidebar', 'partials.sidebar')
+
+                    {{-- Just an example: anything pushed to the js stack is printed after the page --}}
+                    @push('js')
+                        <script>console.log('Runs on every page');</script>
+                    @endpush
+                    @endverbatim
+                </x-essentials::docs.code>
+                <x-essentials::docs.callout type="warning" title="The sidebar is required">
+                    If the <code>sidebar</code> section is missing, the portal throws a <code>LogicException</code>: <em>The portal layout needs a sidebar. Fill its 'sidebar' section, for example @@section('sidebar', 'partials.sidebar') in your app layout.</em> A name that is not a view, such as a typo, throws <em>The sidebar view [partials.sidbar] does not exist.</em> Markup in the section still works if you prefer to write the menu inline.
+                </x-essentials::docs.callout>
+
+                <h3>2. The sidebar</h3>
+                <p>Build the menu with the navigation components. This is the only place the menu lives.</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/partials/sidebar.blade.php">
+                    @verbatim
+                    <x-essentials::nav-link href="{{ route('home') }}" label="Dashboard" :active="request()->routeIs('home')">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3" />
+                    </x-essentials::nav-link>
+
+                    <x-essentials::nav-group label="Billing" :active="request()->routeIs('invoices.*')">
+                        <x-slot:icon>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5" />
+                        </x-slot:icon>
+
+                        <x-essentials::nav-link href="{{ route('invoices.index') }}" label="Invoices" :active="request()->routeIs('invoices.*')" sub />
+                    </x-essentials::nav-group>
+                    @endverbatim
+                </x-essentials::docs.code>
+
+                <h3>3. A page</h3>
+                <p>A page extends your app layout, not the portal, and fills only what is its own. The sidebar comes with the layout.</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/customers/index.blade.php">
+                    @verbatim
+                    @extends('layouts.app')
+
                     @section('title', 'Customers')
-                    @section('brand', 'Acme Homes')
-
-                    @section('sidebar')
-                        <x-essentials::nav-link href="{{ route('home') }}" label="Dashboard" :active="request()->routeIs('home')">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3" />
-                        </x-essentials::nav-link>
-
-                        <x-essentials::nav-group label="Billing" :active="request()->routeIs('invoices.*')">
-                            <x-slot:icon>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5" />
-                            </x-slot:icon>
-
-                            <x-essentials::nav-link href="{{ route('invoices.index') }}" label="Invoices" :active="request()->routeIs('invoices.*')" sub />
-                        </x-essentials::nav-group>
-                    @endsection
 
                     @section('banner')
                         <div class="mb-1.5 rounded-md bg-primary/10 p-3 text-sm">Your trial ends in 3 days.</div>
-                    @endsection
-
-                    @section('user-menu')
-                        <a href="{{ route('profile') }}" class="block px-4 py-1.5 text-base text-gray-800 hover:bg-gray-100">Profile</a>
                     @endsection
 
                     @push('actions')
@@ -56,23 +76,14 @@
                     @endsection
                     @endverbatim
                 </x-essentials::docs.code>
-                <p>Rather than repeat the sidebar on every page, extend the portal once in your own app layout and let every page extend that:</p>
-                <x-essentials::docs.code lang="blade" title="resources/views/layouts/app.blade.php">
-                    @verbatim
-                    @extends('essentials::layouts.portal')
-
-                    @section('sidebar')
-                        @include('partials.sidebar')
-                    @endsection
-                    @endverbatim
-                </x-essentials::docs.code>
+                <p>The portal has three more optional sections, <code>brand</code> (the name beside the menu button), <code>navbar</code> (extras before the user menu) and <code>user-menu</code> (links above Logout). Put them in the app layout too when they are the same everywhere.</p>
             </x-essentials::docs.tab>
 
-            <x-essentials::docs.tab label="Guest">
-                <p>For public pages such as sign-in: a branded panel beside a card. Fill the heading, the description and the content.</p>
+            <x-essentials::docs.tab label="Auth">
+                <p>For authentication pages only: sign-in, forgot password and reset password. It is a branded panel beside a card, and Essentials already ships those three pages on it, so most apps never extend it. It is not a general layout for public or marketing pages; use the App layout for those. Fill the heading, the description and the content.</p>
                 <x-essentials::docs.code lang="blade" title="resources/views/auth/welcome.blade.php">
                     @verbatim
-                    @extends('essentials::layouts.guest')
+                    @extends('essentials::layouts.auth')
 
                     @section('title', 'Welcome back')
                     @section('heading', 'Welcome back')
@@ -114,6 +125,7 @@
                         </main>
                     @endsection
 
+                    {{-- Just an example: anything pushed to the js stack is printed after the page --}}
                     @push('js')
                         <script>console.log('Runs after the page, from the js stack');</script>
                     @endpush

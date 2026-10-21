@@ -20,7 +20,11 @@
     </div>
 
     <nav class="px-1 pb-4">
-        @yield('sidebar')
+        @isset($sidebarView)
+            @include($sidebarView)
+        @else
+            @yield('sidebar')
+        @endisset
     </nav>
 </aside>
 

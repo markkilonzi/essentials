@@ -33,7 +33,7 @@
             <x-essentials::docs.card title="Installation" href="{{ $docs->url('installation') }}">Add the package, import the theme and scripts, and publish the rules.</x-essentials::docs.card>
             <x-essentials::docs.card title="Helpers" href="{{ $docs->url('helpers') }}">money(), numeric(), format_date() and the Blade directives built on them.</x-essentials::docs.card>
             <x-essentials::docs.card title="Traits" href="{{ $docs->url('traits') }}">Ulids, uploads, money, number identifiers and more for your models.</x-essentials::docs.card>
-            <x-essentials::docs.card title="Layouts" href="{{ $docs->url('layouts') }}">The portal, guest and base layouts, with the sidebar and navbar.</x-essentials::docs.card>
+            <x-essentials::docs.card title="Layouts" href="{{ $docs->url('layouts') }}">The portal, auth, error and base layouts, with the sidebar and navbar, and the code to extend each.</x-essentials::docs.card>
             <x-essentials::docs.card title="Modal" href="{{ $docs->url('modal') }}">Dialogs, slide-overs, remote content and reopen-on-error.</x-essentials::docs.card>
             <x-essentials::docs.card title="Quick start" href="{{ $docs->url('quick-start') }}">Build one real page and meet most of Essentials on the way.</x-essentials::docs.card>
             <x-essentials::docs.card title="Authentication" href="{{ $docs->url('authentication') }}">Sign-in, password reset, home routes and impersonation.</x-essentials::docs.card>

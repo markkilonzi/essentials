@@ -72,14 +72,12 @@
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="layout" title="4. Use a layout">
-        <p>Extend the portal layout and supply a sidebar. Keep the sidebar include in one app layout, so you do not repeat it on every page.</p>
+        <p>Extend the portal layout and name the view that holds your menu. Keep it in one app layout, so you do not repeat it on every page. A portal page with no sidebar throws an error that says how to define one.</p>
         <x-essentials::docs.code lang="blade" title="resources/views/layouts/app.blade.php">
             @verbatim
             @extends('essentials::layouts.portal')
 
-            @section('sidebar')
-                @include('partials.sidebar')
-            @endsection
+            @section('sidebar', 'partials.sidebar')
             @endverbatim
         </x-essentials::docs.code>
     </x-essentials::docs.section>

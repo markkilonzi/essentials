@@ -1,4 +1,4 @@
-@extends('essentials::layouts.guest')
+@extends('essentials::layouts.auth')
 
 @section('title', 'Reset your password')
 @section('heading', 'Reset your password')
