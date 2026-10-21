@@ -13,6 +13,7 @@ use Nyumbani\Essentials\Console\Support\InstallChecklist;
 use ParseError;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Process\Process as SymfonyProcess;
+use Throwable;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
@@ -155,6 +156,9 @@ PHP;
 
         //  Create the starter permissions file
         $this->createPermissionsFile();
+
+        //  Sync the roles and permissions from the file, once the tables exist
+        $this->syncPermissions();
 
         //  Link the public storage folder
         $this->linkStorage();
@@ -401,6 +405,28 @@ PHP;
 
         //  Say what was created
         info('Created database/seeders/data/permissions.json.');
+    }
+
+    /**
+     * Sync the roles and permissions from permissions.json, which needs the permission tables the migrations create.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function syncPermissions(): void
+    {
+        //  Wait for the migrations, which this command never runs, and say how to carry on
+        if (! (new InstallChecklist)->hasTables()) {
+            note('Roles and permissions are not synced yet: run php artisan migrate, then run this command again.');
+
+            return;
+        }
+
+        //  Sync them, and report a file that cannot be read instead of stopping the install
+        try {
+            $this->call('nyumbani:permissions');
+        } catch (Throwable $exception) {
+            error("Roles and permissions were not synced: {$exception->getMessage()}");
+        }
     }
 
     /**

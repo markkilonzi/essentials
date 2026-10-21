@@ -5,6 +5,9 @@ paths:
 
 # Data Tables
 
+## Inline unless told otherwise
+Build every table as an inline table: a class extending `Amprest\DtTables\Tables\BaseTable`, created with `php artisan make:data-table Name` and rendered with `<x-data-table :payload="...">`, so the browser searches and sorts the rows. Use a server-side table (`--server-side`, `ServerSideTable`) or an API table (`--api`, `ApiTable`) only when the request names it, such as "server-side", "paged in the database" or "from the API". If an inline table might hold thousands of rows, say so in the reply and still build it inline.
+
 ## Newest first
 Order `query()` with `->latest('id')`, qualifying the column (`->latest('users.id')`) when the query joins another table.
 

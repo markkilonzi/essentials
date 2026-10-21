@@ -131,6 +131,14 @@
     </x-docs::section>
 
     <x-docs::section id="data-tables" title="Data tables">
+        <x-docs::rule title="Inline unless told otherwise">
+            <p>Build every table as an inline table: a class extending <code>BaseTable</code>, created with <code>php artisan make:data-table Name</code> and rendered with <code>&lt;x-data-table :payload="..."&gt;</code>. The browser searches and sorts the rows. Use a server-side table (<code>--server-side</code>) or an API table (<code>--api</code>) only when the request asks for it. If an inline table might hold thousands of rows, say so and still build it inline.</p>
+            <x-docs::code lang="bash" title="Terminal">
+                php artisan make:data-table Customers
+                php artisan make:data-table Customers --server-side
+                php artisan make:data-table Customers --api
+            </x-docs::code>
+        </x-docs::rule>
         <x-docs::rule title="Newest first, never paginated">
             <p>Order <code>query()</code> with <code>-&gt;latest('id')</code>, qualifying the column (<code>users.id</code>) when the query joins. Return the unpaginated query: never call <code>paginate()</code>, <code>simplePaginate()</code> or <code>cursorPaginate()</code>, because <code>amprest/dt-tables</code> handles paging.</p>
         </x-docs::rule>

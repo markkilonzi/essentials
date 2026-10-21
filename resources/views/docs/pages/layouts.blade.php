@@ -160,20 +160,63 @@
     </x-docs::section>
 
     <x-docs::section id="sidebar" title="The sidebar">
-        <p>Build the menu with the navigation components and place it in the <code>sidebar</code> section.</p>
+        <p>Build the menu with the navigation components and place it in the <code>sidebar</code> section. Every top-level link and group takes an icon.</p>
         <x-docs::code lang="blade" title="resources/views/partials/sidebar.blade.php">
             @verbatim
-            <x-essentials::nav-link href="{{ route('home') }}" label="Dashboard" :active="request()->routeIs('home')" />
+            <x-essentials::nav-link href="{{ route('home') }}" label="Dashboard" :active="request()->routeIs('home')">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </x-essentials::nav-link>
 
             <x-essentials::nav-group label="Billing" :active="request()->routeIs('invoices.*')">
                 <x-slot:icon>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </x-slot:icon>
 
                 <x-essentials::nav-link href="{{ route('invoices.index') }}" label="Invoices" :active="request()->routeIs('invoices.*')" sub />
             </x-essentials::nav-group>
             @endverbatim
         </x-docs::code>
+
+        <h3>Add an icon</h3>
+        <p>An icon is the inside of an SVG: the <code>&lt;path&gt;</code> elements, without the <code>&lt;svg&gt;</code> around them. The component draws the <code>&lt;svg&gt;</code> for you, 24 by 24, as an outline with a stroke of 2, in the colour of the link. To add one:</p>
+        <ol>
+            <li>Pick an icon from the <strong>Outline</strong> set of <a href="https://heroicons.com" target="_blank" rel="noopener">Heroicons</a>, which is free to use. Any 24 by 24 outline icon works.</li>
+            <li>Choose <strong>Copy SVG</strong> and keep only the <code>&lt;path ... /&gt;</code> lines inside it.</li>
+            <li>Paste them inside the link, or inside the <code>icon</code> slot of a group, as above.</li>
+        </ol>
+        <p>A link inside a group (<code>sub</code>) has no icon, and a link with an empty slot shows only its label. Keep one icon per top-level item, so the sidebar still reads when it is collapsed to icons.</p>
+        <p>Paths to start from:</p>
+        <x-docs::tabs :labels="['Users', 'Money', 'Reports', 'Settings']">
+            <x-docs::tab label="Users">
+                <x-docs::code lang="blade" title="Users">
+                    @verbatim
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    @endverbatim
+                </x-docs::code>
+            </x-docs::tab>
+            <x-docs::tab label="Money">
+                <x-docs::code lang="blade" title="Money">
+                    @verbatim
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    @endverbatim
+                </x-docs::code>
+            </x-docs::tab>
+            <x-docs::tab label="Reports">
+                <x-docs::code lang="blade" title="Reports">
+                    @verbatim
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    @endverbatim
+                </x-docs::code>
+            </x-docs::tab>
+            <x-docs::tab label="Settings">
+                <x-docs::code lang="blade" title="Settings">
+                    @verbatim
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    @endverbatim
+                </x-docs::code>
+            </x-docs::tab>
+        </x-docs::tabs>
         <p>Make the user model implement <code>HasHomeRoute</code> so the logo and the sign-in redirect know where each user lands, including a user with no access.</p>
         <x-docs::code>
             use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -205,7 +248,7 @@
     </x-docs::section>
 
     <x-docs::section id="branding" title="Favicons and manifest">
-        <p>The base layout links the shared house-in-hand favicons, the Apple touch icon, a web manifest named after your app and a theme colour. They are served by the package, so no app copies icon files. Change the colour with <code>ESSENTIALS_THEME_COLOR</code>.</p>
+        <p>The base layout links the shared favicons, the white Nyumbani logo,, the Apple touch icon, a web manifest named after your app and a theme colour. They are served by the package, so no app copies icon files. Change the colour with <code>ESSENTIALS_THEME_COLOR</code>.</p>
             <x-docs::example title="The shared images, served by the package">
             <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
                 @foreach (['icon-primary.png', 'icon-secondary.png', 'loader.svg', 'favicon-32x32.png', 'apple-touch-icon.png', 'android-chrome-192x192.png', 'auth-background.jpg', 'shell-header.jpeg', 'shell-sidebar.jpeg'] as $image)

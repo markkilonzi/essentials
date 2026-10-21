@@ -29,6 +29,7 @@ Props: `message` (default "Nyumbani is processing your data...") and `size` (`sm
 - `<x-essentials::modal>`: see the nyumbani-modal skill.
 - `<x-essentials::file-input name="..." label="..." accept="..." :current="$upload" />`, where `$upload` is the saved Upload model (it supplies `url`, `title`, `formattedSize` and `isImage()`). The form needs `enctype="multipart/form-data"`.
 - `<x-essentials::nav-group>` and `<x-essentials::nav-link>` build the sidebar. Implement the `HasHomeRoute` contract for the home link.
+- Every top-level `nav-link` and `nav-group` needs an icon: put the `<path>` elements of a 24x24 outline Heroicon (Outline set, Copy SVG, paths only, never the `<svg>`) in the link's slot, or in `<x-slot:icon>` of a group. Links inside a group use `sub` and take no icon. The component draws the svg with stroke width 2.
 
 ## Rules
 - Components that need logic are classes in `Nyumbani\Essentials\Views\Components`, registered under the `essentials` namespace. Simple ones are anonymous Blade components.

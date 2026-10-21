@@ -120,7 +120,7 @@ class InstallChecklist
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function hasTables(): bool
+    public function hasTables(): bool
     {
         try {
             $permissions = config('permission.table_names.permissions', 'permissions');

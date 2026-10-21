@@ -49,6 +49,31 @@
             </x-docs::code>
 
         </x-docs::rule>
+
+        <x-docs::rule title="Chain calls one per line">
+            <p>When a statement chains more than three links, counting the starting call or object, or the chain is too long for one line (roughly over 100 characters), put the start on the first line and each further call on its own line, indented once. This holds for <code>return</code> statements, in PHP and in JavaScript. A short chain of three links or fewer stays on one line.</p>
+            <x-docs::code lang="php" title="app/Http/Controllers/CustomerController.php">
+                //  Log the deletion
+                activity()
+                    ->performedOn($customer)
+                    ->event('customer-deleted')
+                    ->log('Deleted customer '.$customer->name);
+
+                //  Go back to the list, a short chain that is too long for one line
+                return redirect()
+                    ->route('customers.index')
+                    ->alert('success', trans('alerts.customers.deleted', ['name' => $customer->name]));
+
+                //  A short chain stays on one line
+                $customer->orders()->count();
+            </x-docs::code>
+            <x-docs::code lang="js" title="resources/js/app.js">
+                //  Open and close the menu
+                document
+                    .querySelector('[data-menu]')
+                    .addEventListener('click', () => sidebar.classList.toggle('hidden'));
+            </x-docs::code>
+        </x-docs::rule>
         <x-docs::rule title="JavaScript header comments">
             <p>Every function, event listener and option object has a <code>/** ... */</code> comment above it with a one-line description, laid out over three lines. A function with exactly one top-level statement keeps the header and skips the inline comment. A function with two or more statements comments each one.</p>
             <x-docs::code lang="js" title="resources/js/example.js">

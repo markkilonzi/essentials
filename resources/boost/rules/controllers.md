@@ -27,7 +27,15 @@ Type-hint models in action signatures. Never `findOrFail()` manually or use `Rou
 Create tenant-owned records through the tenant's relation, e.g. `$tenant->customers()->create($validated)`, never `Customer::create($validated + ['organization_id' => ...])`. The tenant id is never read from the request or a hidden form field.
 
 ## Log every mutation
-Every create, update, activate or deactivate records `activity()->performedOn($model)->event('subject-verbed')->log('...')` with kebab-case event names.
+Every create, update, activate or deactivate records an activity with a kebab-case `subject-verbed` event name. The call has four links, so it is chained one per line, as the chaining rule in `app.md` says.
+
+```php
+//  Log the deletion
+activity()
+    ->performedOn($customer)
+    ->event('customer-deleted')
+    ->log('Deleted customer '.$customer->name);
+```
 
 ## Flash feedback through alerts keys
 Redirect with `->alert('success'|'error'|'warning', __('alerts.<domain>.<action>'))`. The keys are nested by domain, and the messages are full sentences with `:placeholder` interpolation. Never hardcode the sentence in the controller.

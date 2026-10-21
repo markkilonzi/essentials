@@ -17,6 +17,25 @@ Doc blocks hold a one-line summary and the `@author` tag only. Do not write `@pa
 ## Comment format
 Narrate method bodies with `//  ` comments (double slash followed by two spaces) above each logical step, in both PHP and JS. A method whose body is a single statement needs no inline comment.
 
+## Chain method calls one per line
+When a statement chains more than three links, counting the starting call or object, or the chain is too long for one line (roughly over 100 characters), put the start on the first line and each further call on its own line, indented once. This holds for `return` statements too, in PHP and in JavaScript. A short chain of three links or fewer stays on one line. Give the statement its usual `//  ` comment above it.
+
+```php
+//  Log the deletion
+activity()
+    ->performedOn($customer)
+    ->event('customer-deleted')
+    ->log('Deleted customer '.$customer->name);
+
+//  Go back to the list, which is a short chain that is too long for one line
+return redirect()
+    ->route('customers.index')
+    ->alert('success', trans('alerts.customers.deleted', ['name' => $customer->name]));
+
+//  A short chain stays on one line
+$customer->orders()->count();
+```
+
 ## Keep comments short
 Comments say what, in a short phrase. One line is the norm for a doc summary or an inline comment; never write a paragraph. Skip the why-and-how backstory; put a non-obvious reason in a few words, not a sentence chain.
 

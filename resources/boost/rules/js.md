@@ -14,4 +14,4 @@ When a function body is exactly one statement (one top-level `;`), it keeps its 
 Functions with two or more top-level statements keep a `//  ` comment before each. Statements nested inside the single statement (e.g. in a callback) still follow the normal comment rule.
 
 ## Chain method calls one per line
-When a statement calls two or more methods in a row on an object, put the object on the first line and each call on its own line, indented once: `document` then `.querySelector('[data-menu]')` then `.addEventListener(...)`. A single call stays on one line. Give each chained statement the usual `//  ` comment above it.
+When a statement chains more than three links, counting the object, or the chain is too long for one line (roughly over 100 characters), put the object on the first line and each further call on its own line, indented once: `document` then `.querySelector('[data-menu]')` then `.addEventListener(...)`. A short chain of three links or fewer stays on one line. Give each chained statement the usual `//  ` comment above it. The PHP rule in `app.md` is the same.
