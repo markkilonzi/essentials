@@ -5,7 +5,7 @@
 
 @section('content')
     <x-essentials::docs.section id="publish" title="Publish the config">
-        <p>Apps inherit the defaults. Publish the file only to change one.</p>
+        <p>Apps inherit the defaults, and <code>php artisan nyumbani:install</code> publishes the file for you. Edit it only to change one.</p>
         <x-essentials::docs.code lang="bash" title="Terminal">
             php artisan vendor:publish --tag=essentials-config
         </x-essentials::docs.code>

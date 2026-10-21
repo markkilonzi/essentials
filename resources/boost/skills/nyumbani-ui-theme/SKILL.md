@@ -13,9 +13,9 @@ Every button is primary. Use `btn btn-primary`, with `btn-sm` or `btn-lg` for si
 ## Toasts
 Flash with the `alert` macro and let the layout show it:
 ```php
-return back()->alert('success', __('alerts.saved'));
+return back()->alert('success', trans('alerts.customers.saved', ['name' => $customer->name]));
 ```
-Every toast type (success, error, info, warning) renders in the one success color. The type still sets the icon and screen-reader meaning, so pass the honest type. Put the text in `lang/` files.
+Every toast type (success, error, info, warning) renders in the one success color. The type still sets the icon and screen-reader meaning, so pass the honest type: `success` when it did what was asked, `error` when it failed and nothing changed, `warning` when it worked but needs another look, `info` for something to know. Put the text in `lang/alerts.php` as full sentences with `:placeholder` values. `redirect()->alert(...)` with no route goes back, like `back()->alert(...)`, and a Laravel `status` flash also shows as a success toast. From JavaScript, call `toastr.success('...')`.
 
 ## Loader
 ```blade
@@ -27,7 +27,7 @@ Props: `message` (default "Nyumbani is processing your data...") and `size` (`sm
 
 ## Components
 - `<x-essentials::modal>`: see the nyumbani-modal skill.
-- `<x-essentials::file-input name="..." label="..." accept="..." :current="$url" />`.
+- `<x-essentials::file-input name="..." label="..." accept="..." :current="$upload" />`, where `$upload` is the saved Upload model (it supplies `url`, `title`, `formattedSize` and `isImage()`). The form needs `enctype="multipart/form-data"`.
 - `<x-essentials::nav-group>` and `<x-essentials::nav-link>` build the sidebar. Implement the `HasHomeRoute` contract for the home link.
 
 ## Rules

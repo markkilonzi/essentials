@@ -45,7 +45,13 @@ Open or close by name from anywhere inside an Alpine scope (`x-data`):
 ```
 `$dispatch` only works inside an element with `x-data`. Add one to the wrapper when the button sits outside any Alpine scope. Close with `close-modal`.
 
-Reopen after a failed save: give the modal an `error-bag` and post `@bag('same-name')` in its form (see the nyumbani-error-bags skill). A fixed `protected $errorBag` on the Form Request also works. The modal reopens with the errors showing.
+Reopen after a failed save, in four steps (see the nyumbani-error-bags skill):
+1. Give the modal a `name` and an `error-bag` (use the same word for both).
+2. Post the bag with `@bag('same-name')` inside the form.
+3. Validate as usual: a Form Request or `$request->validate()` needs no trait and no override.
+4. In the modal, read errors with `@error('field', 'same-name')` and refill with `old('field')` only when `$errors->hasBag('same-name')`.
+
+It does not reopen when the modal has no `error-bag`, when the name differs from `@bag`, or when the view reads `@error('field')` without the bag. A fixed `protected $errorBag` on the Form Request also works. Bags apply to the redirect after a failed validation, not to JSON or Livewire answers.
 
 Remote content: pass `src` and return a Blade fragment, not a full page, from that route. The loader shows while it loads and a retry link shows on failure. It loads once per page, and again only after a failure.
 

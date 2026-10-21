@@ -17,7 +17,7 @@ composer require nyumbani/essentials
 php artisan nyumbani:install
 ```
 
-Then import the theme and scripts in the app (see the Installation docs page), and follow the Quick start.
+It copies the rules, publishes the config files and migrations of the packages, adds the missing keys to `.env.example`, imports the theme and scripts, creates a starter `permissions.json`, links storage, installs and sets up Boost (requiring `laravel/boost --dev` first if it is missing), and ends with a checklist of what is left for you. Run `php artisan migrate` afterwards. Run the same command again whenever a package changes: it replaces the rules, guidelines and skills with the newest ones and only adds what is missing. Then import the theme and scripts in the app (see the Installation docs page), and follow the Quick start.
 
 ## Docs
 

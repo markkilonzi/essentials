@@ -38,4 +38,4 @@ Use `@use` for classes and never `@php`.
 
 ## Testing
 In tests, view the page with `view('errors.404')`. The `errors::` namespace only exists during a real render. Assert real requests with `$this->get('/missing')->assertNotFound()->assertSee('Page not found')`.
-A parent app can list every code on a showcase page that links to `errors/{code}` and aborts with that status.
+The Essentials docs preview every page at `/nyumbani-essentials/docs/error-pages` (local environment only), so there is no need to build a page of your own to see them.

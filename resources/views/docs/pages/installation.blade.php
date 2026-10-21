@@ -7,7 +7,7 @@
     <x-essentials::docs.section id="before" title="Before you start">
         <x-essentials::docs.table :columns="['You need', 'Why']" :rows="[
             ['PHP 8.3 or newer, Laravel 12 or 13', 'What the package supports.'],
-            ['Livewire', 'Every Nyumbani app uses it. It starts Alpine, which the modal and shell rely on.'],
+            ['Livewire 4', 'Every Nyumbani app uses it. Essentials requires it, and it starts Alpine, which the modal and shell rely on.'],
             ['Tailwind CSS 4 and Vite', 'The theme is a Tailwind 4 file, and the layouts load resources/css/app.css and resources/js/app.js with @vite.'],
             ['A User model and a users table', 'Fortify signs these in. The model implements HasHomeRoute, see Authentication.'],
             ['An Organization model', 'Only if your app is multi-tenant. Some traits and the log context look for it.'],
@@ -95,11 +95,38 @@
         <p>Next, build a page with the <a href="{{ $docs->url('quick-start') }}">Quick start</a>.</p>
     </x-essentials::docs.section>
 
-    <x-essentials::docs.section id="publish" title="5. Install the rules and Boost">
-        <p>One command publishes the conventions and sets up Laravel Boost, so editors and AI agents follow them. Install Boost first with <code>composer require laravel/boost --dev</code>.</p>
+    <x-essentials::docs.section id="publish" title="5. Run the installer">
+        <p>One command sets the app up, and it is safe to run again whenever a package changes. If Laravel Boost is missing, it installs it first with <code>composer require laravel/boost --dev</code>, so there is nothing to install by hand.</p>
         <x-essentials::docs.code lang="bash" title="Terminal">
             php artisan nyumbani:install
+            php artisan migrate
         </x-essentials::docs.code>
-        <p>It asks what to install: the rules, Boost, or both. Boost's own questions about agents come next, and Essentials is enabled for you, so its skills and guidelines load. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
+        <p>The installer does the following, and each step only adds what is missing:</p>
+        <x-essentials::docs.table :columns="['Step', 'What it does', 'On a rerun']" :rows="[
+            ['Rules', 'Copies the Nyumbani rules into .ai/rules and rebuilds the index.', 'Replaces them with the newest, and removes rules the package no longer ships.'],
+            ['Config files', 'Publishes config/essentials.php, daraja.php, messaging.php, permission.php and activitylog.php.', 'Skips any that exist, so your edits stay.'],
+            ['Migrations', 'Publishes the permission tables, the permission group column and the activity log table.', 'Skips any the app already has.'],
+            ['.env.example', 'Adds the keys the packages read, blank.', 'Adds only the keys that are missing. Your .env is never touched.'],
+            ['Imports', 'Adds the theme to resources/css/app.css and the scripts to resources/js/app.js.', 'Adds a line only if it is not there.'],
+            ['permissions.json', 'Creates a starter database/seeders/data/permissions.json.', 'Skips it if it exists.'],
+            ['Storage link', 'Links public/storage for uploads.', 'Skips it if the link exists.'],
+            ['Boost', 'Installs laravel/boost as a dev dependency if it is missing. The first time, runs boost:install with its own questions. Adds Essentials, Daraja and Messaging to boost.json, and refreshes the guidelines and skills.', 'Only refreshes.'],
+        ]" />
+        <p>With <code>--no-interaction</code> (what Composer runs) it never asks: Boost's first install turns guidelines, skills and MCP all on.</p>
+
+        <h3>The checklist</h3>
+        <p>The installer never edits your application code. When it finishes it prints what it found and what is left for you:</p>
+        <x-essentials::docs.code lang="text" title="Setup checklist">
+            Theme imported in resources/css/app.css ............ done
+            User model implements HasHomeRoute ................. done
+            User model has roles and default permissions ....... to do
+                Use Nyumbani\Essentials\Traits\HasPermissions on the user model.
+            Migrations have run (permissions with group, activity_log) .. to do
+                Run php artisan migrate.
+            Laravel Boost is installed ......................... done
+            Boost is set up with the Nyumbani packages ......... done
+            discord log channel ................................ optional
+        </x-essentials::docs.code>
+        <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel, Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
     </x-essentials::docs.section>
 @endsection

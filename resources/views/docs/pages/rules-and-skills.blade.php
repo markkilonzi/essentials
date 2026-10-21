@@ -7,22 +7,24 @@
     <x-essentials::docs.section id="rules" title="Rules">
         <p>Rules are short, path-scoped statements such as how controllers or views are written. The package ships them and copies them into the app.</p>
         <x-essentials::docs.code lang="bash" title="Terminal">
-            php artisan nyumbani:install          # choose what to install: rules, Boost or both
-            php artisan nyumbani:install --all    # install everything, without asking
-            php artisan nyumbani:install --sync   # refresh what is already installed
+            php artisan nyumbani:install                    # first time, or any time a package changes
+            php artisan nyumbani:install --no-interaction   # the same, never asking (what Composer runs)
         </x-essentials::docs.code>
-        <p>They land in <code>.ai/rules/nyumbani-*.md</code>, and the index in <code>.ai/rules/index.md</code> maps each path to its rule. Do not edit them; run <code>--sync</code> to refresh. The Composer scripts of a Nyumbani app run the sync for you, and it also refreshes Boost.</p>
+        <p>One command does it all, and it is safe to run again (see <a href="{{ $docs->url('installation') }}#publish">Installation</a> for everything else it sets up): it always copies the current rules over the old ones, removes rules the package no longer ships, and refreshes Boost. They land in <code>.ai/rules/nyumbani-*.md</code>, and the index in <code>.ai/rules/index.md</code> maps each path to its rule. Do not edit them: the next run replaces them. The Composer <code>post-update-cmd</code> of a Nyumbani app runs it for you, so a <code>composer update</code> brings the newest rules and skills.</p>
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="skills" title="Skills">
         <p>Skills teach an AI agent how to use a part of the package. Laravel Boost finds them in the package's <code>resources/boost/skills</code> folder.</p>
-        <p>You do not run Boost yourself. Choosing <strong>Laravel Boost</strong> in <code>nyumbani:install</code> runs <code>boost:install</code>, adds <code>nyumbani/essentials</code> to <code>boost.json</code>, and runs <code>boost:update</code>. With <code>--sync</code> it only refreshes an installed Boost, and never installs it, so the same command keeps rules, guidelines and skills current.</p>
+        <p>You do not run Boost yourself. The first time, <code>nyumbani:install</code> runs <code>boost:install</code> and asks Boost's own questions about agents (a non-interactive run turns guidelines, skills and MCP all on). Every time, it adds <code>nyumbani/essentials</code>, <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code> to <code>boost.json</code> and runs <code>boost:update</code>, so rules, guidelines and skills stay current with one command.</p>
         <x-essentials::docs.table :columns="['Skill', 'Covers']" :rows="[
             ['nyumbani-modal', 'The modal component and its options.'],
             ['nyumbani-error-pages', 'The shipped error pages and how to change them.'],
             ['nyumbani-branding', 'Layouts, favicons, manifest and theme colour.'],
             ['nyumbani-ui-theme', 'Buttons, toasts and the loader.'],
             ['nyumbani-error-bags', 'Several forms on one page, the bag directive and reopening a modal after a failed save.'],
+            ['nyumbani-logging', 'The discord log driver, its options and why records do not arrive.'],
+            ['nyumbani-auth', 'Sign-in, password reset, home routes, the login throttle and impersonation.'],
+            ['nyumbani-helpers', 'Formatting helpers in PHP, Blade and JavaScript, and the period filter.'],
         ]" />
         <p>Other Nyumbani packages ship their own skills the same way. <code>nyumbani/daraja</code> adds <code>nyumbani-daraja-payments</code> and <code>nyumbani-daraja-webhooks</code>; <code>nyumbani/messaging</code> adds <code>nyumbani-messaging</code>. Add each package to <code>boost.json</code> and run <code>php artisan boost:update</code>. Their docs are in the switcher at the top of this page.</p>
     </x-essentials::docs.section>
