@@ -41,3 +41,10 @@ Use the tokens `primary`, `primary-dark`, `primary-darker` and `secondary*`. Do 
 ## Rules
 - Use `@use` for any class in a view and never `@php`.
 - Page titles come from `@section('title', ...)`. The layout appends the app name.
+
+## Extending the layouts
+There are four, and the Layouts page of the Essentials docs shows the code that extends each one:
+- `essentials::layouts.portal`: signed-in pages. Sections `title`, `content`, `sidebar`, and optionally `brand`, `navbar`, `user-menu`, `banner`; `@push('actions')` for page buttons. Extend it once in the app's own `layouts/app.blade.php` with the sidebar include, and have every page extend that.
+- `essentials::layouts.guest`: public pages. Sections `heading`, `description`, `content`.
+- `essentials::layouts.error`: error pages. Sections `code`, `heading`, `detail`, `icon`, `actions`.
+- `essentials::layouts.app`: the base document the others extend. Section `title`, `body`, `body-class`; stacks `styles` and `js`.

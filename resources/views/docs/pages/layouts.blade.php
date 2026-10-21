@@ -13,6 +13,122 @@
         ]" />
     </x-essentials::docs.section>
 
+    <x-essentials::docs.section id="gallery" title="Extend each layout">
+        <p>Every Nyumbani page extends one of four layouts. Pick the tab for the kind of page you are building: it shows what the layout is for and the code of a page that extends it.</p>
+        <x-essentials::docs.tabs :labels="['Portal', 'Guest', 'Error', 'App']">
+            <x-essentials::docs.tab label="Portal">
+                <p>For every signed-in page: the sidebar, the navbar, the page header and the content. A guest who reaches it is sent to <code>login</code>.</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/customers/index.blade.php">
+                    @verbatim
+                    @extends('essentials::layouts.portal')
+
+                    @section('title', 'Customers')
+                    @section('brand', 'Acme Homes')
+
+                    @section('sidebar')
+                        <x-essentials::nav-link href="{{ route('home') }}" label="Dashboard" :active="request()->routeIs('home')">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3" />
+                        </x-essentials::nav-link>
+
+                        <x-essentials::nav-group label="Billing" :active="request()->routeIs('invoices.*')">
+                            <x-slot:icon>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5" />
+                            </x-slot:icon>
+
+                            <x-essentials::nav-link href="{{ route('invoices.index') }}" label="Invoices" :active="request()->routeIs('invoices.*')" sub />
+                        </x-essentials::nav-group>
+                    @endsection
+
+                    @section('banner')
+                        <div class="mb-1.5 rounded-md bg-primary/10 p-3 text-sm">Your trial ends in 3 days.</div>
+                    @endsection
+
+                    @section('user-menu')
+                        <a href="{{ route('profile') }}" class="block px-4 py-1.5 text-base text-gray-800 hover:bg-gray-100">Profile</a>
+                    @endsection
+
+                    @push('actions')
+                        <a href="{{ route('customers.create') }}" class="btn btn-primary btn-sm">New customer</a>
+                    @endpush
+
+                    @section('content')
+                        ...
+                    @endsection
+                    @endverbatim
+                </x-essentials::docs.code>
+                <p>Rather than repeat the sidebar on every page, extend the portal once in your own app layout and let every page extend that:</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/layouts/app.blade.php">
+                    @verbatim
+                    @extends('essentials::layouts.portal')
+
+                    @section('sidebar')
+                        @include('partials.sidebar')
+                    @endsection
+                    @endverbatim
+                </x-essentials::docs.code>
+            </x-essentials::docs.tab>
+
+            <x-essentials::docs.tab label="Guest">
+                <p>For public pages such as sign-in: a branded panel beside a card. Fill the heading, the description and the content.</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/auth/welcome.blade.php">
+                    @verbatim
+                    @extends('essentials::layouts.guest')
+
+                    @section('title', 'Welcome back')
+                    @section('heading', 'Welcome back')
+                    @section('description', 'Sign in to continue to your account')
+
+                    @section('content')
+                        <form method="POST" action="{{ route('welcome.store') }}">
+                            @csrf
+
+                            <label for="email">Email</label>
+                            <input id="email" name="email" type="email" placeholder="e.g. jane@example.com">
+
+                            <button type="submit" class="btn btn-primary btn-lg w-full uppercase tracking-wide">Continue</button>
+                        </form>
+                    @endsection
+                    @endverbatim
+                </x-essentials::docs.code>
+            </x-essentials::docs.tab>
+
+            <x-essentials::docs.tab label="Error">
+                <p>For error pages: the big code, an icon, a heading, a line of detail and your own buttons next to <em>Take me home</em> and <em>Go back</em>. This is the shipped 404 page, whose file is the whole example.</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/errors/404.blade.php">
+                    {!! file_get_contents(essentials_path('resources/views/errors/404.blade.php')) !!}
+                </x-essentials::docs.code>
+            </x-essentials::docs.tab>
+
+            <x-essentials::docs.tab label="App">
+                <p>The base document the others extend: head, favicons, your CSS and JS, the toasts and two stacks. Use it directly for a page that is none of the above.</p>
+                <x-essentials::docs.code lang="blade" title="resources/views/landing.blade.php">
+                    @verbatim
+                    @extends('essentials::layouts.app')
+
+                    @section('title', 'A bare page')
+                    @section('body-class', 'h-full bg-gray-100 text-gray-700 antialiased')
+
+                    @section('body')
+                        <main class="mx-auto max-w-xl p-10 text-center">
+                            <h1 class="text-2xl font-semibold">A bare page</h1>
+                        </main>
+                    @endsection
+
+                    @push('js')
+                        <script>console.log('Runs after the page, from the js stack');</script>
+                    @endpush
+                    @endverbatim
+                </x-essentials::docs.code>
+                <x-essentials::docs.table :columns="['Slot', 'Use']" :rows="[
+                    ['title', 'The browser tab: Title - App name.'],
+                    ['body, body-class', 'The page, and the classes on the body.'],
+                    ['styles (stack)', 'Extra stylesheets in the head, with @@push.'],
+                    ['js (stack)', 'Scripts after the page, with @@push.'],
+                ]" />
+            </x-essentials::docs.tab>
+        </x-essentials::docs.tabs>
+    </x-essentials::docs.section>
+
     <x-essentials::docs.section id="portal" title="A portal page">
         <x-essentials::docs.code lang="blade" title="resources/views/invoices/index.blade.php">
             @verbatim

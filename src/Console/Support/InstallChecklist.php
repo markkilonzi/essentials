@@ -68,12 +68,12 @@ class InstallChecklist
      */
     protected function permissionsFix(mixed $user): string
     {
-        //  Spatie ships a trait with the same name, which has no roles and no default permissions
+        //  Spatie's HasPermissions is the easy one to import by mistake, and has no roles and no default permissions
         if (is_string($user) && class_exists($user) && in_array(SpatieHasPermissions::class, class_uses_recursive($user), true)) {
-            return 'The user model imports Spatie\Permission\Traits\HasPermissions. Import Nyumbani\Essentials\Traits\HasPermissions instead, which also brings roles and assignDefaultPermissions().';
+            return 'The user model imports Spatie\Permission\Traits\HasPermissions. Import Nyumbani\Essentials\Traits\HasDefaultPermissions instead, which brings roles and assignDefaultPermissions().';
         }
 
-        return 'Use Nyumbani\Essentials\Traits\HasPermissions on the user model.';
+        return 'Use Nyumbani\Essentials\Traits\HasDefaultPermissions on the user model.';
     }
 
     /**

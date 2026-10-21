@@ -122,13 +122,13 @@
             Theme imported in resources/css/app.css ............ done
             User model implements HasHomeRoute ................. done
             User model has roles and default permissions ....... to do
-                Use Nyumbani\Essentials\Traits\HasPermissions on the user model.
+                Use Nyumbani\Essentials\Traits\HasDefaultPermissions on the user model.
             Migrations have run (permissions with group, activity_log) .. to do
                 Run php artisan migrate.
             Laravel Boost is installed ......................... done
             Boost is set up with the Nyumbani packages ......... done
             discord log channel ................................ optional
         </x-essentials::docs.code>
-        <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel, Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
+        <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel, Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. The command then ends with a short invitation that links to this Quick start and to the docs of each package. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
     </x-essentials::docs.section>
 @endsection

@@ -1,6 +1,6 @@
 ---
 name: nyumbani-install
-description: "Invoke when setting up a Nyumbani app, running or changing php artisan nyumbani:install, reading its setup checklist, or fixing a checklist item: rules, Boost, config files, migrations, imports, the discord log channel, or the HasPermissions trait. Skip for using a feature once it is installed."
+description: "Invoke when setting up a Nyumbani app, running or changing php artisan nyumbani:install, reading its setup checklist, or fixing a checklist item: rules, Boost, config files, migrations, imports, the discord log channel, or the HasDefaultPermissions trait. Skip for using a feature once it is installed."
 metadata:
   author: nyumbani
 ---
@@ -16,13 +16,14 @@ metadata:
 4. **App files, only what is missing.** Adds blank package keys to `.env.example` (never `.env`), the theme `@import` to `resources/css/app.css`, the scripts `import` to `resources/js/app.js`, a starter `database/seeders/data/permissions.json`, the `discord` channel in `config/logging.php`, and the storage link.
 5. **Boost.** The first time (no `boost.json`) it runs `boost:install`. Always, it loads the three Nyumbani packages into `boost.json`, lists their skills there (`boost:update` installs only the skills named in `boost.json`, and finds new ones only by asking, which a non-interactive run cannot), sets the agent to `claude_code` when none is set (a non-interactive first install picks none, and `boost:update` refuses to run without one), then runs `boost:update`.
 6. **Checklist.** Prints a table of done, optional and to-do items.
+7. **Docs invitation.** Ends with a panel linking the Quick start and the docs of Essentials, Daraja and Messaging (built from the registered docs, so the links always match the real routes).
 
 ## Reading the checklist
 | Item | Fix when it is not done |
 | --- | --- |
 | Theme / scripts imported | Add the one line the table names to `app.css` / `app.js`. |
 | User model implements `HasHomeRoute` | Implement `Nyumbani\Essentials\Contracts\HasHomeRoute` and return a URL from `homeRoute()`. |
-| User model has roles and default permissions | Use `Nyumbani\Essentials\Traits\HasPermissions`. **Not** `Spatie\Permission\Traits\HasPermissions`: it has the same name but no roles and no `assignDefaultPermissions()`. |
+| User model has roles and default permissions | Use `Nyumbani\Essentials\Traits\HasDefaultPermissions`. **Not** `Spatie\Permission\Traits\HasPermissions`: it has no roles and no `assignDefaultPermissions()`. |
 | User model can be impersonated | Use `Lab404\Impersonate\Models\Impersonate`. |
 | Migrations have run | Run `php artisan migrate`. The installer publishes migrations but never runs them. |
 | Laravel Boost is installed | Run the installer; it requires Boost for you. |

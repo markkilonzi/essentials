@@ -9,6 +9,7 @@ use Laravel\Boost\Console\InstallCommand as BoostInstallCommand;
 use Laravel\Boost\Rules\RuleRepository;
 use Nyumbani\Essentials\Console\Support\DirectRequirements;
 use Nyumbani\Essentials\Console\Support\InstallChecklist;
+use Nyumbani\Essentials\Docs\DocsRegistry;
 use ParseError;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Process\Process as SymfonyProcess;
@@ -164,6 +165,9 @@ PHP;
         //  Say what is still left to do by hand
         $this->showChecklist();
 
+        //  Invite the developer to the docs
+        $this->showDocsInvitation();
+
         //  Close with the next step
         outro('Done. Run php artisan migrate if the checklist asks for it, and run this command again whenever a package changes.');
 
@@ -287,7 +291,7 @@ PHP;
     }
 
     /**
-     * Add the discord log channel to config/logging.php, unless the app has one already, and only when the file still parses as PHP afterwards.
+     * Add the discord log channel to config/logging.php after the slack channel, unless the app has one already, and only when the file still parses as PHP afterwards.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -307,10 +311,12 @@ PHP;
             return;
         }
 
-        //  Put it before the stack channel, or first in the channels list when there is no stack
-        $updated = str_contains($content, "        'stack' => [")
-            ? preg_replace("/^(        'stack' => \[)/m", self::DISCORD_CHANNEL.'$1', $content, 1)
-            : preg_replace("/('channels' => \[\R)/", '$1'.self::DISCORD_CHANNEL, $content, 1);
+        //  Put it after the slack channel, the other webhook channel, or before the stack channel when there is no slack, or first in the list when there is neither
+        $updated = match (true) {
+            (bool) preg_match("/^        'slack' => \[.*?^        \],\R/ms", $content) => preg_replace("/(^        'slack' => \[.*?^        \],\R)/ms", '$1'.PHP_EOL.rtrim(self::DISCORD_CHANNEL).PHP_EOL, $content, 1),
+            str_contains($content, "        'stack' => [") => preg_replace("/^(        'stack' => \[)/m", self::DISCORD_CHANNEL.'$1', $content, 1),
+            default => preg_replace("/('channels' => \[\R)/", '$1'.self::DISCORD_CHANNEL, $content, 1),
+        };
 
         //  Leave the file alone when the channels list was not found
         if ($updated === null || $updated === $content) {
@@ -428,6 +434,45 @@ PHP;
 
         //  Show them as a table
         table(['Setup checklist', 'State', 'How to fix'], $rows);
+    }
+
+    /**
+     * Invite the developer to the docs, which every Nyumbani package serves with examples that run.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function showDocsInvitation(): void
+    {
+        //  Find the docs the packages registered
+        $registry = app(DocsRegistry::class);
+        $essentials = $registry->find('nyumbani-essentials');
+
+        //  Leave the invitation out when Essentials registered none
+        if (! $essentials) {
+            return;
+        }
+
+        //  Line up a link for the first page to read, then one for each package
+        $links = collect([
+            'Start here' => $essentials->url('quick-start'),
+            'Essentials' => $essentials->url(),
+            'Payments' => $registry->find('nyumbani-daraja')?->url(),
+            'SMS' => $registry->find('nyumbani-messaging')?->url(),
+        ])->filter();
+
+        //  Print the invitation
+        $this->newLine();
+        $this->line(' <fg=cyan;options=bold>✦ Nyumbani Essentials is ready.</>');
+        $this->newLine();
+        $this->line(' Every feature has a page with examples you can run, not only read.');
+        $this->newLine();
+
+        //  One link per line, with the labels and addresses on opposite sides
+        $links->each(fn (string $url, string $label) => $this->components->twoColumnDetail($label, $url));
+
+        //  Say where the docs are served
+        $this->newLine();
+        $this->line(' <fg=gray>The docs are served only in the local environment.</>');
     }
 
     /**

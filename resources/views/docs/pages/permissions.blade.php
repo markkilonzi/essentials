@@ -45,16 +45,16 @@
     </x-essentials::docs.section>
 
     <x-essentials::docs.section id="models" title="On your models">
-        <x-essentials::docs.callout type="warning" title="Two traits are called HasPermissions">
-            Spatie ships <code>Spatie\Permission\Traits\HasPermissions</code>, which has no roles and no default permissions. Import <code>Nyumbani\Essentials\Traits\HasPermissions</code>, which adds both. The installer's checklist tells you when the Spatie one is imported.
+        <x-essentials::docs.callout type="warning" title="Not Spatie's HasPermissions">
+            Spatie ships <code>Spatie\Permission\Traits\HasPermissions</code>, which has no roles and no default permissions. Use <code>Nyumbani\Essentials\Traits\HasDefaultPermissions</code>, which adds both. The installer's checklist tells you when the Spatie one is imported.
         </x-essentials::docs.callout>
         <x-essentials::docs.code>
             use Illuminate\Foundation\Auth\User as Authenticatable;
-            use Nyumbani\Essentials\Traits\HasPermissions;
+            use Nyumbani\Essentials\Traits\HasDefaultPermissions;
 
             class User extends Authenticatable
             {
-                use HasPermissions;
+                use HasDefaultPermissions;
             }
 
             $user->assignDefaultPermissions('clerk');
@@ -69,6 +69,6 @@
             }
         </x-essentials::docs.code>
         <p>Name permissions as kebab-case verb-noun: plural for a list (<code>view-invoices</code>), singular for one record (<code>create-invoice</code>). Check permissions in policies, never roles.</p>
-        <p>Give the app's <code>Role</code> model <code>HasRoleList</code> to list the role names from the same file, for a select box: <code>Role::list()</code> returns <code>['admin', 'clerk']</code>. <code>HasUserPermissions</code> is an older copy of <code>HasPermissions</code>; use <code>HasPermissions</code>.</p>
+        <p>Give the app's <code>Role</code> model <code>HasRoleList</code> to list the role names from the same file, for a select box: <code>Role::list()</code> returns <code>['admin', 'clerk']</code>.</p>
     </x-essentials::docs.section>
 @endsection

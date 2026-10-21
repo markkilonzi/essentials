@@ -29,8 +29,8 @@ Query tenant-owned data from the tenant's relation, e.g. `$tenant->services()->l
 ## The User model knows its home
 The `User` model implements `Nyumbani\Essentials\Contracts\HasHomeRoute`. `homeRoute()` always returns a URL, chosen by role or permission; a user with no access gets the unauthorized page or an abort with 403, never `null`.
 
-## The User model takes the Nyumbani HasPermissions
-Give the `User` model `Nyumbani\Essentials\Traits\HasPermissions`, never `Spatie\Permission\Traits\HasPermissions`: the Spatie one has the same name but no roles and no `assignDefaultPermissions()`.
+## The User model takes HasDefaultPermissions
+Give the `User` model `Nyumbani\Essentials\Traits\HasDefaultPermissions`, never `Spatie\Permission\Traits\HasPermissions`: the Spatie one has no roles and no `assignDefaultPermissions()`.
 
 ## Local scopes use #[Scope]
 Define scopes with the `#[Scope]` attribute on a protected method, never `scopeXxx()` names.
