@@ -76,6 +76,7 @@ Do not hand-roll `confirm == true` toggles or a `type="button"` Continue that sk
 Use native `confirm()`, for example `onclick="return confirm('Delete this record?')"` or `x-on:click="confirm('...') || $event.preventDefault()"`. Do not build a confirm modal for destructive actions.
 
 ## Rules
+- The body is not padded by the component, so the content must be: wrap the default slot in an element with at least `p-4`, or put `class="p-4"` on the form. A fragment loaded with `src` pads its own root. Nothing may sit on the edge of the panel, except a deliberate full-bleed image or table. The `action` footer is padded by the component.
 - Buttons inside use `btn btn-primary`. Every button is primary.
 - Do not put `@php` in the view. Logic belongs in the `Nyumbani\Essentials\Views\Components\Modal` class or a controller.
 - The panel wrapper uses `overflow-clip`, not `overflow-hidden`, because the focus trap otherwise scrolls the slide-over sideways while it animates. Keep that when changing the component.

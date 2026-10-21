@@ -27,7 +27,6 @@
     @endif
 
     @include('essentials::partials.alerts')
-
     @stack('js')
 </body>
 </html>

@@ -327,4 +327,21 @@
             </x-essentials::modal>
         </x-docs::example>
     </x-docs::section>
+
+    <x-docs::section id="padding" title="Pad the content">
+        <x-docs::rule title="Modal content is always padded">
+            <p>The component does not pad the body, so the content you put in it must be padded: wrap the default slot in an element with at least <code>p-4</code>, or put the class on the form. A fragment loaded with <code>src</code> pads its own root element. No text, input, table or button may touch the edge of the panel. Only a deliberate full-bleed image or table may skip it. The <code>action</code> footer is padded by the component.</p>
+            <x-docs::code lang="blade" title="resources/views/customers/edit.blade.php">
+                @verbatim
+                <x-essentials::modal title="Edit customer" name="edit-customer">
+                    <form method="POST" action="{{ route('customers.update', ['customer' => $customer]) }}" class="p-4">
+                        @csrf
+                        @method('PUT')
+                        ...
+                    </form>
+                </x-essentials::modal>
+                @endverbatim
+            </x-docs::code>
+        </x-docs::rule>
+    </x-docs::section>
 @endsection

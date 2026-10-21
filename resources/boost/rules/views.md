@@ -27,6 +27,19 @@ Use `<x-essentials::modal>` for every modal; do not build your own. It runs on t
 
 Props: `title`, `size` (`sm`, `md`, `lg`, `xl`, `full`; never a hand-written width), `position="right"` for a slide-over, `error-bag` (reopens it when that named bag has errors after a failed save), `:dismissable="false"` (ignores Escape and outside clicks), `src` (loads the body from that route the first time it opens), `confirm` (a review step before the form posts), `:close-button="false"` and `:show-title="false"`. Fill the `action` slot for the footer, which stays pinned while the body scrolls. On small screens it is a bottom sheet. It dispatches `modal-closed` on close.
 
+## Modal content is always padded
+The body of a modal is not padded by the component, so the content you put in it must be. Wrap everything in the default slot in an element with padding of at least `p-4`, and put the class on the form itself for a form (`<form class="p-4">`). A fragment loaded with `src` pads its own root element in the same way. No text, input, table or button may touch the edge of the panel. Only a deliberate full-bleed image or table may skip the padding. The `action` footer is padded by the component.
+
+```blade
+<x-essentials::modal title="Edit customer" name="edit-customer">
+    <form method="POST" action="{{ route('customers.update', ['customer' => $customer]) }}" class="p-4">
+        @csrf
+        @method('PUT')
+        ...
+    </form>
+</x-essentials::modal>
+```
+
 ## Reopen a modal after a failed save with an error bag
 Name the modal's bag with `error-bag`, post the same name with `@bag('name')` inside its form, read errors with `@error('field', 'name')` (a plain `@error('field')` reads only the default bag), and refill a field from `old()` only when `$errors->hasBag('name')`. Validation needs nothing special. Do not hand-roll a reopen flag.
 
