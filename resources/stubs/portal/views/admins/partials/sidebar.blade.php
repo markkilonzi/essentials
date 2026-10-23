@@ -1,7 +1,7 @@
 @use('Nyumbani\Docs\DocsRegistry')
 
 {{--  A plain link: active on its own page  --}}
-<x-essentials::nav-link :href="route('home')" :active="request()->routeIs('home')" label="Dashboard">
+<x-essentials::nav-link :href="user()->homeRoute()" :active="request()->url() === user()->homeRoute()" label="Dashboard">
     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
 </x-essentials::nav-link>
 

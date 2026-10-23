@@ -17,7 +17,7 @@
         <p>Every Nyumbani page extends one of four layouts. Pick the tab for the kind of page you are building: it shows what the layout is for and the code of a page that extends it.</p>
         <x-docs::tabs :labels="['Portal', 'Auth', 'Error', 'App']">
             <x-docs::tab label="Portal">
-                <p>For every signed-in page: the sidebar, the navbar, the page header and the content. A guest who reaches it is sent to <code>login</code>. The sidebar is the same on every page, so define it once and let your pages extend an app layout, in three small files.</p>
+                <p>For every signed-in page: the sidebar, the navbar, the page header and the content. A guest who reaches it is sent to <code>login</code>. The sidebar is the same on every page, so define it once and let your pages extend an app layout, in three small files. <code>php artisan nyumbani:install --portal</code> publishes all three for you, plus a dashboard page, and its sidebar already links to the docs of the Nyumbani packages.</p>
 
                 <h3>1. The app layout</h3>
                 <p>Extend the portal once, and name the view that holds your menu in its <code>sidebar</code> section. Every page extends this file. The portal renders the view for you.</p>
@@ -41,7 +41,7 @@
                 <p>Build the menu with the navigation components. This is the only place the menu lives.</p>
                 <x-docs::code lang="blade" title="resources/views/partials/sidebar.blade.php">
                     @verbatim
-                    <x-essentials::nav-link href="{{ route('home') }}" label="Dashboard" :active="request()->routeIs('home')">
+                    <x-essentials::nav-link href="{{ user()->homeRoute() }}" label="Dashboard" :active="request()->url() === user()->homeRoute()">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3" />
                     </x-essentials::nav-link>
 
@@ -163,7 +163,7 @@
         <p>Build the menu with the navigation components and place it in the <code>sidebar</code> section. Every top-level link and group takes an icon.</p>
         <x-docs::code lang="blade" title="resources/views/partials/sidebar.blade.php">
             @verbatim
-            <x-essentials::nav-link href="{{ route('home') }}" label="Dashboard" :active="request()->routeIs('home')">
+            <x-essentials::nav-link href="{{ user()->homeRoute() }}" label="Dashboard" :active="request()->url() === user()->homeRoute()">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </x-essentials::nav-link>
 
@@ -226,7 +226,7 @@
             {
                 public function homeRoute(): string
                 {
-                    return route('home');
+                    return route('dashboard');
                 }
             }
         </x-docs::code>

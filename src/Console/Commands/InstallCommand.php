@@ -181,11 +181,17 @@ PHP;
         //  Build the assets, so the theme, scripts and any new views are compiled
         $this->buildAssets();
 
+        //  Offer to run the migrations, so the roles and permissions can be synced in this run
+        $this->offerMigrations();
+
         //  Sync the roles and permissions from the file, once the tables exist
         $this->syncPermissions();
 
         //  Link the public storage folder
         $this->linkStorage();
+
+        //  Format the PHP files the installer published
+        $this->formatPublishedFiles();
 
         //  Set up Boost the first time, then refresh its guidelines and skills
         $this->setUpBoost();
@@ -669,10 +675,10 @@ PHP;
         $this->callSilent('vendor:publish', ['--tag' => ['essentials-portal']]);
 
         //  Say what was published
-        $this->done('Published the portal controller, views and layout.');
+        $this->done('Published the portal views and layout.');
 
         //  Application code is never edited, so the setup checklist lists what is left to do by hand
-        $this->line(' <fg=#d97706;options=bold>The portal is for admins.</> The checklist below lists the steps left: <fg=#d97706>its route</>, <fg=#d97706>its wiring in bootstrap/app.php</> and <fg=#d97706>your first admin user</>.');
+        $this->line(" <fg=#d97706;options=bold>The portal needs a route.</> Add <fg=#d97706>Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard')</> inside your auth group in <fg=#d97706>routes/web.php</>, and return its URL from <fg=#d97706>homeRoute()</> on the user model. The checklist below tracks it.");
         $this->newLine();
     }
 
@@ -706,6 +712,31 @@ PHP;
 
         //  Say what was built
         $this->done('Built the assets with npm run build.');
+    }
+
+    /**
+     * Ask whether to run the migrations when the permission and activity tables are missing, which defaults to no and is never asked in a non-interactive run.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function offerMigrations(): void
+    {
+        //  Nothing to offer when the tables exist, or when nobody is there to answer
+        if ((new InstallChecklist)->hasTables() || ! $this->input->isInteractive()) {
+            return;
+        }
+
+        //  Respect a no
+        if (! confirm('Run the migrations now?', default: false)) {
+            return;
+        }
+
+        //  Run them, and report a failure instead of stopping the install
+        try {
+            $this->call('migrate');
+        } catch (Throwable $exception) {
+            error("The migrations failed: {$exception->getMessage()}");
+        }
     }
 
     /**
@@ -768,6 +799,39 @@ PHP;
     protected function done(string $message): void
     {
         $this->line("  <fg=green>✓</> {$message}");
+    }
+
+    /**
+     * Run Pint on the PHP files the installer published or edited, and only those, so the app's own code is never reformatted. Skipped when the app has no Pint.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function formatPublishedFiles(): void
+    {
+        //  Nothing to format with when the app has no Pint
+        if (! File::exists(base_path('vendor/bin/pint'))) {
+            return;
+        }
+
+        //  Gather the files and folders the installer writes to, that exist
+        $paths = collect([
+            ...collect(self::CONFIG_TAGS)->map(fn (string $file) => config_path($file)),
+            config_path('logging.php'),
+            ...File::glob(database_path('migrations/*_'.self::PERMISSIONS_MIGRATION.'.php')),
+            ...File::glob(database_path('migrations/*_'.self::GROUP_MIGRATION.'.php')),
+            ...collect(self::MIGRATION_TAGS)->flatMap(fn (string $name) => File::glob(database_path("migrations/*_{$name}.php"))),
+        ])->filter(fn (string $path) => File::exists($path))->values();
+
+        if ($paths->isEmpty()) {
+            return;
+        }
+
+        //  Format them, and report a failure instead of stopping the install
+        $result = spin(fn () => Process::path(base_path())->run([PHP_BINARY, 'vendor/bin/pint', ...$paths->all()]), 'Formatting the published files with Pint...');
+
+        $result->successful()
+            ? $this->done('Formatted the published files with Pint.')
+            : note('Pint could not format the published files: run vendor/bin/pint by hand.');
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Nyumbani\Essentials\Console\Support;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Boost\Console\InstallCommand as BoostInstallCommand;
 use Nyumbani\Essentials\Contracts\HasHomeRoute;
@@ -69,7 +70,7 @@ class InstallChecklist
             $this->item('Laravel Boost is installed', class_exists(BoostInstallCommand::class), 'Run php artisan nyumbani:install, which requires laravel/boost --dev for you.'),
             $this->item('Boost is set up with the Nyumbani packages', $this->boostLoadsPackages(), $this->boostFix()),
             $this->item('Basic portal (dashboard, layout and sidebar)', $portal, 'Run php artisan nyumbani:install --portal.', optional: true),
-            ...($portal ? $this->portalItems($user) : []),
+            ...($portal ? $this->portalItems() : []),
             $this->item('discord log channel', $this->hasDiscordChannel(), "Add 'discord' => ['driver' => 'discord', 'url' => env('DISCORD_WEBHOOK_URL')] to config/logging.php.", optional: true),
             $this->item('Daraja credentials set', filled(config('daraja.docs.short_code')) && filled(config('daraja.docs.consumer_key')), 'Set DARAJA_SHORT_CODE, DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET and DARAJA_PASS_KEY in .env.', optional: true),
             $this->item('Nyumbani Connect settings set', filled(config('messaging.connect.base_url')) && filled(config('messaging.connect.access_token')), 'Set NYUMBANI_CONNECT_BASE_URL and NYUMBANI_CONNECT_TOKEN in .env.', optional: true),
@@ -77,16 +78,14 @@ class InstallChecklist
     }
 
     /**
-     * Get the checks that only apply to an app with the basic portal: its route, its wiring and its first admin
+     * Get the check that only applies to an app with the basic portal: a route for its dashboard view (or a controller of your own named Admins\DashboardController), under any name and in any routes file
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function portalItems(mixed $user): array
+    protected function portalItems(): array
     {
         return [
-            $this->item("Portal route 'home' in routes/admins.php", $this->fileHas(base_path('routes/admins.php'), "->name('home')"), "Add Route::get('/', DashboardController::class)->name('home'); (App\\Http\\Controllers\\Admins\\DashboardController) to routes/admins.php."),
-            $this->item('routes/admins.php wired with the role:admin middleware', $this->fileHas(base_path('bootstrap/app.php'), 'admins.php') && $this->fileHas(base_path('bootstrap/app.php'), 'role:admin'), "Load routes/admins.php in bootstrap/app.php with the 'auth' and 'role:admin' middleware, and register the role alias."),
-            $this->item('An admin user exists', $this->hasAdminUser($user), "Give your first user the admin role with \$user->assignDefaultPermissions('admin'), after php artisan nyumbani:permissions."),
+            $this->item('Portal dashboard has a route', $this->hasDashboardRoute(), "Add Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard'); inside the auth middleware in routes/web.php, and return its URL from homeRoute() on the user model."),
         ];
     }
 
@@ -102,30 +101,26 @@ class InstallChecklist
     }
 
     /**
-     * Determine whether the basic portal's controller, layout, dashboard and sidebar are all in the app
+     * Determine whether the basic portal's layout, dashboard view and sidebar are all in the app
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
     protected function hasPortal(): bool
     {
-        return File::exists(app_path('Http/Controllers/Admins/DashboardController.php'))
-            && File::exists(resource_path('views/admins/pages/dashboard.blade.php'))
+        return File::exists(resource_path('views/admins/pages/dashboard.blade.php'))
             && File::exists(resource_path('views/layouts/app.blade.php'))
             && File::exists(resource_path('views/admins/partials/sidebar.blade.php'));
     }
 
     /**
-     * Determine whether at least one user holds the admin role
+     * Determine whether a registered route shows the portal's dashboard view, or runs an Admins\DashboardController of the app's own, whatever the route is called
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function hasAdminUser(mixed $user): bool
+    protected function hasDashboardRoute(): bool
     {
-        try {
-            return is_string($user) && method_exists($user, 'role') && $user::role('admin')->exists();
-        } catch (Throwable) {
-            return false;
-        }
+        return collect(Route::getRoutes()->getRoutes())->contains(fn ($route) => ($route->defaults['view'] ?? null) === 'admins.pages.dashboard'
+            || str_starts_with($route->getActionName(), 'App\\Http\\Controllers\\Admins\\DashboardController'));
     }
 
     /**
