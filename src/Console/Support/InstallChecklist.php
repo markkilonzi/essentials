@@ -63,14 +63,13 @@ class InstallChecklist
             $this->item('Vite aliases in vite.config.js', collect(array_keys(self::APP_ALIASES))->every(fn (string $alias) => $this->fileHas(base_path('vite.config.js'), "'{$alias}'")), 'Add the '.implode(', ', array_keys(self::APP_ALIASES)).' aliases to resolve.alias in vite.config.js.'),
             $this->item('Scripts imported in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'nyumbani/essentials/resources/dist/essentials.js'), "Add import '../../vendor/nyumbani/essentials/resources/dist/essentials.js'; before Livewire starts."),
             $this->item('Livewire started in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'Livewire.start('), "Add import { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm'; and Livewire.start(); to resources/js/app.js."),
-            $this->item('User model implements HasHomeRoute', is_a($user, HasHomeRoute::class, true), 'Implement Nyumbani\Essentials\Contracts\HasHomeRoute and add homeRoute().'),
+            $this->homeRouteItem($user, $portal),
             $this->item('User model has roles and default permissions', is_string($user) && method_exists($user, 'assignDefaultPermissions'), $this->permissionsFix($user)),
             $this->item('User model can be impersonated', is_string($user) && method_exists($user, 'canBeImpersonated'), 'Use Lab404\Impersonate\Models\Impersonate on the user model.'),
             $this->item('Migrations have run (permissions with group, activity_log)', $this->hasTables(), 'Run php artisan migrate.'),
             $this->item('Laravel Boost is installed', class_exists(BoostInstallCommand::class), 'Run php artisan nyumbani:install, which requires laravel/boost --dev for you.'),
             $this->item('Boost is set up with the Nyumbani packages', $this->boostLoadsPackages(), $this->boostFix()),
             $this->item('Basic portal (dashboard, layout and sidebar)', $portal, 'Run php artisan nyumbani:install --portal.', optional: true),
-            ...($portal ? $this->portalItems() : []),
             $this->item('discord log channel', $this->hasDiscordChannel(), "Add 'discord' => ['driver' => 'discord', 'url' => env('DISCORD_WEBHOOK_URL')] to config/logging.php.", optional: true),
             $this->item('Daraja credentials set', filled(config('daraja.docs.short_code')) && filled(config('daraja.docs.consumer_key')), 'Set DARAJA_SHORT_CODE, DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET and DARAJA_PASS_KEY in .env.', optional: true),
             $this->item('Nyumbani Connect settings set', filled(config('messaging.connect.base_url')) && filled(config('messaging.connect.access_token')), 'Set NYUMBANI_CONNECT_BASE_URL and NYUMBANI_CONNECT_TOKEN in .env.', optional: true),
@@ -78,15 +77,28 @@ class InstallChecklist
     }
 
     /**
-     * Get the check that only applies to an app with the basic portal: a route for its dashboard view (or a controller of your own named Admins\DashboardController), under any name and in any routes file
+     * Get the home route check: the user model implements HasHomeRoute, and with the basic portal the dashboard also has a route, found by its view under any name and in any routes file. The fix names only what is missing.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function portalItems(): array
+    protected function homeRouteItem(mixed $user, bool $portal): array
     {
-        return [
-            $this->item('Portal dashboard has a route', $this->hasDashboardRoute(), "Add Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard'); inside the auth middleware in routes/web.php, and return its URL from homeRoute() on the user model."),
-        ];
+        $implements = is_a($user, HasHomeRoute::class, true);
+        $contract = 'Implement Nyumbani\Essentials\Contracts\HasHomeRoute and add homeRoute().';
+
+        if (! $portal) {
+            return $this->item('User model implements HasHomeRoute', $implements, $contract);
+        }
+
+        //  Name the steps that are missing, joined into one sentence
+        $routed = $this->hasDashboardRoute();
+        $fix = collect([
+            ! $routed ? "Add Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard') inside the auth middleware in routes/web.php" : null,
+            ! $implements ? 'implement Nyumbani\Essentials\Contracts\HasHomeRoute on the user model' : null,
+            $implements && ! $routed ? 'return the dashboard URL from homeRoute() on the user model' : null,
+        ])->filter()->implode(', and ');
+
+        return $this->item('User model implements HasHomeRoute and the dashboard has a route', $implements && $routed, ucfirst($fix).'.');
     }
 
     /**
@@ -110,6 +122,16 @@ class InstallChecklist
         return File::exists(resource_path('views/admins/pages/dashboard.blade.php'))
             && File::exists(resource_path('views/layouts/app.blade.php'))
             && File::exists(resource_path('views/admins/partials/sidebar.blade.php'));
+    }
+
+    /**
+     * Determine whether the user model implements HasHomeRoute and a route shows the portal's dashboard, which is what the home route checklist item needs
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    public function hasHomeRoute(): bool
+    {
+        return is_a(config('auth.providers.users.model'), HasHomeRoute::class, true) && $this->hasDashboardRoute();
     }
 
     /**

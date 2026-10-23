@@ -677,7 +677,11 @@ PHP;
         //  Say what was published
         $this->done('Published the portal views and layout.');
 
-        //  Application code is never edited, so the setup checklist lists what is left to do by hand
+        //  Application code is never edited, so say what is left to do by hand, unless the app has it already
+        if ((new InstallChecklist)->hasHomeRoute()) {
+            return;
+        }
+
         $this->line(" <fg=#d97706;options=bold>The portal needs a route.</> Add <fg=#d97706>Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard')</> inside your auth group in <fg=#d97706>routes/web.php</>, and return its URL from <fg=#d97706>homeRoute()</> on the user model. The checklist below tracks it.");
         $this->newLine();
     }
