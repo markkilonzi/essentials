@@ -7,14 +7,14 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ImageController
 {
     /**
-     * Serve one of the package images, cached for a year.
+     * Serve one of the package images, or one of its favicons when the route names that folder, cached for a year.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    public function __invoke(string $image): BinaryFileResponse
+    public function __invoke(string $image, string $folder = ''): BinaryFileResponse
     {
-        //  Resolve the image inside the package images folder only
-        $path = essentials_path('resources/images/'.basename($image));
+        //  Resolve the image inside the package images folder, or the folder the route names, only
+        $path = essentials_path('resources/images/'.($folder !== '' ? $folder.'/' : '').basename($image));
 
         //  Refuse anything that is not a shipped image
         abort_unless(is_file($path), 404);

@@ -7,10 +7,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') - {{ config('app.name') }}</title>
     {{--  The Nyumbani favicons, served by the package so every app inherits them  --}}
-    <link rel="icon" type="image/x-icon" href="{{ route('essentials.image', ['image' => 'favicon.ico']) }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ route('essentials.image', ['image' => 'favicon-32x32.png']) }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ route('essentials.image', ['image' => 'favicon-16x16.png']) }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ route('essentials.image', ['image' => 'apple-touch-icon.png']) }}">
+    <link rel="icon" type="image/x-icon" href="{{ route('essentials.favicon', ['image' => 'favicon.ico']) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ route('essentials.favicon', ['image' => 'favicon-32x32.png']) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ route('essentials.favicon', ['image' => 'favicon-16x16.png']) }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ route('essentials.favicon', ['image' => 'apple-touch-icon.png']) }}">
     <link rel="manifest" href="{{ route('essentials.manifest') }}">
     <meta name="theme-color" content="{{ config('essentials.branding.theme_color') }}">
     @if (class_exists(Livewire::class))

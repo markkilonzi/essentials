@@ -21,15 +21,13 @@
                 <span class="text-xl font-semibold">{{ config('app.name') }}</span>
             </a>
 
-            {{--  The big code, with the icon bouncing over the middle digit  --}}
-            <div class="relative mb-2 select-none">
-                <p class="bg-linear-to-b from-primary to-primary-dark bg-clip-text text-[9rem] font-bold leading-none tracking-tighter text-transparent sm:text-[12rem]">@yield('code')</p>
-                <div class="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center">
-                    <span class="flex h-20 w-20 animate-bounce items-center justify-center rounded-2xl bg-white/10 text-white shadow-2xl ring-1 ring-white/30 backdrop-blur-sm sm:h-24 sm:w-24">
-                        <svg class="h-10 w-10 sm:h-12 sm:w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">@yield('icon')</svg>
-                    </span>
-                </div>
-            </div>
+            {{--  The big code  --}}
+            <p class="mb-6 select-none bg-linear-to-b from-primary to-primary-dark bg-clip-text text-[9rem] font-bold leading-none tracking-tighter text-transparent sm:text-[12rem]">@yield('code')</p>
+
+            {{--  The icon, small and still, above the heading  --}}
+            <span class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/20">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">@yield('icon')</svg>
+            </span>
 
             <h1 class="text-3xl font-semibold sm:text-4xl">@yield('heading')</h1>
             <p class="mx-auto mt-3 max-w-md text-base leading-relaxed text-white/70">@yield('detail')</p>

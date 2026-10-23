@@ -248,17 +248,23 @@
     </x-docs::section>
 
     <x-docs::section id="branding" title="Favicons and manifest">
-        <p>The base layout links the shared favicons, the white Nyumbani logo,, the Apple touch icon, a web manifest named after your app and a theme colour. They are served by the package, so no app copies icon files. Change the colour with <code>ESSENTIALS_THEME_COLOR</code>.</p>
+        <p>The base layout links the shared favicons (the dark Nyumbani logo on an amber tile, so they show on light and dark tabs), the Apple touch icon, a web manifest named after your app and a theme colour. They are served by the package, so no app copies icon files. Change the colour with <code>ESSENTIALS_THEME_COLOR</code>.</p>
             <x-docs::example title="The shared images, served by the package">
             <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
-                @foreach (['icon-primary.png', 'icon-secondary.png', 'loader.svg', 'favicon-32x32.png', 'apple-touch-icon.png', 'android-chrome-192x192.png', 'auth-background.jpg', 'shell-header.jpeg', 'shell-sidebar.jpeg'] as $image)
+                @foreach (['icon-primary.png', 'icon-secondary.png', 'loader.svg', 'auth-background.jpg', 'shell-header.jpeg', 'shell-sidebar.jpeg'] as $image)
                     <figure class="rounded-md border border-gray-200 p-2 text-center">
                         <div class="flex h-20 items-center justify-center bg-gray-100"><img src="{{ route('essentials.image', ['image' => $image]) }}" alt="{{ $image }}" class="max-h-20 max-w-full object-contain"></div>
                         <figcaption class="mt-1 break-all text-[11px] text-gray-500">{{ $image }}</figcaption>
                     </figure>
                 @endforeach
+                @foreach (['favicon-32x32.png', 'apple-touch-icon.png', 'android-chrome-192x192.png'] as $image)
+                    <figure class="rounded-md border border-gray-200 p-2 text-center">
+                        <div class="flex h-20 items-center justify-center bg-gray-100"><img src="{{ route('essentials.favicon', ['image' => $image]) }}" alt="{{ $image }}" class="max-h-20 max-w-full object-contain"></div>
+                        <figcaption class="mt-1 break-all text-[11px] text-gray-500">favicons/{{ $image }}</figcaption>
+                    </figure>
+                @endforeach
             </div>
-            <p class="mt-3 text-sm text-gray-500">Use one with <code>route('essentials.image', ['image' => 'icon-secondary.png'])</code>. Apps need no copies.</p>
+            <p class="mt-3 text-sm text-gray-500">Use one with <code>route('essentials.image', ['image' => 'icon-secondary.png'])</code>, or a favicon with <code>route('essentials.favicon', ['image' => 'favicon-32x32.png'])</code>. Apps need no copies.</p>
         </x-docs::example>
     </x-docs::section>
 

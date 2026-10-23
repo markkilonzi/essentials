@@ -10,7 +10,7 @@ metadata:
 The package ships a lively page for every common error, and every Nyumbani app inherits them. Do not create `resources/views/errors/*.blade.php` in an app unless the page must differ from the standard.
 
 ## What ships
-`401`, `403`, `404`, `419`, `429`, `500`, `503`, all extending `essentials::layouts.error`, which carries the Nyumbani logo, a gradient status code, a bouncing icon and the actions (Take me home, Go back, Try again).
+`401`, `403`, `404`, `419`, `429`, `500`, `503`, all extending `essentials::layouts.error`, which carries the Nyumbani logo, a gradient status code, a small still icon above the heading and the actions (Take me home, Go back, Try again).
 
 ## How they load
 `ViewServiceProvider::handleErrorPages()` appends the package views directory to `config('view.paths')` (Laravel rebuilds the `errors` namespace from it at render time) and calls `View::addLocation()`. An app view in `resources/views/errors/` still wins because it comes first.

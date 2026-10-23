@@ -6,11 +6,11 @@
 @section('content')
     <x-docs::section id="shipped" title="What ships">
         <x-docs::table :columns="['Code', 'Heading']" :rows="[
-            ['401', 'Hold on, who are you?'],
-            ['403', 'Staff only beyond this door'],
+            ['401', 'Hold on, login to continue'],
+            ['403', 'You are unauthorized'],
             ['404', 'Page not found'],
-            ['419', 'Your session took a nap'],
-            ['429', 'Easy there, speedy'],
+            ['419', 'The page expired'],
+            ['429', 'Easy there, please slow down'],
             ['500', 'Oops, something went wrong'],
             ['503', 'Back in a moment'],
         ]" />

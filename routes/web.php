@@ -12,6 +12,12 @@ Route::get('essentials/images/{image}', ImageController::class)
     ->where('image', '[A-Za-z0-9._-]+')
     ->name('essentials.image');
 
+//  Serve the favicons, which live in their own folder
+Route::get('essentials/favicons/{image}', ImageController::class)
+    ->where('image', '[A-Za-z0-9._-]+')
+    ->defaults('folder', 'favicons')
+    ->name('essentials.favicon');
+
 //  Describe the installable app, named after the app that uses the package
 Route::get('essentials/site.webmanifest', WebManifestController::class)
     ->name('essentials.manifest');
