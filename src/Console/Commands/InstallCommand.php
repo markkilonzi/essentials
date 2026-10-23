@@ -12,17 +12,14 @@ use Nyumbani\Essentials\Console\Support\DirectRequirements;
 use Nyumbani\Essentials\Console\Support\InstallChecklist;
 use ParseError;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Terminal;
 use Symfony\Component\Process\Process as SymfonyProcess;
 use Throwable;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
-use function Laravel\Prompts\info;
-use function Laravel\Prompts\intro;
 use function Laravel\Prompts\note;
-use function Laravel\Prompts\outro;
 use function Laravel\Prompts\spin;
-use function Laravel\Prompts\table;
 
 class InstallCommand extends Command
 {
@@ -131,7 +128,7 @@ PHP;
      *
      * @var string
      */
-    protected $signature = 'nyumbani:install';
+    protected $signature = 'nyumbani:install {--portal : Set up the basic portal without asking}';
 
     /**
      * The console command description.
@@ -148,7 +145,9 @@ PHP;
     public function handle(): int
     {
         //  Greet the developer
-        intro('Nyumbani install');
+        $this->banner('Nyumbani install');
+        $this->line(' <fg=gray>Rules, guidelines, skills and the files your app needs, set up safely and re-runnable.</>');
+        $this->newLine();
 
         //  Install what is missing first, and let a fresh process finish, since the new classes are not loaded here
         if (! $this->isBoostInstalled() || $this->missingPackages() !== []) {
@@ -176,6 +175,12 @@ PHP;
         //  Create the starter permissions file
         $this->createPermissionsFile();
 
+        //  Set up the basic portal, when the developer wants it
+        $this->setUpPortal();
+
+        //  Build the assets, so the theme, scripts and any new views are compiled
+        $this->buildAssets();
+
         //  Sync the roles and permissions from the file, once the tables exist
         $this->syncPermissions();
 
@@ -192,7 +197,8 @@ PHP;
         $this->showDocsInvitation();
 
         //  Close with the next step
-        outro('Done. Run php artisan migrate if the checklist asks for it, and run this command again whenever a package changes.');
+        $this->newLine();
+        $this->banner('All set. Run php artisan migrate if the checklist asks for it, and run this command again whenever a package changes.');
 
         //  Success
         return self::SUCCESS;
@@ -216,7 +222,7 @@ PHP;
             $this->callSilent('vendor:publish', ['--tag' => [$tag]]);
 
             //  Say what was published
-            info("Published config/{$file}.");
+            $this->done("Published config/{$file}.");
 
             //  Give the data tables the Nyumbani look, in the copy just published only, so an app's own edits stay
             if ($tag === 'dt-tables-config') {
@@ -235,7 +241,7 @@ PHP;
             $this->callSilent('vendor:publish', ['--tag' => [$tag]]);
 
             //  Say what was published
-            info("Published the {$name} migration.");
+            $this->done("Published the {$name} migration.");
         }
 
         //  The permission tables come from Essentials' own migration, which already has the group column, so one file does it all
@@ -271,7 +277,7 @@ PHP;
         File::put($path, $config);
 
         //  Say what was set
-        info('Set the data tables to the Tailwind theme.');
+        $this->done('Set the data tables to the Tailwind theme.');
     }
 
     /**
@@ -313,7 +319,7 @@ PHP;
         $this->callSilent('vendor:publish', ['--tag' => [$tag]]);
 
         //  Say what was published
-        info("Published the {$name} migration.");
+        $this->done("Published the {$name} migration.");
     }
 
     /**
@@ -344,7 +350,7 @@ PHP;
         File::put($path, rtrim($content)."\n\n# Nyumbani packages\n".$missing->map(fn (string $key) => "{$key}=")->implode("\n")."\n");
 
         //  Say what was added
-        info("Added {$missing->count()} keys to .env.example.");
+        $this->done("Added {$missing->count()} keys to .env.example.");
     }
 
     /**
@@ -391,7 +397,7 @@ PHP;
         File::put($path, $updated);
 
         //  Say what was added
-        info('Added the discord channel to config/logging.php. Add discord to LOG_STACK to use it.');
+        $this->done('Added the discord channel to config/logging.php. Add discord to LOG_STACK to use it.');
     }
 
     /**
@@ -413,7 +419,7 @@ PHP;
             File::append($css, "\n@import '{$vendor}/nyumbani/essentials/resources/css/theme.css';\n");
 
             //  Say what was imported
-            info('Imported the theme in resources/css/app.css.');
+            $this->done('Imported the theme in resources/css/app.css.');
         }
 
         //  Tell Tailwind to scan the app's enums, data tables and their config, where classes are written in PHP
@@ -428,7 +434,7 @@ PHP;
             File::prepend($js, "import '{$vendor}/nyumbani/essentials/resources/dist/essentials.js';\n");
 
             //  Say what was imported
-            info('Imported the scripts in resources/js/app.js.');
+            $this->done('Imported the scripts in resources/js/app.js.');
         }
 
         //  Livewire starts the Alpine every Nyumbani script needs, so the script must start it unless it already does
@@ -437,7 +443,7 @@ PHP;
             File::append($js, "\nimport { Livewire } from '{$vendor}/livewire/livewire/dist/livewire.esm';\n\n//  Start Livewire, which starts the Alpine it bundles\nLivewire.start();\n");
 
             //  Say what was started
-            info('Started Livewire in resources/js/app.js.');
+            $this->done('Started Livewire in resources/js/app.js.');
         }
 
         //  Move the relative paths an earlier run wrote to the aliases, once the config has them
@@ -492,7 +498,7 @@ PHP;
             if ($content !== File::get($file)) {
                 File::put($file, $content);
 
-                info('Moved the imports in '.str_replace(base_path().'/', '', $file).' to the Vite aliases.');
+                $this->done('Moved the imports in '.str_replace(base_path().'/', '', $file).' to the Vite aliases.');
             }
         }
     }
@@ -542,7 +548,7 @@ PHP;
         File::put($path, $updated);
 
         //  Say what was added
-        info('Added the '.implode(', ', $missing->keys()->all()).' aliases to vite.config.js.');
+        $this->done('Added the '.implode(', ', $missing->keys()->all()).' aliases to vite.config.js.');
     }
 
     /**
@@ -622,7 +628,7 @@ PHP;
         File::append($css, "\n".$missing->implode("\n")."\n");
 
         //  Say what was added
-        info('Added the enum, data table and config sources in resources/css/app.css.');
+        $this->done('Added the enum, data table and config sources in resources/css/app.css.');
     }
 
     /**
@@ -644,7 +650,62 @@ PHP;
         $this->callSilent('vendor:publish', ['--tag' => ['essentials-permissions']]);
 
         //  Say what was created
-        info('Created database/seeders/data/permissions.json.');
+        $this->done('Created database/seeders/data/permissions.json.');
+    }
+
+    /**
+     * Set up the basic portal when the developer asks for it with --portal or answers yes, which a non-interactive run never asks.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function setUpPortal(): void
+    {
+        //  Skip it unless it was asked for, by the flag or by the answer
+        if (! $this->option('portal') && ! ($this->input->isInteractive() && confirm('Set up a basic portal (dashboard, layout and sidebar)?', default: false))) {
+            return;
+        }
+
+        //  Publish the controller and views, each only when the app has none of that name
+        $this->callSilent('vendor:publish', ['--tag' => ['essentials-portal']]);
+
+        //  Say what was published
+        $this->done('Published the portal controller, views and layout.');
+
+        //  Application code is never edited, so the setup checklist lists what is left to do by hand
+        $this->line(' <fg=#d97706;options=bold>The portal is for admins.</> The checklist below lists the steps left: <fg=#d97706>its route</>, <fg=#d97706>its wiring in bootstrap/app.php</> and <fg=#d97706>your first admin user</>.');
+        $this->newLine();
+    }
+
+    /**
+     * Run npm run build when the app has a package.json and its dependencies installed, and say how to do it by hand when it cannot.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function buildAssets(): void
+    {
+        //  Nothing to build without a package.json
+        if (! File::exists(base_path('package.json'))) {
+            return;
+        }
+
+        //  The build needs the npm dependencies
+        if (! File::isDirectory(base_path('node_modules'))) {
+            note('Assets were not built: run npm install, then npm run build.');
+
+            return;
+        }
+
+        //  Build, and report a failure instead of stopping the install
+        $result = spin(fn () => Process::path(base_path())->timeout(600)->run(['npm', 'run', 'build']), 'Building assets with npm run build...');
+
+        if ($result->failed()) {
+            error('npm run build failed. Run it by hand to see why.');
+
+            return;
+        }
+
+        //  Say what was built
+        $this->done('Built the assets with npm run build.');
     }
 
     /**
@@ -685,8 +746,28 @@ PHP;
             $this->callSilent('storage:link');
 
             //  Say what was linked
-            info('Linked the public storage folder.');
+            $this->done('Linked the public storage folder.');
         }
+    }
+
+    /**
+     * Print a message on a block in the Nyumbani primary colour, the way a prompt's intro and outro are drawn, which Laravel Prompts only draws in cyan.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function banner(string $message): void
+    {
+        $this->line("<bg=#d97706;fg=black;options=bold> {$message} </>");
+    }
+
+    /**
+     * Print one finished step as a green tick and its message.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function done(string $message): void
+    {
+        $this->line("  <fg=green>✓</> {$message}");
     }
 
     /**
@@ -696,19 +777,43 @@ PHP;
      */
     protected function showChecklist(): void
     {
-        //  Turn every check into a row, with the fix only for what is not done
-        $rows = collect((new InstallChecklist)->items())->map(fn (array $item) => [
-            $item['label'],
-            match ($item['state']) {
-                'pass' => '✓ done',
-                'optional' => '○ optional',
-                default => '✗ to do',
-            },
-            $item['state'] === 'pass' ? '' : $item['fix'],
-        ])->all();
+        //  Find the checks
+        $items = collect((new InstallChecklist)->items());
 
-        //  Show them as a table
-        table(['Setup checklist', 'State', 'How to fix'], $rows);
+        //  Count what is done
+        $done = $items->where('state', 'pass')->count();
+        $total = $items->count();
+
+        //  Draw a bar for the progress, sized to a fixed width so it never wraps
+        $filled = (int) round(($done / max($total, 1)) * 20);
+        $bar = '<fg=green>'.str_repeat('━', $filled).'</><fg=gray>'.str_repeat('━', 20 - $filled).'</>';
+
+        //  Print the heading
+        $this->newLine();
+        $this->line(" <options=bold>Setup checklist</>  {$bar}  <fg=gray>{$done} of {$total} done</>");
+        $this->newLine();
+
+        //  One line per check: a mark, then its label
+        $width = max(40, (new Terminal)->getWidth() - 8);
+
+        foreach ($items as $item) {
+            [$mark, $color] = match ($item['state']) {
+                'pass' => ['✓', 'green'],
+                'optional' => ['○', 'yellow'],
+                default => ['✗', 'red'],
+            };
+
+            //  A done check stays quiet
+            if ($item['state'] === 'pass') {
+                $this->line("  <fg=green>{$mark}</> <fg=gray>{$item['label']}</>");
+
+                continue;
+            }
+
+            //  What is left shows its label and, beneath it, how to fix it
+            $this->line("  <fg={$color};options=bold>{$mark}</> <options=bold>{$item['label']}</>".($item['state'] === 'optional' ? ' <fg=gray>(optional)</>' : ''));
+            $this->line('    <fg=#d97706>→</> <fg=gray>'.wordwrap($item['fix'], $width, "</>\n      <fg=gray>", false).'</>');
+        }
     }
 
     /**
@@ -737,9 +842,9 @@ PHP;
 
         //  Print the invitation
         $this->newLine();
-        $this->line(' <fg=cyan;options=bold>✦ Nyumbani Essentials is ready.</>');
+        $this->line(' <fg=#d97706;options=bold>✦ Nyumbani Essentials is ready</>');
         $this->newLine();
-        $this->line(' Every feature has a page with examples you can run, not only read.');
+        $this->line(' <fg=gray>Every feature has a page with examples you can run, not only read.</>');
         $this->newLine();
 
         //  One link per line, with the labels and addresses on opposite sides
@@ -801,7 +906,7 @@ PHP;
 
         if ($missing !== []) {
             //  Say why
-            info('Boost only loads packages the app requires itself, so '.implode(' and ', $missing).' must be required directly.');
+            $this->done('Boost only loads packages the app requires itself, so '.implode(' and ', $missing).' must be required directly.');
 
             //  Stop when Composer cannot require them
             if (! $this->requirePackages($missing)) {
@@ -884,7 +989,7 @@ PHP;
             ->forever()
             ->env([self::RESTARTED => '1'])
             ->tty($interactive && SymfonyProcess::isTtySupported())
-            ->run([PHP_BINARY, 'artisan', 'nyumbani:install', ...($interactive ? [] : ['--no-interaction'])], fn (string $type, string $output) => $this->output->write($output))
+            ->run([PHP_BINARY, 'artisan', 'nyumbani:install', ...($interactive ? [] : ['--no-interaction']), ...($this->option('portal') ? ['--portal'] : [])], fn (string $type, string $output) => $this->output->write($output))
             ->exitCode();
     }
 
@@ -922,7 +1027,7 @@ PHP;
         $this->rebuildIndex();
 
         //  Report the result
-        info("Published {$shipped->count()} rule files to .ai/rules.");
+        $this->done("Published {$shipped->count()} rule files to .ai/rules.");
     }
 
     /**

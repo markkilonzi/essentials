@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Http\Controllers\Admins;
+
+use Illuminate\Contracts\View\View;
+
+class DashboardController
+{
+    /**
+     * Show the dashboard every signed-in user lands on
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    public function __invoke(): View
+    {
+        return view('admins.pages.dashboard');
+    }
+}

@@ -53,6 +53,9 @@ class InstallChecklist
         //  Find the user model the app signs people in with
         $user = config('auth.providers.users.model');
 
+        //  The portal steps only matter once the portal has been published
+        $portal = $this->hasPortal();
+
         return [
             $this->item('Theme imported in resources/css/app.css', $this->fileHas(resource_path('css/app.css'), 'nyumbani/essentials/resources/css/theme.css'), "Add @import '../../vendor/nyumbani/essentials/resources/css/theme.css'; after the Tailwind import."),
             $this->item('Enums, data tables and their config scanned in resources/css/app.css', collect(self::APP_SOURCES)->every(fn (string $alias, string $relative) => $this->fileHas(resource_path('css/app.css'), "@source '{$relative}'") || $this->fileHas(resource_path('css/app.css'), "@source '{$alias}'")), 'Add @source lines for app/Enums, app/DataTables and config/dt-tables.php to resources/css/app.css.'),
@@ -65,10 +68,64 @@ class InstallChecklist
             $this->item('Migrations have run (permissions with group, activity_log)', $this->hasTables(), 'Run php artisan migrate.'),
             $this->item('Laravel Boost is installed', class_exists(BoostInstallCommand::class), 'Run php artisan nyumbani:install, which requires laravel/boost --dev for you.'),
             $this->item('Boost is set up with the Nyumbani packages', $this->boostLoadsPackages(), $this->boostFix()),
-            $this->item('discord log channel', config('logging.channels.discord.driver') === 'discord', "Add 'discord' => ['driver' => 'discord', 'url' => env('DISCORD_WEBHOOK_URL')] to config/logging.php.", optional: true),
+            $this->item('Basic portal (dashboard, layout and sidebar)', $portal, 'Run php artisan nyumbani:install --portal.', optional: true),
+            ...($portal ? $this->portalItems($user) : []),
+            $this->item('discord log channel', $this->hasDiscordChannel(), "Add 'discord' => ['driver' => 'discord', 'url' => env('DISCORD_WEBHOOK_URL')] to config/logging.php.", optional: true),
             $this->item('Daraja credentials set', filled(config('daraja.docs.short_code')) && filled(config('daraja.docs.consumer_key')), 'Set DARAJA_SHORT_CODE, DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET and DARAJA_PASS_KEY in .env.', optional: true),
             $this->item('Nyumbani Connect settings set', filled(config('messaging.connect.base_url')) && filled(config('messaging.connect.access_token')), 'Set NYUMBANI_CONNECT_BASE_URL and NYUMBANI_CONNECT_TOKEN in .env.', optional: true),
         ];
+    }
+
+    /**
+     * Get the checks that only apply to an app with the basic portal: its route, its wiring and its first admin
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function portalItems(mixed $user): array
+    {
+        return [
+            $this->item("Portal route 'home' in routes/admins.php", $this->fileHas(base_path('routes/admins.php'), "->name('home')"), "Add Route::get('/', DashboardController::class)->name('home'); (App\\Http\\Controllers\\Admins\\DashboardController) to routes/admins.php."),
+            $this->item('routes/admins.php wired with the role:admin middleware', $this->fileHas(base_path('bootstrap/app.php'), 'admins.php') && $this->fileHas(base_path('bootstrap/app.php'), 'role:admin'), "Load routes/admins.php in bootstrap/app.php with the 'auth' and 'role:admin' middleware, and register the role alias."),
+            $this->item('An admin user exists', $this->hasAdminUser($user), "Give your first user the admin role with \$user->assignDefaultPermissions('admin'), after php artisan nyumbani:permissions."),
+        ];
+    }
+
+    /**
+     * Determine whether the app has the discord log channel, read from config/logging.php as well as the loaded config, which still lacks a channel the installer added moments ago
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function hasDiscordChannel(): bool
+    {
+        return config('logging.channels.discord.driver') === 'discord'
+            || (File::exists(config_path('logging.php')) && preg_match('/[\'"]discord[\'"]\s*=>/', File::get(config_path('logging.php'))) === 1);
+    }
+
+    /**
+     * Determine whether the basic portal's controller, layout, dashboard and sidebar are all in the app
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function hasPortal(): bool
+    {
+        return File::exists(app_path('Http/Controllers/Admins/DashboardController.php'))
+            && File::exists(resource_path('views/admins/pages/dashboard.blade.php'))
+            && File::exists(resource_path('views/layouts/app.blade.php'))
+            && File::exists(resource_path('views/admins/partials/sidebar.blade.php'));
+    }
+
+    /**
+     * Determine whether at least one user holds the admin role
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function hasAdminUser(mixed $user): bool
+    {
+        try {
+            return is_string($user) && method_exists($user, 'role') && $user::role('admin')->exists();
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     /**
