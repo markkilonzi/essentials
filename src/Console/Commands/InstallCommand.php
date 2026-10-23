@@ -861,7 +861,7 @@ PHP;
         $this->line(" <options=bold>Setup checklist</>  {$bar}  <fg=gray>{$done} of {$total} done</>");
         $this->newLine();
 
-        //  One line per check: a mark, then its label
+        //  One line per check: a mark, then its label, in red while it is to do
         $width = max(40, (new Terminal)->getWidth() - 8);
 
         foreach ($items as $item) {
@@ -879,7 +879,8 @@ PHP;
             }
 
             //  What is left shows its label and, beneath it, how to fix it
-            $this->line("  <fg={$color};options=bold>{$mark}</> <options=bold>{$item['label']}</>".($item['state'] === 'optional' ? ' <fg=gray>(optional)</>' : ''));
+            $label = $item['state'] === 'optional' ? "<options=bold>{$item['label']}</> <fg=gray>(optional)</>" : "<fg=red;options=bold>{$item['label']}</>";
+            $this->line("  <fg={$color};options=bold>{$mark}</> {$label}");
             $this->line('    <fg=#d97706>→</> <fg=gray>'.wordwrap($item['fix'], $width, "</>\n      <fg=gray>", false).'</>');
         }
     }

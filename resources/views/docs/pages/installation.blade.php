@@ -85,7 +85,7 @@
     </x-docs::section>
 
     <x-docs::section id="layout" title="4. Use a layout">
-        <p>Extend the portal layout and name the view that holds your menu. Keep it in one app layout, so you do not repeat it on every page. A portal page with no sidebar throws an error that says how to define one.</p>
+        <p>Extend the portal layout and name the view that holds your menu. Keep it in one app layout, so you do not repeat it on every page. A portal page with no sidebar throws an error that says how to define one. <code>php artisan nyumbani:install --portal</code> publishes this layout, a sidebar (<code>admins.partials.sidebar</code>) and a dashboard page for you, so you can skip writing them.</p>
         <x-docs::code lang="blade" title="resources/views/layouts/app.blade.php">
             @verbatim
             @extends('essentials::layouts.portal')
@@ -97,7 +97,7 @@
 
     <x-docs::section id="check" title="Check that it works">
         <ol>
-            <li>Run <code>npm run build</code> so Vite compiles the theme and scripts.</li>
+            <li>The installer already ran <code>npm run build</code> when the app has <code>node_modules</code>. If it did not (or after you add classes), run <code>npm install</code> and <code>npm run build</code> so Vite compiles the theme and scripts.</li>
             <li>Open <code>/login</code>. You should see the Nyumbani sign-in page with the app name.</li>
             <li>Open <code>/{{ $docs->path() }}</code> locally. The docs you are reading appear.</li>
             <li>Visit a page that does not exist. You should get the friendly 404 with the logo.</li>
@@ -112,23 +112,23 @@
             php artisan nyumbani:install
             php artisan migrate
         </x-docs::code>
-        <p>On an interactive run it asks two optional questions, both defaulting to no: <strong>Set up a basic portal?</strong> and <strong>Run the migrations now?</strong>. The installer does the following, and each step only adds what is missing:</p>
+        <p>On an interactive run it asks two optional questions, both defaulting to no: <strong>Set up a basic portal?</strong> and <strong>Run the migrations now?</strong>. The installer does the following, in this order, and each step only adds what is missing:</p>
         <x-docs::table :columns="['Step', 'What it does', 'On a rerun']" :rows="[
+            ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires nyumbani/daraja and nyumbani/messaging in your composer.json if you only have them through Essentials. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there.'],
             ['Rules', 'Copies the Nyumbani rules into .ai/rules and rebuilds the index.', 'Replaces them with the newest, and removes rules the package no longer ships.'],
             ['Config files', 'Publishes config/essentials.php, daraja.php, messaging.php, permission.php, activitylog.php and dt-tables.php. A dt-tables.php published now is set to the Tailwind theme, with btn btn-sm btn-primary buttons and the rounded-lg border px-3 py-1.5 text-sm class on inputs and selects.', 'Skips any that exist, so your edits stay, including a dt-tables.php you already changed.'],
             ['Migrations', 'Publishes one migration that creates the permission tables with the group column built in, and the activity log migration. An app that already has Spatie\'s permission migration without the column gets a small one that adds it.', 'Skips any the app already has.'],
-            ['Log channel', 'Adds the discord channel to config/logging.php, with the driver\'s defaults for level, throttle and message length. You still add discord to the log stack.', 'Skips it if the app has a discord channel, or if the file has no channels list.'],
             ['.env.example', 'Adds the keys the packages read, blank.', 'Adds only the keys that are missing. Your .env is never touched.'],
+            ['Log channel', 'Adds the discord channel to config/logging.php, with the driver\'s defaults for level, throttle and message length. You still add discord to the log stack.', 'Skips it if the app has a discord channel, or if the file has no channels list.'],
             ['Vite aliases', 'Adds @node-modules, @public, @resources, @vendor, @storage, @enums, @data-tables and @config to resolve.alias in vite.config.js, and keeps the file only if Node accepts it.', 'Adds only the aliases that are missing. Leaves a config with its own resolve setting, or with no defineConfig, as it is and tells you what to add.'],
             ['Imports', 'Adds the theme and the @source lines for enums, data tables and their config to resources/css/app.css, and the scripts to resources/js/app.js, and starts Livewire there (which starts the Alpine it bundles). Uses the @vendor, @enums, @data-tables and @config aliases when vite.config.js has them, and the relative paths when it does not.', 'Adds a line only if it is not there, does not start Livewire twice, and moves an earlier relative path to its alias.'],
             ['permissions.json', 'Creates a starter database/seeders/data/permissions.json.', 'Skips it if it exists.'],
+            ['Basic portal (optional)', 'Asks Set up a basic portal? and, on yes (or with php artisan nyumbani:install --portal), publishes resources/views/admins/pages/dashboard.blade.php, admins/partials/sidebar.blade.php and layouts/app.blade.php (tag essentials-portal). The sidebar holds a Dashboard link and a Docs group linking the docs of Essentials, Daraja and Messaging (local only). It then prints what is left by hand, but only while the HasHomeRoute checklist item is not done: a Route::view route for the admins.pages.dashboard view inside your auth group in routes/web.php, under any name you like, and the user model changes. The sidebar link follows whatever URL homeRoute() returns. A non-interactive run never asks.', 'Never overwrites a view the app already has.'],
+            ['Build assets', 'Runs npm run build when the app has a package.json and node_modules, so the theme, scripts and any published views are compiled. A failed build is reported and does not stop the install.', 'Runs every time. Without node_modules it says to run npm install first.'],
             ['Migrations (optional)', 'Asks Run the migrations now? when the permission and activity tables are missing, defaulting to no. On yes it runs php artisan migrate, so the roles and permissions can be synced in the same run. A non-interactive run never asks.', 'Skips the question once the tables exist.'],
             ['Roles and permissions', 'Runs php artisan nyumbani:permissions, which syncs the roles and permissions from database/seeders/data/permissions.json. It needs the permission tables, so on a first install it says to run php artisan migrate and then run the installer again, unless you answered yes to the migrations question.', 'Runs every time the tables exist, which is safe: it only creates what is missing, gives new permissions to users who hold the role and deletes the ones removed from the file.'],
-            ['Basic portal (optional)', 'Asks Set up a basic portal? and, on yes (or with php artisan nyumbani:install --portal), publishes resources/views/admins/pages/dashboard.blade.php, admins/partials/sidebar.blade.php and layouts/app.blade.php (tag essentials-portal). The sidebar holds a Dashboard link and a Docs group linking the docs of Essentials, Daraja and Messaging (local only). It then prints what is left by hand, but only while the HasHomeRoute checklist item is not done: a Route::view route for the admins.pages.dashboard view inside your auth group in routes/web.php, under any name you like, and the user model changes. The sidebar link follows whatever URL homeRoute() returns. A non-interactive run never asks.', 'Never overwrites a view the app already has.'],
-            ['Pint', 'Runs vendor/bin/pint on the PHP files the installer published or edited (the config files, the migrations and config/logging.php), and only those, so your own code is never reformatted. Skipped when the app has no Pint.', 'Runs every time, and only touches files that exist.'],
-            ['Build assets', 'Runs npm run build when the app has a package.json and node_modules, so the theme, scripts and any published views are compiled. A failed build is reported and does not stop the install.', 'Runs every time. Without node_modules it says to run npm install first.'],
             ['Storage link', 'Links public/storage for uploads.', 'Skips it if the link exists.'],
-            ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires nyumbani/daraja and nyumbani/messaging in your composer.json if you only have them through Essentials. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there.'],
+            ['Pint', 'Runs vendor/bin/pint on the PHP files the installer published or edited (the config files, the migrations and config/logging.php), and only those, so your own code is never reformatted. Skipped when the app has no Pint.', 'Runs every time, and only touches files that exist.'],
             ['Boost', 'The first time, runs boost:install with its own questions. Adds Essentials, Daraja and Messaging, and their skills, to boost.json, uses Claude Code as the agent when none is chosen, and refreshes the guidelines and skills.', 'Only refreshes.'],
         ]" />
         <p>With <code>--no-interaction</code> (what Composer runs) it never asks: Boost's first install turns guidelines, skills and MCP all on.</p>
@@ -137,13 +137,15 @@
         <p>The installer never edits your application code. When it finishes it prints what it found and what is left for you:</p>
         <x-docs::code lang="text" title="Setup checklist">
             Theme imported in resources/css/app.css ............ done
-            Vite aliases in vite.config.js ..................... done
             Enums, data tables and their config scanned ........ done
+            Vite aliases in vite.config.js ..................... done
             Scripts imported in resources/js/app.js ............ done
             Livewire started in resources/js/app.js ............ done
             User model implements HasHomeRoute ................. done
             User model has roles and default permissions ....... to do
                 Use Nyumbani\Essentials\Traits\HasDefaultPermissions on the user model.
+            User model can be impersonated ..................... to do
+                Use Lab404\Impersonate\Models\Impersonate on the user model.
             Migrations have run (permissions with group, activity_log) .. to do
                 Run php artisan migrate.
             Laravel Boost is installed ......................... done
@@ -156,5 +158,77 @@
         </x-docs::code>
         <p>With the basic portal, the <code>HasHomeRoute</code> item is one check for both halves: the user model implements <code>HasHomeRoute</code> and a route shows the dashboard view (<code>admins.pages.dashboard</code>), under any name and in any routes file. Its fix names only what is missing.</p>
         <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel, Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. The command then ends with a short invitation that links to this Quick start and to the docs of each package. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
+    </x-docs::section>
+
+    <x-docs::section id="portal" title="Set up the basic portal (optional)">
+        <p>The portal gives a new app a working signed-in shell in a minute: a layout, a sidebar and a dashboard page, all on the shared portal layout. It is optional and the installer asks first, defaulting to no. Do it once, in this order, and nothing is overwritten along the way.</p>
+
+        <h3>1. Publish the views</h3>
+        <x-docs::code lang="bash" title="Terminal">
+            php artisan nyumbani:install --portal
+        </x-docs::code>
+        <p>Or run <code>php artisan nyumbani:install</code> and answer <strong>yes</strong> to <em>Set up a basic portal?</em>. It publishes these files, each only when the app does not have it yet:</p>
+        <x-docs::table :columns="['File', 'What it is']" :rows="[
+            ['resources/views/layouts/app.blade.php', 'Your one app layout. It extends the portal layout and points its sidebar at the sidebar below.'],
+            ['resources/views/admins/partials/sidebar.blade.php', 'The menu: a Dashboard link and, locally, a Docs group linking the docs of Essentials, Daraja and Messaging. Add your own links here.'],
+            ['resources/views/admins/pages/dashboard.blade.php', 'A welcome page with quick links to those docs.'],
+        ]" />
+        <p>A file you already have is never replaced, so your edits are safe when you run the installer again. To take the newest version of a view, delete that one file and run the installer again. Publishing all three over your copies is <code>php artisan vendor:publish --tag=essentials-portal --force</code>, so use it only on files you have not changed.</p>
+
+        <h3>2. Add the dashboard route</h3>
+        <p>The installer edits no routes. Add this to the bottom of <code>routes/web.php</code>. It must sit inside the <code>auth</code> middleware, because the portal layout sends a guest to sign in. The route can have any name, as long as the user model returns its URL in step 3.</p>
+        <x-docs::code title="routes/web.php">
+            use Illuminate\Support\Facades\Route;
+
+            Route::middleware('auth')->group(function () {
+                Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard');
+            });
+        </x-docs::code>
+
+        <h3>3. Make the user model ready</h3>
+        <p>The sidebar and the sign-in redirect ask the user model where to go. Add the contract and the two traits to your existing model; keep the traits it already uses, such as <code>HasFactory</code> and <code>Notifiable</code>.</p>
+        <x-docs::code title="app/Models/User.php">
+            use Illuminate\Foundation\Auth\User as Authenticatable;
+            use Lab404\Impersonate\Models\Impersonate;
+            use Nyumbani\Essentials\Contracts\HasHomeRoute;
+            use Nyumbani\Essentials\Traits\HasDefaultPermissions;
+
+            class User extends Authenticatable implements HasHomeRoute
+            {
+                use HasDefaultPermissions, Impersonate;
+
+                public function homeRoute(): string
+                {
+                    return route('dashboard');
+                }
+            }
+        </x-docs::code>
+
+        <h3>4. Build, migrate and sign in</h3>
+        <p>The installer already ran <code>npm run build</code> if the app has <code>node_modules</code>. Run the migrations if you answered no to that question, then create a user to sign in with. There is no registration page, so seed one and give it a role from <code>permissions.json</code> (see <a href="{{ $docs->url('permissions') }}">Permissions</a>).</p>
+        <x-docs::code lang="bash" title="Terminal">
+            php artisan migrate
+            php artisan nyumbani:permissions
+        </x-docs::code>
+        <x-docs::code title="database/seeders/DatabaseSeeder.php">
+            use App\Models\User;
+
+            User::factory()
+                ->create(['name' => 'Admin', 'email' => 'admin@example.com'])
+                ->assignDefaultPermissions('admin');
+        </x-docs::code>
+        <p>Then open <code>/login</code>, sign in, and you land on <code>/dashboard</code>. Run <code>php artisan nyumbani:install</code> once more: the <em>User model implements HasHomeRoute and the dashboard has a route</em> item should read <strong>done</strong>.</p>
+
+        <h3>If something goes wrong</h3>
+        <x-docs::table :columns="['What you see', 'Why', 'What to do']" :rows="[
+            ['View [admins.pages.dashboard] not found', 'The portal views were not published.', 'Run php artisan nyumbani:install --portal.'],
+            ['Route [dashboard] not defined', 'The route from step 2 is missing, or homeRoute() names a route that does not exist.', 'Add the route, or return the URL of your own route from homeRoute().'],
+            ['A LogicException about the sidebar', 'Your layout extends the portal layout but names no sidebar view, or names one that does not exist.', 'Set the layout sidebar section to admins.partials.sidebar, or to your own partial.'],
+            ['I already had a layouts/app.blade.php', 'The installer never replaces it, so it still points at your old sidebar.', 'Point its sidebar section at admins.partials.sidebar, or copy the links you want into your own partial.'],
+            ['The pages have no styling or the toasts do not appear', 'The theme or the scripts are not compiled.', 'Run npm install, then npm run build. The checklist says if the theme or script import is missing.'],
+            ['The Docs group is missing from the sidebar', 'The package docs are served only in the local environment.', 'Set APP_ENV=local while developing. Nothing is wrong in other environments.'],
+            ['Sign-in sends me to a page that is not the dashboard', 'A user goes to the page they were trying to reach first, then to homeRoute().', 'Check what homeRoute() returns for that user.'],
+            ['The checklist still says to do after I added the route', 'The installer reads the routes loaded when it started.', 'Run php artisan nyumbani:install again.'],
+        ]" />
     </x-docs::section>
 @endsection
