@@ -131,6 +131,7 @@
     </x-docs::section>
 
     <x-docs::section id="data-tables" title="Data tables">
+        <p>Tables come from <code>nyumbani/dt-tables</code>, which Essentials requires. The <a href="{{ $docs->url('dt-tables') }}">Data tables</a> page introduces it, and its own docs cover every mode, with the example tables of this app one click away.</p>
         <x-docs::rule title="Inline unless told otherwise">
             <p>Build every table as an inline table: a class extending <code>BaseTable</code>, created with <code>php artisan make:data-table Name</code> and rendered with <code>&lt;x-data-table :payload="..."&gt;</code>. The browser searches and sorts the rows. Use a server-side table (<code>--server-side</code>) or an API table (<code>--api</code>) only when the request asks for it. If an inline table might hold thousands of rows, say so and still build it inline.</p>
             <x-docs::code lang="bash" title="Terminal">
@@ -140,7 +141,7 @@
             </x-docs::code>
         </x-docs::rule>
         <x-docs::rule title="Newest first, never paginated">
-            <p>Order <code>query()</code> with <code>-&gt;latest('id')</code>, qualifying the column (<code>users.id</code>) when the query joins. Return the unpaginated query: never call <code>paginate()</code>, <code>simplePaginate()</code> or <code>cursorPaginate()</code>, because <code>amprest/dt-tables</code> handles paging.</p>
+            <p>Order <code>query()</code> with <code>-&gt;latest('id')</code>, qualifying the column (<code>users.id</code>) when the query joins. Return the unpaginated query: never call <code>paginate()</code>, <code>simplePaginate()</code> or <code>cursorPaginate()</code>, because <code>nyumbani/dt-tables</code> handles paging.</p>
         </x-docs::rule>
         <x-docs::rule title="Scripts do not run inside rows">
             <p>Rows and row actions are inserted with <code>innerHTML</code>, so a <code>&lt;script&gt;</code> in them never runs and a <code>@@push('js')</code> made while rendering a row never reaches the layout. For a modal or form rendered per row, use an inline <code>x-data="{ ... }"</code> object and <code>x-on:</code> handlers, or register the component in a file in <code>resources/js</code> that the app imports once.</p>

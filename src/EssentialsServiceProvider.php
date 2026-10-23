@@ -4,6 +4,7 @@ namespace Nyumbani\Essentials;
 
 use Illuminate\Support\ServiceProvider;
 use Nyumbani\Docs\DocsRegistry;
+use Nyumbani\DtTables\DtTablesServiceProvider;
 use Nyumbani\Essentials\Console\Commands\InstallCommand;
 use Nyumbani\Essentials\Console\Commands\PermissionsCommand;
 use Nyumbani\Essentials\Docs\EssentialsDocs;
@@ -70,7 +71,7 @@ class EssentialsServiceProvider extends ServiceProvider
 
         //  Publish the data tables config, which its own package offers no tag for
         $this->publishes([
-            package_path('config/dt-tables.php') => config_path('dt-tables.php'),
+            DtTablesServiceProvider::path('config/dt-tables.php') => config_path('dt-tables.php'),
         ], 'dt-tables-config');
 
         //  Publish the permission tables migration, with the group column built in, and the small one for tables an app created without it, each under a timestamped name

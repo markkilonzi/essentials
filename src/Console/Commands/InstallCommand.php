@@ -37,6 +37,7 @@ class InstallCommand extends Command
         'nyumbani/essentials',
         'nyumbani/daraja',
         'nyumbani/messaging',
+        'nyumbani/dt-tables',
     ];
 
     /**
@@ -116,7 +117,7 @@ PHP;
      *
      * @var list<string>
      */
-    protected const DIRECT_PACKAGES = ['nyumbani/daraja', 'nyumbani/messaging'];
+    protected const DIRECT_PACKAGES = ['nyumbani/daraja', 'nyumbani/messaging', 'nyumbani/dt-tables'];
 
     /**
      * The environment variable that marks the second pass of the command, so a Boost that still cannot be loaded never loops.
@@ -907,6 +908,7 @@ PHP;
             'Essentials' => $essentials->url(),
             'Payments' => $registry->find('nyumbani-daraja')?->url(),
             'SMS' => $registry->find('nyumbani-messaging')?->url(),
+            'Tables' => $registry->find('nyumbani-dt-tables')?->url(),
         ])->filter();
 
         //  Print the invitation
@@ -1162,7 +1164,7 @@ PHP;
     }
 
     /**
-     * Add Essentials, Daraja and Messaging to the packages Boost loads from, which it keeps in boost.json.
+     * Add Essentials, Daraja, Messaging and DtTables to the packages Boost loads from, which it keeps in boost.json.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -1192,7 +1194,7 @@ PHP;
     }
 
     /**
-     * Get the names of the skills the three Nyumbani packages ship, read from their folders in vendor.
+     * Get the names of the skills the Nyumbani packages ship, read from their folders in vendor.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */

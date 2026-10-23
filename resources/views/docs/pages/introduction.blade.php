@@ -42,10 +42,11 @@
     </x-docs::section>
 
     <x-docs::section id="packages" title="The other Nyumbani packages">
-        <p>Essentials is the foundation, and it requires two more Nyumbani packages, so every app that installs it gets all three. Each has its own docs, in the package switcher at the top of this page, and a short page for each under Foundation in the sidebar. They need only Laravel themselves, so they never require Essentials.</p>
+        <p>Essentials is the foundation, and it requires three more Nyumbani packages, so every app that installs it gets all four. Each has its own docs, in the package switcher at the top of this page, and a short page for each under Foundation in the sidebar. They need only Laravel themselves, so they never require Essentials.</p>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <x-docs::card title="Daraja" href="{{ url('nyumbani-daraja/docs') }}">M-Pesa through Safaricom: STK push, C2B and Pull transactions, and the guard for their callbacks.</x-docs::card>
             <x-docs::card title="Messaging" href="{{ url('nyumbani-messaging/docs') }}">Queue SMS through Nyumbani Connect with handlers, scopes, rate limiting and retries.</x-docs::card>
+            <x-docs::card title="DtTables" href="{{ url('nyumbani-dt-tables/docs') }}">Searchable, sortable tables: inline, server-side and API, with a Tailwind theme.</x-docs::card>
         </div>
     </x-docs::section>
 

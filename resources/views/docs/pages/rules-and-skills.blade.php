@@ -15,7 +15,7 @@
 
     <x-docs::section id="skills" title="Skills">
         <p>Skills teach an AI agent how to use a part of the package. Laravel Boost finds them in the package's <code>resources/boost/skills</code> folder.</p>
-        <p>You do not run Boost yourself. The first time, <code>nyumbani:install</code> runs <code>boost:install</code> and asks Boost's own questions about agents (a non-interactive run turns guidelines, skills and MCP all on). Boost reads skills only from packages your app requires itself, so the installer first makes sure <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code> are in your <code>composer.json</code> next to Essentials. Every time, it adds <code>nyumbani/essentials</code>, <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code> to <code>boost.json</code>, lists their skills there (<code>boost:update</code> installs only the skills named in <code>boost.json</code>), uses Claude Code as the agent when none is chosen, and runs <code>boost:update</code>, so rules, guidelines and skills stay current with one command.</p>
+        <p>You do not run Boost yourself. The first time, <code>nyumbani:install</code> runs <code>boost:install</code> and asks Boost's own questions about agents (a non-interactive run turns guidelines, skills and MCP all on). Boost reads skills only from packages your app requires itself, so the installer first makes sure <code>nyumbani/daraja</code>, <code>nyumbani/messaging</code> and <code>nyumbani/dt-tables</code> are in your <code>composer.json</code> next to Essentials. Every time, it adds <code>nyumbani/essentials</code>, <code>nyumbani/daraja</code>, <code>nyumbani/messaging</code> and <code>nyumbani/dt-tables</code> to <code>boost.json</code>, lists their skills there (<code>boost:update</code> installs only the skills named in <code>boost.json</code>), uses Claude Code as the agent when none is chosen, and runs <code>boost:update</code>, so rules, guidelines and skills stay current with one command.</p>
         <x-docs::table :columns="['Skill', 'Covers']" :rows="[
             ['nyumbani-modal', 'The modal component and its options.'],
             ['nyumbani-error-pages', 'The shipped error pages and how to change them.'],
@@ -27,7 +27,7 @@
             ['nyumbani-auth', 'Sign-in, password reset, home routes, the login throttle and impersonation.'],
             ['nyumbani-helpers', 'Formatting helpers in PHP, Blade and JavaScript, and the period filter.'],
         ]" />
-        <p>Other Nyumbani packages ship their own skills the same way. <code>nyumbani/daraja</code> adds <code>nyumbani-daraja-payments</code> and <code>nyumbani-daraja-webhooks</code>; <code>nyumbani/messaging</code> adds <code>nyumbani-messaging</code>. Add each package to <code>boost.json</code> and run <code>php artisan boost:update</code>. Their docs are in the switcher at the top of this page.</p>
+        <p>Other Nyumbani packages ship their own skills the same way. <code>nyumbani/daraja</code> adds <code>nyumbani-daraja-payments</code> and <code>nyumbani-daraja-webhooks</code>; <code>nyumbani/messaging</code> adds <code>nyumbani-messaging</code>; <code>nyumbani/dt-tables</code> adds <code>dt-tables-development</code>, <code>dt-tables-server-side</code> and <code>dt-tables-admin</code>. Add each package to <code>boost.json</code> and run <code>php artisan boost:update</code>. Their docs are in the switcher at the top of this page.</p>
     </x-docs::section>
 
     <x-docs::section id="read" title="Read the rules">

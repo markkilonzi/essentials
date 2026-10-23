@@ -15,11 +15,11 @@
     </x-docs::section>
 
     <x-docs::section id="require" title="1. Require the package">
-        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it, the two other Nyumbani packages, <code>nyumbani/daraja</code> and <code>nyumbani/messaging</code>, so there is nothing more to require for M-Pesa or SMS, and <code>nyumbani/docs</code>, which serves the docs you are reading.</p>
+        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it, the other Nyumbani packages, <code>nyumbani/daraja</code>, <code>nyumbani/messaging</code> and <code>nyumbani/dt-tables</code>, so there is nothing more to require for M-Pesa, SMS or data tables, and <code>nyumbani/docs</code>, which serves the docs you are reading.</p>
         <x-docs::code lang="bash" title="Terminal">
             composer require nyumbani/essentials
         </x-docs::code>
-        <p>Laravel discovers the service providers on its own, so there is nothing to register. Daraja and Messaging come with it, but Laravel Boost loads AI skills only from packages your app lists itself, so step 5 also adds them to your <code>composer.json</code>. The docs package needs no step: it brings its own styles and scripts, and serves them only in the local environment.</p>
+        <p>Laravel discovers the service providers on its own, so there is nothing to register. Daraja, Messaging and DtTables come with it, but Laravel Boost loads AI skills only from packages your app lists itself, so step 5 also adds them to your <code>composer.json</code>. The docs package needs no step: it brings its own styles and scripts, and serves them only in the local environment.</p>
     </x-docs::section>
 
     <x-docs::section id="theme" title="2. Import the theme">
@@ -114,7 +114,7 @@
         </x-docs::code>
         <p>On an interactive run it asks two optional questions, both defaulting to no: <strong>Set up a basic portal?</strong> and <strong>Run the migrations now?</strong>. The installer does the following, in this order, and each step only adds what is missing:</p>
         <x-docs::table :columns="['Step', 'What it does', 'On a rerun']" :rows="[
-            ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires nyumbani/daraja and nyumbani/messaging in your composer.json if you only have them through Essentials. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there.'],
+            ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires nyumbani/daraja, nyumbani/messaging and nyumbani/dt-tables in your composer.json if you only have them through Essentials. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there.'],
             ['Rules', 'Copies the Nyumbani rules into .ai/rules and rebuilds the index.', 'Replaces them with the newest, and removes rules the package no longer ships.'],
             ['Config files', 'Publishes config/essentials.php, daraja.php, messaging.php, permission.php, activitylog.php and dt-tables.php. A dt-tables.php published now is set to the Tailwind theme, with btn btn-sm btn-primary buttons and the rounded-lg border px-3 py-1.5 text-sm class on inputs and selects.', 'Skips any that exist, so your edits stay, including a dt-tables.php you already changed.'],
             ['Migrations', 'Publishes one migration that creates the permission tables with the group column built in, and the activity log migration. An app that already has Spatie\'s permission migration without the column gets a small one that adds it.', 'Skips any the app already has.'],
@@ -129,7 +129,7 @@
             ['Roles and permissions', 'Runs php artisan nyumbani:permissions, which syncs the roles and permissions from database/seeders/data/permissions.json. It needs the permission tables, so on a first install it says to run php artisan migrate and then run the installer again, unless you answered yes to the migrations question.', 'Runs every time the tables exist, which is safe: it only creates what is missing, gives new permissions to users who hold the role and deletes the ones removed from the file.'],
             ['Storage link', 'Links public/storage for uploads.', 'Skips it if the link exists.'],
             ['Pint', 'Runs vendor/bin/pint on the PHP files the installer published or edited (the config files, the migrations and config/logging.php), and only those, so your own code is never reformatted. Skipped when the app has no Pint.', 'Runs every time, and only touches files that exist.'],
-            ['Boost', 'The first time, runs boost:install with its own questions. Adds Essentials, Daraja and Messaging, and their skills, to boost.json, uses Claude Code as the agent when none is chosen, and refreshes the guidelines and skills.', 'Only refreshes.'],
+            ['Boost', 'The first time, runs boost:install with its own questions. Adds Essentials, Daraja, Messaging and DtTables, and their skills, to boost.json, uses Claude Code as the agent when none is chosen, and refreshes the guidelines and skills.', 'Only refreshes.'],
         ]" />
         <p>With <code>--no-interaction</code> (what Composer runs) it never asks: Boost's first install turns guidelines, skills and MCP all on.</p>
 
@@ -170,7 +170,7 @@
         <p>Or run <code>php artisan nyumbani:install</code> and answer <strong>yes</strong> to <em>Set up a basic portal?</em>. It publishes these files, each only when the app does not have it yet:</p>
         <x-docs::table :columns="['File', 'What it is']" :rows="[
             ['resources/views/layouts/app.blade.php', 'Your one app layout. It extends the portal layout and points its sidebar at the sidebar below.'],
-            ['resources/views/admins/partials/sidebar.blade.php', 'The menu: a Dashboard link and, locally, a Docs group linking the docs of Essentials, Daraja and Messaging. Add your own links here.'],
+            ['resources/views/admins/partials/sidebar.blade.php', 'The menu: a Dashboard link and, locally, a Docs group linking the docs of Essentials, Daraja, Messaging and DtTables. Add your own links here.'],
             ['resources/views/admins/pages/dashboard.blade.php', 'A welcome page with quick links to those docs.'],
         ]" />
         <p>A file you already have is never replaced, so your edits are safe when you run the installer again. To take the newest version of a view, delete that one file and run the installer again. Publishing all three over your copies is <code>php artisan vendor:publish --tag=essentials-portal --force</code>, so use it only on files you have not changed.</p>

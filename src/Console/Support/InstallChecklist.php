@@ -188,17 +188,17 @@ class InstallChecklist
     protected function boostFix(): string
     {
         //  Boost ignores guidelines and skills of packages that reach the app only through another package
-        $missing = (new DirectRequirements)->missing(['nyumbani/daraja', 'nyumbani/messaging']);
+        $missing = (new DirectRequirements)->missing(['nyumbani/daraja', 'nyumbani/messaging', 'nyumbani/dt-tables']);
 
         if ($missing !== []) {
             return 'Boost only loads packages the app requires itself. Run composer require '.implode(' ', $missing).', then php artisan nyumbani:install.';
         }
 
-        return 'Run php artisan nyumbani:install to set Boost up and load Essentials, Daraja and Messaging.';
+        return 'Run php artisan nyumbani:install to set Boost up and load Essentials, Daraja, Messaging and DtTables.';
     }
 
     /**
-     * Determine whether Boost has its settings and loads the three Nyumbani packages, so their guidelines and skills reach the agents
+     * Determine whether Boost has its settings and loads the Nyumbani packages, so their guidelines and skills reach the agents
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -215,7 +215,7 @@ class InstallChecklist
         $packages = json_decode(File::get($path), true)['packages'] ?? [];
 
         //  Every Nyumbani package must be among them
-        return array_diff(['nyumbani/essentials', 'nyumbani/daraja', 'nyumbani/messaging'], $packages) === [];
+        return array_diff(['nyumbani/essentials', 'nyumbani/daraja', 'nyumbani/messaging', 'nyumbani/dt-tables'], $packages) === [];
     }
 
     /**

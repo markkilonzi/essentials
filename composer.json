@@ -19,12 +19,12 @@
 	],
 	"require": {
 		"php": "^8.3",
-		"amprest/dt-tables": "^2.06",
+		"nyumbani/dt-tables": "^3.1",
 		"lab404/laravel-impersonate": "^1.7",
 		"laravel/fortify": "^1.41",
 		"livewire/livewire": "^4.4",
 		"nyumbani/daraja": "^1.0",
-		"nyumbani/docs": "^1.0",
+		"nyumbani/docs": "^1.1",
 		"nyumbani/messaging": "^1.0",
 		"spatie/laravel-activitylog": "^5.1",
 		"spatie/laravel-permission": "^8.3"

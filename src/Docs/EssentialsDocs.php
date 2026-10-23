@@ -37,6 +37,7 @@ class EssentialsDocs
                 'logging' => 'Logging to Discord',
                 'messaging' => 'Messaging',
                 'daraja' => 'Daraja',
+                'dt-tables' => 'Data tables',
             ]],
             ['title' => 'Users and models', 'pages' => [
                 'authentication' => 'Authentication',
