@@ -69,6 +69,11 @@
         }
     }
 
+    /* The review a form carries for its confirm modal is copied into the review step, so the form itself never shows it */
+    [data-review] {
+        display: none;
+    }
+
     [x-cloak] {
         display: none !important;
     }

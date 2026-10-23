@@ -48,7 +48,7 @@
                             <div x-show="failed" x-cloak class="p-6 text-center text-red-600">
                                 We could not load this. <button type="button" class="underline" x-on:click="load()">Try again</button>
                             </div>
-                            <div x-ref="remote"></div>
+                            <div x-ref="remote" @if ($confirm) x-show="! confirming" @endif></div>
                         @endif
 
                         @if ($confirm)
@@ -58,7 +58,7 @@
                                 <div x-show="! confirming" x-transition:enter="transition duration-200 ease-out" x-transition:enter-start="-translate-x-4 opacity-0" x-transition:enter-end="translate-x-0 opacity-100" x-transition:leave="transition duration-150 ease-in" x-transition:leave-start="translate-x-0 opacity-100" x-transition:leave-end="-translate-x-4 opacity-0" class="col-start-1 row-start-1">{{ $slot }}</div>
 
                                 {{--  Step two: the review  --}}
-                                <div x-show="confirming" x-cloak x-transition:enter="transition duration-200 ease-out" x-transition:enter-start="translate-x-4 opacity-0" x-transition:enter-end="translate-x-0 opacity-100" x-transition:leave="transition duration-150 ease-in" x-transition:leave-start="translate-x-0 opacity-100" x-transition:leave-end="translate-x-4 opacity-0" class="col-start-1 row-start-1">{{ $review ?? '' }}</div>
+                                <div x-show="confirming" x-cloak x-transition:enter="transition duration-200 ease-out" x-transition:enter-start="translate-x-4 opacity-0" x-transition:enter-end="translate-x-0 opacity-100" x-transition:leave="transition duration-150 ease-in" x-transition:leave-start="translate-x-0 opacity-100" x-transition:leave-end="translate-x-4 opacity-0" class="col-start-1 row-start-1" x-ref="review" data-slotted="{{ isset($review) && $review->hasActualContent() ? 'true' : 'false' }}">{{ $review ?? '' }}</div>
                             </div>
                         @else
                             {{ $slot }}

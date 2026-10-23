@@ -1757,10 +1757,15 @@ document.addEventListener("alpine:init", () => {
 		},
 		advance() {
 			let e = this.$refs.body.querySelector("form");
-			e && e.reportValidity() && (this.data = Object.fromEntries(new FormData(e)), this.confirming = !0);
+			e && e.reportValidity() && (this.data = Object.fromEntries(new FormData(e)), this.fillReview(), this.confirming = !0);
+		},
+		fillReview() {
+			let e = this.$refs.body.querySelector("[data-review]"), t = this.$refs.review;
+			e && t && t.dataset.slotted !== "true" && (t.innerHTML = e.innerHTML);
 		},
 		back() {
-			this.confirming = !1, this.data = {};
+			let e = this.confirming;
+			this.confirming = !1, this.data = {}, e && this.$refs.review && this.$refs.review.dataset.slotted !== "true" && (this.$refs.review.innerHTML = "");
 		},
 		submitted(t) {
 			e.confirm && !this.confirming && (t.preventDefault(), this.advance());

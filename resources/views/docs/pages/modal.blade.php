@@ -229,7 +229,7 @@
     </x-docs::section>
 
     <x-docs::section id="confirm" title="Two-step confirmation">
-        <p>Add <code>confirm</code> to show a review before a form posts. The first step is your form. <strong>Continue</strong> runs the browser's own validation, so required fields, patterns and lengths report as usual. The second step shows your <code>review</code> slot, and the <code>action</code> slot holds the real submit button.</p>
+        <p>Add <code>confirm</code> to show a review before a form posts. The first step is your form. <strong>Continue</strong> runs the browser's own validation, so required fields, patterns and lengths report as usual. The second step shows the <code>data-review</code> block you wrote inside the form, and the <code>action</code> slot holds the real submit button.</p>
         <x-docs::code lang="blade" title="resources/views/customers/create.blade.php">
             @verbatim
             <x-essentials::modal confirm name="new-customer" error-bag="new-customer" title="New customer">
@@ -237,11 +237,11 @@
                     @csrf
                     @bag('new-customer')
                     <input name="name" type="text" required minlength="3">
-                </form>
 
-                <x-slot:review>
-                    <p class="p-4">Name: <span x-text="data.name"></span></p>
-                </x-slot:review>
+                    <div data-review>
+                        <p class="p-4">Name: <span x-text="data.name"></span></p>
+                    </div>
+                </form>
 
                 <x-slot:action>
                     <button type="submit" form="new-customer-form" class="btn btn-primary">Save customer</button>
@@ -252,10 +252,27 @@
         <x-docs::table :columns="['Piece', 'What it does']" :rows="[
             ['confirm', 'Turns the two steps on.'],
             ['default slot', 'Step one. Put the form here. It stays on the page during the review, so it still posts.'],
-            ['review slot', 'Step two. Read what was typed with data.field_name, for example data.name.'],
+            ['data-review block', 'Step two. Write it inside the form. The modal copies it into the review, so a form shared between modals, or loaded with src, carries its own review. Read what was typed with data.field_name, for example data.name.'],
             ['action slot', 'The submit button, shown in step two. Point it at the form with its form attribute set to the form id.'],
             ['continue-label, back-label', 'Button text. They default to Continue and Back.'],
         ]" />
+        <h3>The review lives in the form</h3>
+        <p>Put the review in a <code>data-review</code> block inside the form. When the reader presses Continue, the modal copies the block into the review step. The block is hidden in the form, and it reads <code>data</code>. Because the block travels with the form, one form partial serves a modal on the page and a form loaded from a url with <code>src</code>, and nothing is repeated. A remote form also hides itself during the review, so it needs no <code>x-show</code> of its own.</p>
+        <x-docs::code lang="blade" title="resources/views/customers/partials/form.blade.php">
+            @verbatim
+            <form id="customer-form" method="POST" action="{{ $action }}" class="p-4">
+                @csrf
+                <input name="name" type="text" required minlength="3">
+
+                <div data-review>
+                    Name: <span x-text="data.name"></span>
+                </div>
+            </form>
+            @endverbatim
+        </x-docs::code>
+        <x-docs::callout type="note" title="The review slot is retired">
+            Older code may still use <code>&lt;x-slot:review&gt;</code>, and it keeps working, but new code never does. A <code>data-review</code> block is the only way to write a review.
+        </x-docs::callout>
         <p>The steps slide and fade into each other, so the move between the form and the review is visible. Back plays the same animation in reverse.</p>
         <h3>How the steps behave</h3>
         <ul>
@@ -273,7 +290,7 @@
             ['Field removed with x-if', 'Not in data. x-show is fine.'],
             ['Checkbox group or name[]', 'Only one value. Show these yourself.'],
         ]" />
-        <p>The <code>review</code> slot sits outside the form, so it cannot see the form's own <code>x-data</code>. It reads <code>data</code> only.</p>
+        <p>The review is copied into the modal, so it cannot see the form's own <code>x-data</code>. It reads <code>data</code> only.</p>
         <x-docs::callout type="note" title="Not a confirm dialog">
             This reviews a form before saving. To confirm a destructive action, use the browser's <code>confirm()</code> as below.
         </x-docs::callout>
@@ -286,14 +303,14 @@
                     @bag('docs-confirm')
                     <label for="docs-confirm-name" aria-required="true">Name</label>
                     <input id="docs-confirm-name" name="name" type="text" required minlength="3" placeholder="At least 3 letters">
-                </form>
 
-                <x-slot:review>
-                    <div class="p-4">
-                        <p class="text-gray-500">Check the details, then save.</p>
-                        <p class="mt-2 text-lg"><span class="text-gray-500">Name:</span> <span x-text="data.name"></span></p>
+                    <div data-review>
+                        <div class="p-4">
+                            <p class="text-gray-500">Check the details, then save.</p>
+                            <p class="mt-2 text-lg"><span class="text-gray-500">Name:</span> <span x-text="data.name"></span></p>
+                        </div>
                     </div>
-                </x-slot:review>
+                </form>
 
                 <x-slot:action>
                     <button type="submit" form="docs-confirm-form" class="btn btn-primary">Save customer</button>

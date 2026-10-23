@@ -56,19 +56,31 @@ It does not reopen when the modal has no `error-bag`, when the name differs from
 Remote content: pass `src` and return a Blade fragment, not a full page, from that route. The loader shows while it loads and a retry link shows on failure. It loads once per page, and again only after a failure.
 
 ## Two-step confirmation
-Use `confirm` to review a form before it posts. The default slot is step one (the form, with an `id`), `review` is step two and the `action` slot holds the real submit button, pointed at the form with `form="id"`. Continue runs the browser's native validation (`reportValidity()`), so use normal `required`, `minlength` and `pattern` attributes. The review reads what was typed from `data`, for example `x-text="data.name"`. The Enter key acts as Continue, and the modal always opens on step one.
+Use `confirm` to review a form before it posts. The default slot is step one (the form, with an `id`), step two is a `<div data-review>` written inside that form, and the `action` slot holds the real submit button, pointed at the form with `form="id"`. Continue runs the browser's native validation (`reportValidity()`), so use normal `required`, `minlength` and `pattern` attributes. The review reads what was typed from `data`, for example `x-text="data.name"`. The Enter key acts as Continue, and the modal always opens on step one.
 ```blade
 <x-essentials::modal confirm error-bag="new-customer" title="New customer">
     <form id="new-customer-form" method="POST" action="{{ route('customers.store') }}">
         @csrf
         @bag('new-customer')
         <input name="name" required minlength="3">
+
+        <div data-review>Name: <span x-text="data.name"></span></div>
     </form>
-    <x-slot:review>Name: <span x-text="data.name"></span></x-slot:review>
     <x-slot:action><button type="submit" form="new-customer-form" class="btn btn-primary">Save</button></x-slot:action>
 </x-essentials::modal>
 ```
 The review reads `data` keyed by each field's `name`, so every field needs a `name`. Fields with no name, values held only in Alpine state, fields removed with `x-if`, checkbox groups and `name[]` are not in `data`; a select gives its value, not its label. A submit during step one is intercepted before the form's own `x-on:submit` or `wire:submit` runs, and those handlers run only in step two. The steps animate with `x-transition`.
+
+The review always lives in the form, in a `<div data-review>`. When the reader presses Continue, the modal copies that block into the review step, so one form partial serves a modal on the page and a form loaded with `src`. Never write `<x-slot:review>` in new code: the slot is retired and only still works so older code does not break. The block is hidden in the form and reads `data`. On a `confirm` modal the remote body hides itself during the review, so the form needs no `x-show` of its own.
+
+```blade
+<form id="customer-form" method="POST" action="{{ $action }}" class="p-4">
+    @csrf
+    <input name="name" required>
+
+    <div data-review>Name: <span x-text="data.name"></span></div>
+</form>
+```
 
 Do not hand-roll `confirm == true` toggles or a `type="button"` Continue that skips validation.
 
