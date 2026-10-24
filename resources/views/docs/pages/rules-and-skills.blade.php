@@ -27,7 +27,7 @@
             ['nyumbani-auth', 'Sign-in, password reset, home routes, the login throttle and impersonation.'],
             ['nyumbani-helpers', 'Formatting helpers in PHP, Blade and JavaScript, and the period filter.'],
         ]" />
-        <p>Other Nyumbani packages ship their own skills the same way. <code>nyumbani/daraja</code> adds <code>nyumbani-daraja-payments</code> and <code>nyumbani-daraja-webhooks</code>; <code>nyumbani/messaging</code> adds <code>nyumbani-messaging</code>; <code>nyumbani/dt-tables</code> adds <code>dt-tables-development</code>, <code>dt-tables-server-side</code> and <code>dt-tables-admin</code>. Add each package to <code>boost.json</code> and run <code>php artisan boost:update</code>. Their docs are in the switcher at the top of this page.</p>
+        <p>The optional Nyumbani packages you choose in the installer ship their own skills the same way, and the installer lists them in <code>boost.json</code> for you. <code>nyumbani/daraja</code> adds <code>nyumbani-daraja-payments</code> and <code>nyumbani-daraja-webhooks</code>; <code>nyumbani/messaging</code> adds <code>nyumbani-messaging</code>; <code>nyumbani/dt-tables</code> adds <code>dt-tables-development</code>, <code>dt-tables-server-side</code> and <code>dt-tables-admin</code>. Add each package to <code>boost.json</code> and run <code>php artisan boost:update</code>. Their docs are in the switcher at the top of this page.</p>
     </x-docs::section>
 
     <x-docs::section id="read" title="Read the rules">

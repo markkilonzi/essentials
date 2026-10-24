@@ -131,7 +131,7 @@
     </x-docs::section>
 
     <x-docs::section id="data-tables" title="Data tables">
-        <p>Tables come from <code>nyumbani/dt-tables</code>, which Essentials requires. The <a href="{{ $docs->url('dt-tables') }}">Data tables</a> page introduces it, and its own docs cover every mode, with the example tables of this app one click away.</p>
+        <p>Tables come from <code>nyumbani/dt-tables</code>, an optional package the installer offers. The <a href="{{ $docs->url('dt-tables') }}">Data tables</a> page introduces it, and its own docs cover every mode, with the example tables of this app one click away.</p>
         <x-docs::rule title="Inline unless told otherwise">
             <p>Build every table as an inline table: a class extending <code>BaseTable</code>, created with <code>php artisan make:data-table Name</code> and rendered with <code>&lt;x-data-table :payload="..."&gt;</code>. The browser searches and sorts the rows. Use a server-side table (<code>--server-side</code>) or an API table (<code>--api</code>) only when the request asks for it. If an inline table might hold thousands of rows, say so and still build it inline.</p>
             <x-docs::code lang="bash" title="Terminal">

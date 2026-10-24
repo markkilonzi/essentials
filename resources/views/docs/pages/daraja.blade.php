@@ -5,7 +5,7 @@
 
 @section('content')
     <x-docs::section id="what" title="What it is">
-        <p><code>nyumbani/daraja</code> is a small client for Safaricom's Daraja API. Essentials requires it, so it is already installed in every Nyumbani app and there is nothing more to require. It has its own docs, because it needs only Laravel and can be used on its own.</p>
+        <p><code>nyumbani/daraja</code> is a small client for Safaricom's Daraja API. It is optional: choose it in <code>php artisan nyumbani:install</code>, or run <code>composer require nyumbani/daraja</code>. It has its own docs, because it needs only Laravel and can be used on its own.</p>
         <x-docs::card title="Open the Daraja docs" href="{{ route('docs.page', ['package' => 'nyumbani-daraja']) }}">Installation, a walkthrough of a first payment, every call, and the callbacks Safaricom sends.</x-docs::card>
     </x-docs::section>
 

@@ -5,7 +5,7 @@
 
 @section('content')
     <x-docs::section id="what" title="What it is">
-        <p><code>nyumbani/dt-tables</code> renders DataTables from a table class and the <code>&lt;x-data-table&gt;</code> component. Essentials requires it, so it is already installed in every Nyumbani app and there is nothing more to require. It has its own docs, because it needs only Laravel and can be used on its own.</p>
+        <p><code>nyumbani/dt-tables</code> renders DataTables from a table class and the <code>&lt;x-data-table&gt;</code> component. It is optional: choose it in <code>php artisan nyumbani:install</code>, or run <code>composer require nyumbani/dt-tables</code>. It has its own docs, because it needs only Laravel and can be used on its own.</p>
         <x-docs::card title="Open the DtTables docs" href="{{ route('docs.page', ['package' => 'nyumbani-dt-tables']) }}">Installation, a quick start, inline, server-side and API tables, filters, and how to secure and speed them up.</x-docs::card>
     </x-docs::section>
 

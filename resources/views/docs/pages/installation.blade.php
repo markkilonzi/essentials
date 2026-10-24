@@ -15,11 +15,11 @@
     </x-docs::section>
 
     <x-docs::section id="require" title="1. Require the package">
-        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it, the other Nyumbani packages, <code>nyumbani/daraja</code>, <code>nyumbani/messaging</code> and <code>nyumbani/dt-tables</code>, so there is nothing more to require for M-Pesa, SMS or data tables, and <code>nyumbani/docs</code>, which serves the docs you are reading.</p>
+        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it, and <code>nyumbani/docs</code>, which serves the docs you are reading. The other Nyumbani packages, <code>nyumbani/daraja</code> (M-Pesa), <code>nyumbani/messaging</code> (SMS through Connect) and <code>nyumbani/dt-tables</code> (data tables), are optional: the installer asks which ones the app uses and requires only those.</p>
         <x-docs::code lang="bash" title="Terminal">
             composer require nyumbani/essentials
         </x-docs::code>
-        <p>Laravel discovers the service providers on its own, so there is nothing to register. Daraja, Messaging and DtTables come with it, but Laravel Boost loads AI skills only from packages your app lists itself, so step 5 also adds them to your <code>composer.json</code>. The docs package needs no step: it brings its own styles and scripts, and serves them only in the local environment.</p>
+        <p>Laravel discovers the service providers on its own, so there is nothing to register. Laravel Boost loads AI skills only from packages your app lists itself, so step 5 requires the optional packages you choose in your own <code>composer.json</code>. The docs package needs no step: it brings its own styles and scripts, and serves them only in the local environment.</p>
     </x-docs::section>
 
     <x-docs::section id="theme" title="2. Import the theme">
@@ -112,13 +112,13 @@
             php artisan nyumbani:install
             php artisan migrate
         </x-docs::code>
-        <p>On an interactive run it asks two optional questions, both defaulting to no: <strong>Set up a basic portal?</strong> and <strong>Run the migrations now?</strong>. The installer does the following, in this order, and each step only adds what is missing:</p>
+        <p>On an interactive run it first shows a checkbox, <strong>Which Nyumbani packages does this app use?</strong>, with Daraja, Messaging and Data tables, the ones the app already requires ticked. It then asks two optional questions, both defaulting to no: <strong>Set up a basic portal?</strong> and <strong>Run the migrations now?</strong>. Scripts skip the checkbox with <code>--with=daraja,dt-tables</code> or <code>--without=messaging</code>; a run with nobody to ask (Composer's) manages only the optional packages the app already requires and never installs a new one. The installer does the following, in this order, and each step only adds what is missing:</p>
         <x-docs::table :columns="['Step', 'What it does', 'On a rerun']" :rows="[
-            ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires nyumbani/daraja, nyumbani/messaging and nyumbani/dt-tables in your composer.json if you only have them through Essentials. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there.'],
+            ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires the optional packages you chose (nyumbani/daraja, nyumbani/messaging, nyumbani/dt-tables) in your composer.json when it does not already. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there. A package the app already requires and you leave out is kept unless you confirm its removal (default no) or pass --remove, which runs composer remove, drops it and its skills from boost.json and leaves your config file for you to delete.'],
             ['Rules', 'Copies the Nyumbani rules into .ai/rules and rebuilds the index.', 'Replaces them with the newest, and removes rules the package no longer ships.'],
-            ['Config files', 'Publishes config/essentials.php, daraja.php, messaging.php, permission.php, activitylog.php and dt-tables.php. A dt-tables.php published now is set to the Tailwind theme, with btn btn-sm btn-primary buttons and the rounded-lg border px-3 py-1.5 text-sm class on inputs and selects.', 'Skips any that exist, so your edits stay, including a dt-tables.php you already changed.'],
+            ['Config files', 'Publishes config/essentials.php, permission.php and activitylog.php, plus daraja.php, messaging.php and dt-tables.php for the packages you chose. A dt-tables.php published now is set to the Tailwind theme, with btn btn-sm btn-primary buttons and the rounded-lg border px-3 py-1.5 text-sm class on inputs and selects.', 'Skips any that exist, so your edits stay, including a dt-tables.php you already changed.'],
             ['Migrations', 'Publishes one migration that creates the permission tables with the group column built in, and the activity log migration. An app that already has Spatie\'s permission migration without the column gets a small one that adds it.', 'Skips any the app already has.'],
-            ['.env.example', 'Adds the keys the packages read, blank.', 'Adds only the keys that are missing. Your .env is never touched.'],
+            ['.env.example', 'Adds the keys Essentials and the packages you chose read, blank.', 'Adds only the keys that are missing. Your .env is never touched.'],
             ['Log channel', 'Adds the discord channel to config/logging.php, with the driver\'s defaults for level, throttle and message length. You still add discord to the log stack.', 'Skips it if the app has a discord channel, or if the file has no channels list.'],
             ['Vite aliases', 'Adds @node-modules, @public, @resources, @vendor, @storage, @enums, @data-tables and @config to resolve.alias in vite.config.js, and keeps the file only if Node accepts it.', 'Adds only the aliases that are missing. Leaves a config with its own resolve setting, or with no defineConfig, as it is and tells you what to add.'],
             ['Imports', 'Adds the theme and the @source lines for enums, data tables and their config to resources/css/app.css, and the scripts to resources/js/app.js, and starts Livewire there (which starts the Alpine it bundles). Uses the @vendor, @enums, @data-tables and @config aliases when vite.config.js has them, and the relative paths when it does not.', 'Adds a line only if it is not there, does not start Livewire twice, and moves an earlier relative path to its alias.'],
@@ -129,7 +129,7 @@
             ['Roles and permissions', 'Runs php artisan nyumbani:permissions, which syncs the roles and permissions from database/seeders/data/permissions.json. It needs the permission tables, so on a first install it says to run php artisan migrate and then run the installer again, unless you answered yes to the migrations question.', 'Runs every time the tables exist, which is safe: it only creates what is missing, gives new permissions to users who hold the role and deletes the ones removed from the file.'],
             ['Storage link', 'Links public/storage for uploads.', 'Skips it if the link exists.'],
             ['Pint', 'Runs vendor/bin/pint on the PHP files the installer published or edited (the config files, the migrations and config/logging.php), and only those, so your own code is never reformatted. Skipped when the app has no Pint.', 'Runs every time, and only touches files that exist.'],
-            ['Boost', 'The first time, runs boost:install with its own questions. Adds Essentials, Daraja, Messaging and DtTables, and their skills, to boost.json, uses Claude Code as the agent when none is chosen, and refreshes the guidelines and skills.', 'Only refreshes.'],
+            ['Boost', 'The first time, runs boost:install with its own questions. Adds Essentials and the packages you chose, and their skills, to boost.json, uses Claude Code as the agent when none is chosen, and refreshes the guidelines and skills.', 'Only refreshes.'],
         ]" />
         <p>With <code>--no-interaction</code> (what Composer runs) it never asks: Boost's first install turns guidelines, skills and MCP all on.</p>
 
@@ -156,8 +156,8 @@
             Daraja credentials set ............................. optional
             Nyumbani Connect settings set ...................... optional
         </x-docs::code>
-        <p>With the basic portal, the <code>HasHomeRoute</code> item is one check for both halves: the user model implements <code>HasHomeRoute</code> and a route shows the dashboard view (<code>admins.pages.dashboard</code>), under any name and in any routes file. Its fix names only what is missing.</p>
-        <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel, Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. The command then ends with a short invitation that links to this Quick start and to the docs of each package. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
+        <p>With the basic portal, the <code>HasHomeRoute</code> item is one check for both halves: the user model implements <code>HasHomeRoute</code> and a GET route inside the <code>auth</code> middleware is the dashboard: it is named <code>dashboard</code> or <code>home</code> (with any prefix, such as <code>admins.dashboard</code>) or shows the <code>admins.pages.dashboard</code> view. What runs it and which routes file it is in do not matter; a route outside <code>auth</code> does not count. Its fix names only what is missing.</p>
+        <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel and, for the packages you chose, the Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. The command then ends with a short invitation that links to this Quick start and to the docs of each package. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
     </x-docs::section>
 
     <x-docs::section id="portal" title="Set up the basic portal (optional)">
@@ -176,7 +176,7 @@
         <p>A file you already have is never replaced, so your edits are safe when you run the installer again. To take the newest version of a view, delete that one file and run the installer again. Publishing all three over your copies is <code>php artisan vendor:publish --tag=essentials-portal --force</code>, so use it only on files you have not changed.</p>
 
         <h3>2. Add the dashboard route</h3>
-        <p>The installer edits no routes. Add this to the bottom of <code>routes/web.php</code>. It must sit inside the <code>auth</code> middleware, because the portal layout sends a guest to sign in. The route can have any name, as long as the user model returns its URL in step 3.</p>
+        <p>The installer edits no routes, and removes a package only when you confirm or pass <code>--remove</code> (see the Dependencies row above). Add this to the bottom of <code>routes/web.php</code>. It must sit inside the <code>auth</code> middleware, because the portal layout sends a guest to sign in. The route can have any name, as long as the user model returns its URL in step 3.</p>
         <x-docs::code title="routes/web.php">
             use Illuminate\Support\Facades\Route;
 

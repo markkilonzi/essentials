@@ -45,6 +45,33 @@ class InstallChecklist
     ];
 
     /**
+     * Create the checklist for the optional packages the app chose, which defaults to the ones it requires itself.
+     *
+     * @param  list<string>|null  $packages
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    public function __construct(protected ?array $packages = null)
+    {
+        //  Fall back to what the app requires
+        $this->packages ??= OptionalPackages::required();
+    }
+
+    /**
+     * Get the app files Tailwind must scan, leaving out the data table ones when the app does not use data tables.
+     *
+     * @param  list<string>  $packages
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    public static function sourcesFor(array $packages): array
+    {
+        return in_array('nyumbani/dt-tables', $packages)
+            ? self::APP_SOURCES
+            : array_filter(self::APP_SOURCES, fn (string $alias) => ! str_starts_with($alias, '@data-tables') && ! str_contains($alias, 'dt-tables'));
+    }
+
+    /**
      * Get every check as a list of label, state (pass, fail or optional) and how to fix it
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
@@ -59,7 +86,7 @@ class InstallChecklist
 
         return [
             $this->item('Theme imported in resources/css/app.css', $this->fileHas(resource_path('css/app.css'), 'nyumbani/essentials/resources/css/theme.css'), "Add @import '../../vendor/nyumbani/essentials/resources/css/theme.css'; after the Tailwind import."),
-            $this->item('Enums, data tables and their config scanned in resources/css/app.css', collect(self::APP_SOURCES)->every(fn (string $alias, string $relative) => $this->fileHas(resource_path('css/app.css'), "@source '{$relative}'") || $this->fileHas(resource_path('css/app.css'), "@source '{$alias}'")), 'Add @source lines for app/Enums, app/DataTables and config/dt-tables.php to resources/css/app.css.'),
+            $this->item('Enums, data tables and their config scanned in resources/css/app.css', collect(self::sourcesFor($this->packages))->every(fn (string $alias, string $relative) => $this->fileHas(resource_path('css/app.css'), "@source '{$relative}'") || $this->fileHas(resource_path('css/app.css'), "@source '{$alias}'")), 'Add @source lines for app/Enums, app/DataTables and config/dt-tables.php to resources/css/app.css.'),
             $this->item('Vite aliases in vite.config.js', collect(array_keys(self::APP_ALIASES))->every(fn (string $alias) => $this->fileHas(base_path('vite.config.js'), "'{$alias}'")), 'Add the '.implode(', ', array_keys(self::APP_ALIASES)).' aliases to resolve.alias in vite.config.js.'),
             $this->item('Scripts imported in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'nyumbani/essentials/resources/dist/essentials.js'), "Add import '../../vendor/nyumbani/essentials/resources/dist/essentials.js'; before Livewire starts."),
             $this->item('Livewire started in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'Livewire.start('), "Add import { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm'; and Livewire.start(); to resources/js/app.js."),
@@ -71,8 +98,8 @@ class InstallChecklist
             $this->item('Boost is set up with the Nyumbani packages', $this->boostLoadsPackages(), $this->boostFix()),
             $this->item('Basic portal (dashboard, layout and sidebar)', $portal, 'Run php artisan nyumbani:install --portal.', optional: true),
             $this->item('discord log channel', $this->hasDiscordChannel(), "Add 'discord' => ['driver' => 'discord', 'url' => env('DISCORD_WEBHOOK_URL')] to config/logging.php.", optional: true),
-            $this->item('Daraja credentials set', filled(config('daraja.docs.short_code')) && filled(config('daraja.docs.consumer_key')), 'Set DARAJA_SHORT_CODE, DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET and DARAJA_PASS_KEY in .env.', optional: true),
-            $this->item('Nyumbani Connect settings set', filled(config('messaging.connect.base_url')) && filled(config('messaging.connect.access_token')), 'Set NYUMBANI_CONNECT_BASE_URL and NYUMBANI_CONNECT_TOKEN in .env.', optional: true),
+            ...(in_array('nyumbani/daraja', $this->packages) ? [$this->item('Daraja credentials set', filled(config('daraja.docs.short_code')) && filled(config('daraja.docs.consumer_key')), 'Set DARAJA_SHORT_CODE, DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET and DARAJA_PASS_KEY in .env.', optional: true)] : []),
+            ...(in_array('nyumbani/messaging', $this->packages) ? [$this->item('Nyumbani Connect settings set', filled(config('messaging.connect.base_url')) && filled(config('messaging.connect.access_token')), 'Set NYUMBANI_CONNECT_BASE_URL and NYUMBANI_CONNECT_TOKEN in .env.', optional: true)] : []),
         ];
     }
 
@@ -93,7 +120,7 @@ class InstallChecklist
         //  Name the steps that are missing, joined into one sentence
         $routed = $this->hasDashboardRoute();
         $fix = collect([
-            ! $routed ? "Add Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard') inside the auth middleware in routes/web.php" : null,
+            ! $routed ? "Add a GET route named dashboard (or home) inside the auth middleware, for example Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard')" : null,
             ! $implements ? 'implement Nyumbani\Essentials\Contracts\HasHomeRoute on the user model' : null,
             $implements && ! $routed ? 'return the dashboard URL from homeRoute() on the user model' : null,
         ])->filter()->implode(', and ');
@@ -135,14 +162,15 @@ class InstallChecklist
     }
 
     /**
-     * Determine whether a registered route shows the portal's dashboard view, or runs an Admins\DashboardController of the app's own, whatever the route is called
+     * Determine whether a GET route inside the auth middleware is the dashboard, found by its name (dashboard or home, with any prefix) or by showing the portal's dashboard view, wherever it is defined and whatever runs it
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
     protected function hasDashboardRoute(): bool
     {
-        return collect(Route::getRoutes()->getRoutes())->contains(fn ($route) => ($route->defaults['view'] ?? null) === 'admins.pages.dashboard'
-            || str_starts_with($route->getActionName(), 'App\\Http\\Controllers\\Admins\\DashboardController'));
+        return collect(Route::getRoutes()->getRoutes())->contains(fn ($route) => in_array('GET', $route->methods())
+            && collect($route->gatherMiddleware())->contains(fn ($middleware) => is_string($middleware) && ($middleware === 'auth' || str_starts_with($middleware, 'auth:')))
+            && (($route->defaults['view'] ?? null) === 'admins.pages.dashboard' || preg_match('/(^|\.)(dashboard|home)$/', (string) $route->getName()) === 1));
     }
 
     /**
@@ -188,13 +216,13 @@ class InstallChecklist
     protected function boostFix(): string
     {
         //  Boost ignores guidelines and skills of packages that reach the app only through another package
-        $missing = (new DirectRequirements)->missing(['nyumbani/daraja', 'nyumbani/messaging', 'nyumbani/dt-tables']);
+        $missing = (new DirectRequirements)->missing($this->packages);
 
         if ($missing !== []) {
             return 'Boost only loads packages the app requires itself. Run composer require '.implode(' ', $missing).', then php artisan nyumbani:install.';
         }
 
-        return 'Run php artisan nyumbani:install to set Boost up and load Essentials, Daraja, Messaging and DtTables.';
+        return 'Run php artisan nyumbani:install to set Boost up and load Essentials and the packages you chose.';
     }
 
     /**
@@ -214,8 +242,8 @@ class InstallChecklist
         //  Read the packages Boost loads from
         $packages = json_decode(File::get($path), true)['packages'] ?? [];
 
-        //  Every Nyumbani package must be among them
-        return array_diff(['nyumbani/essentials', 'nyumbani/daraja', 'nyumbani/messaging', 'nyumbani/dt-tables'], $packages) === [];
+        //  Essentials and every package the app chose must be among them
+        return array_diff(['nyumbani/essentials', ...$this->packages], $packages) === [];
     }
 
     /**

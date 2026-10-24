@@ -10,6 +10,7 @@ use Laravel\Boost\Rules\RuleRepository;
 use Nyumbani\Docs\DocsRegistry;
 use Nyumbani\Essentials\Console\Support\DirectRequirements;
 use Nyumbani\Essentials\Console\Support\InstallChecklist;
+use Nyumbani\Essentials\Console\Support\OptionalPackages;
 use ParseError;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Terminal;
@@ -18,6 +19,7 @@ use Throwable;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
+use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;
 use function Laravel\Prompts\spin;
 
@@ -29,29 +31,21 @@ class InstallCommand extends Command
     protected const RULE_PREFIX = 'nyumbani-';
 
     /**
-     * The packages whose guidelines and skills Boost should load, which Essentials requires.
+     * The package whose guidelines and skills Boost always loads, before the optional packages the app chose.
      *
      * @var list<string>
      */
-    protected const BOOST_PACKAGES = [
-        'nyumbani/essentials',
-        'nyumbani/daraja',
-        'nyumbani/messaging',
-        'nyumbani/dt-tables',
-    ];
+    protected const CORE_PACKAGES = ['nyumbani/essentials'];
 
     /**
-     * The config tags to publish, with the file each one creates in the app's config folder.
+     * The config tags every app gets, with the file each one creates in the app's config folder.
      *
      * @var array<string, string>
      */
     protected const CONFIG_TAGS = [
         'essentials-config' => 'essentials.php',
-        'daraja-config' => 'daraja.php',
-        'messaging-config' => 'messaging.php',
         'permission-config' => 'permission.php',
         'activitylog-config' => 'activitylog.php',
-        'dt-tables-config' => 'dt-tables.php',
     ];
 
     /**
@@ -89,16 +83,11 @@ class InstallCommand extends Command
     protected const GROUP_MIGRATION_TAG = 'essentials-permissions-group-migration';
 
     /**
-     * The environment keys the packages read, which .env.example should list.
+     * The environment keys every app reads, which .env.example should list, before the keys of the optional packages the app chose.
      *
      * @var list<string>
      */
-    protected const ENV_KEYS = [
-        'ESSENTIALS_CURRENCY', 'ESSENTIALS_THEME_COLOR', 'ESSENTIALS_DESCRIPTION',
-        'DARAJA_ENVIRONMENT', 'DARAJA_SHORT_CODE', 'DARAJA_CONSUMER_KEY', 'DARAJA_CONSUMER_SECRET', 'DARAJA_PASS_KEY', 'DARAJA_TILL_NUMBER',
-        'NYUMBANI_CONNECT_BASE_URL', 'NYUMBANI_CONNECT_TOKEN', 'MESSAGING_SMS_ENABLED', 'MESSAGING_SMS_SENDER_ID',
-        'DISCORD_WEBHOOK_URL',
-    ];
+    protected const ENV_KEYS = ['ESSENTIALS_CURRENCY', 'ESSENTIALS_THEME_COLOR', 'ESSENTIALS_DESCRIPTION', 'DISCORD_WEBHOOK_URL'];
 
     /**
      * The discord log channel added to config/logging.php, which leaves the level, throttle and message length to the driver's defaults.
@@ -113,13 +102,6 @@ class InstallCommand extends Command
 PHP;
 
     /**
-     * The packages an app must require itself, because Boost ignores the guidelines and skills of indirect ones.
-     *
-     * @var list<string>
-     */
-    protected const DIRECT_PACKAGES = ['nyumbani/daraja', 'nyumbani/messaging', 'nyumbani/dt-tables'];
-
-    /**
      * The environment variable that marks the second pass of the command, so a Boost that still cannot be loaded never loops.
      */
     protected const RESTARTED = 'NYUMBANI_INSTALL_RESTARTED';
@@ -129,7 +111,18 @@ PHP;
      *
      * @var string
      */
-    protected $signature = 'nyumbani:install {--portal : Set up the basic portal without asking}';
+    protected $signature = 'nyumbani:install
+        {--portal : Set up the basic portal without asking}
+        {--with=* : Optional packages to install without asking, such as daraja, messaging or dt-tables}
+        {--without=* : Optional packages to leave out without asking}
+        {--remove : Remove the optional packages left out that the app already requires, without asking}';
+
+    /**
+     * The optional Nyumbani packages the app uses, as full package names, chosen at the start of the run.
+     *
+     * @var list<string>
+     */
+    protected array $packages = [];
 
     /**
      * The console command description.
@@ -149,6 +142,16 @@ PHP;
         $this->banner('Nyumbani install');
         $this->line(' <fg=gray>Rules, guidelines, skills and the files your app needs, set up safely and re-runnable.</>');
         $this->newLine();
+
+        //  Choose the optional packages this app uses
+        $this->packages = $this->choosePackages();
+
+        //  Remove the packages the app already requires and no longer wants, then let a fresh process carry on, since their classes are still loaded here
+        $unwanted = $this->packagesToRemove();
+
+        if ($unwanted !== []) {
+            return $this->removePackages($unwanted) ? $this->restart() : self::FAILURE;
+        }
 
         //  Install what is missing first, and let a fresh process finish, since the new classes are not loaded here
         if (! $this->isBoostInstalled() || $this->missingPackages() !== []) {
@@ -219,7 +222,7 @@ PHP;
     protected function publishPackageFiles(): void
     {
         //  Go through the config files, an existing one is never overwritten
-        foreach (self::CONFIG_TAGS as $tag => $file) {
+        foreach ($this->configTags() as $tag => $file) {
             //  Keep the config the app already has
             if (File::exists(config_path($file))) {
                 continue;
@@ -346,7 +349,7 @@ PHP;
 
         //  Read it and find the keys that are missing
         $content = File::get($path);
-        $missing = collect(self::ENV_KEYS)->reject(fn (string $key) => preg_match('/^'.preg_quote($key, '/').'=/m', $content));
+        $missing = collect($this->envKeys())->reject(fn (string $key) => preg_match('/^'.preg_quote($key, '/').'=/m', $content));
 
         //  Stop when every key is already listed
         if ($missing->isEmpty()) {
@@ -622,7 +625,7 @@ PHP;
         }
 
         //  Keep the lines the stylesheet does not have yet, in either form
-        $missing = collect(InstallChecklist::APP_SOURCES)
+        $missing = collect(InstallChecklist::sourcesFor($this->packages))
             ->reject(fn (string $alias, string $relative) => str_contains(File::get($css), "@source '{$relative}'") || str_contains(File::get($css), "@source '{$alias}'"))
             ->map(fn (string $alias, string $relative) => "@source '".($this->hasViteAlias(strstr($alias, '/', true)) ? $alias : $relative)."';");
 
@@ -679,7 +682,7 @@ PHP;
         $this->done('Published the portal views and layout.');
 
         //  Application code is never edited, so say what is left to do by hand, unless the app has it already
-        if ((new InstallChecklist)->hasHomeRoute()) {
+        if ((new InstallChecklist($this->packages))->hasHomeRoute()) {
             return;
         }
 
@@ -727,7 +730,7 @@ PHP;
     protected function offerMigrations(): void
     {
         //  Nothing to offer when the tables exist, or when nobody is there to answer
-        if ((new InstallChecklist)->hasTables() || ! $this->input->isInteractive()) {
+        if ((new InstallChecklist($this->packages))->hasTables() || ! $this->input->isInteractive()) {
             return;
         }
 
@@ -752,7 +755,7 @@ PHP;
     protected function syncPermissions(): void
     {
         //  Wait for the migrations, which this command never runs, and say how to carry on
-        if (! (new InstallChecklist)->hasTables()) {
+        if (! (new InstallChecklist($this->packages))->hasTables()) {
             note('Roles and permissions are not synced yet: run php artisan migrate, then run this command again.');
 
             return;
@@ -820,7 +823,7 @@ PHP;
 
         //  Gather the files and folders the installer writes to, that exist
         $paths = collect([
-            ...collect(self::CONFIG_TAGS)->map(fn (string $file) => config_path($file)),
+            ...collect($this->configTags())->map(fn (string $file) => config_path($file)),
             config_path('logging.php'),
             ...File::glob(database_path('migrations/*_'.self::PERMISSIONS_MIGRATION.'.php')),
             ...File::glob(database_path('migrations/*_'.self::GROUP_MIGRATION.'.php')),
@@ -847,7 +850,7 @@ PHP;
     protected function showChecklist(): void
     {
         //  Find the checks
-        $items = collect((new InstallChecklist)->items());
+        $items = collect((new InstallChecklist($this->packages))->items());
 
         //  Count what is done
         $done = $items->where('state', 'pass')->count();
@@ -906,9 +909,9 @@ PHP;
         $links = collect([
             'Start here' => $essentials->url('quick-start'),
             'Essentials' => $essentials->url(),
-            'Payments' => $registry->find('nyumbani-daraja')?->url(),
-            'SMS' => $registry->find('nyumbani-messaging')?->url(),
-            'Tables' => $registry->find('nyumbani-dt-tables')?->url(),
+            'Payments' => in_array('nyumbani/daraja', $this->packages) ? $registry->find('nyumbani-daraja')?->url() : null,
+            'SMS' => in_array('nyumbani/messaging', $this->packages) ? $registry->find('nyumbani-messaging')?->url() : null,
+            'Tables' => in_array('nyumbani/dt-tables', $this->packages) ? $registry->find('nyumbani-dt-tables')?->url() : null,
         ])->filter();
 
         //  Print the invitation
@@ -946,7 +949,7 @@ PHP;
         //  A second pass that still finds something missing stops here instead of looping
         if (getenv(self::RESTARTED)) {
             //  Say how to do it by hand
-            error('Something is still missing after installing it. Run composer require laravel/boost --dev and composer require '.implode(' ', self::DIRECT_PACKAGES).', then run this command again.');
+            error('Something is still missing after installing it. Run composer require laravel/boost --dev'.($this->packages === [] ? '' : ' and composer require '.implode(' ', $this->packages)).', then run this command again.');
 
             //  Stop
             return self::FAILURE;
@@ -972,12 +975,12 @@ PHP;
             }
         }
 
-        //  Require the Nyumbani packages the app only gets through Essentials, since Boost loads only the packages an app requires itself
+        //  Require the packages the app chose, since Boost loads only the packages an app requires itself
         $missing = $this->missingPackages();
 
         if ($missing !== []) {
             //  Say why
-            $this->done('Boost only loads packages the app requires itself, so '.implode(' and ', $missing).' must be required directly.');
+            $this->done('Installing '.implode(' and ', $missing).', which the app chose and Boost reads only when the app requires it itself.');
 
             //  Stop when Composer cannot require them
             if (! $this->requirePackages($missing)) {
@@ -994,13 +997,190 @@ PHP;
     }
 
     /**
-     * Get the list of Nyumbani packages the app does not require itself, which Boost would ignore.
+     * Get the chosen packages the app does not require itself yet.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
     protected function missingPackages(): array
     {
-        return (new DirectRequirements)->missing(self::DIRECT_PACKAGES);
+        return (new DirectRequirements)->missing($this->packages);
+    }
+
+    /**
+     * Choose the optional packages: from the flags when given, from a checkbox with the required ones ticked on an interactive run, and otherwise the ones the app already requires.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function choosePackages(): array
+    {
+        //  Read the flags, which accept a comma separated list too, and a short name such as messaging
+        $with = $this->packageOption('with');
+        $without = $this->packageOption('without');
+
+        //  Ask only when nothing was decided by a flag and someone is there to answer
+        if ($with === [] && $without === [] && $this->input->isInteractive()) {
+            return multiselect(
+                label: 'Which Nyumbani packages does this app use?',
+                options: OptionalPackages::labels(),
+                default: OptionalPackages::required(),
+                hint: 'Space selects, enter confirms. Essentials is always installed.',
+            );
+        }
+
+        //  Keep what the app requires, add what was asked for and drop what was refused
+        return collect([...OptionalPackages::required(), ...$with])
+            ->unique()
+            ->reject(fn (string $package) => in_array($package, $without))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Get the optional packages the app requires but did not choose, which are removed only when the developer confirms each one or passes --remove, never on a non-interactive run without the flag.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function packagesToRemove(): array
+    {
+        //  The second pass never removes, so a removal that failed cannot loop
+        if (getenv(self::RESTARTED)) {
+            return [];
+        }
+
+        //  Find the packages the app requires itself and did not choose
+        $unchosen = array_values(array_diff(OptionalPackages::required(), $this->packages));
+
+        if ($unchosen === []) {
+            return [];
+        }
+
+        //  The flag removes them all without asking
+        if ($this->option('remove')) {
+            return $unchosen;
+        }
+
+        //  Nobody is there to confirm, so keep them
+        if (! $this->input->isInteractive()) {
+            return [];
+        }
+
+        //  Ask about each one, defaulting to keeping it
+        return array_values(array_filter($unchosen, fn (string $package) => confirm("Remove {$package} from this app? Code that uses it will stop working.", default: false)));
+    }
+
+    /**
+     * Remove packages with Composer, then take them and their skills out of boost.json, and say what is left for the developer to delete.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function removePackages(array $packages): bool
+    {
+        //  Read the skills the packages ship before Composer deletes them
+        $skills = collect($packages)
+            ->map(fn (string $package) => base_path("vendor/{$package}/resources/boost/skills"))
+            ->filter(fn (string $folder) => File::isDirectory($folder))
+            ->flatMap(fn (string $folder) => File::directories($folder))
+            ->map(fn (string $skill) => basename($skill));
+
+        //  Run composer while a spinner shows
+        $result = spin(
+            fn () => Process::path(base_path())->forever()->run(['composer', 'remove', ...$packages, '--no-interaction']),
+            'Removing '.implode(' and ', $packages).'...',
+        );
+
+        //  Stop when Composer cannot remove them
+        if ($result->failed()) {
+            note(trim($result->errorOutput() ?: $result->output()));
+            error('Could not remove '.implode(' and ', $packages).'. Run composer remove '.implode(' ', $packages).' by hand.');
+
+            return false;
+        }
+
+        //  Take them out of Boost's settings, so its agents stop reading their skills
+        $this->forgetInBoost($packages, $skills->all());
+
+        //  Say what was removed, and what only the developer can judge
+        $this->done('Removed '.implode(' and ', $packages).'.');
+        $files = collect($packages)->flatMap(fn (string $package) => array_values(OptionalPackages::PACKAGES[$package]['config']))->map(fn (string $file) => "config/{$file}");
+        note("Your own files were left alone: delete {$files->implode(', ')} if you no longer need them, and any code that used the packages.");
+
+        return true;
+    }
+
+    /**
+     * Remove packages and the skills they shipped from boost.json.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function forgetInBoost(array $packages, array $skills): void
+    {
+        //  Nothing to change before Boost has written its settings
+        $path = base_path('boost.json');
+
+        if (! File::exists($path)) {
+            return;
+        }
+
+        //  Drop the packages and their skills
+        $settings = json_decode(File::get($path), true) ?? [];
+        $settings['packages'] = array_values(array_diff($settings['packages'] ?? [], $packages));
+        $settings['skills'] = array_values(array_diff($settings['skills'] ?? [], $skills));
+
+        //  Save the settings
+        File::put($path, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+    }
+
+    /**
+     * Read a package flag as full package names, from short or full names separated by commas or repeated flags.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function packageOption(string $name): array
+    {
+        return collect($this->option($name))
+            ->flatMap(fn (string $value) => explode(',', $value))
+            ->map(fn (string $value) => trim($value))
+            ->filter()
+            ->map(fn (string $value) => str_contains($value, '/') ? $value : "nyumbani/{$value}")
+            ->filter(fn (string $package) => array_key_exists($package, OptionalPackages::PACKAGES))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Get the config tags to publish: Essentials' own and those of the chosen packages.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function configTags(): array
+    {
+        return [
+            ...self::CONFIG_TAGS,
+            ...collect($this->packages)->flatMap(fn (string $package) => OptionalPackages::PACKAGES[$package]['config'])->all(),
+        ];
+    }
+
+    /**
+     * Get the environment keys .env.example should list: Essentials' own and those of the chosen packages.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function envKeys(): array
+    {
+        return [
+            ...self::ENV_KEYS,
+            ...collect($this->packages)->flatMap(fn (string $package) => OptionalPackages::PACKAGES[$package]['env'])->all(),
+        ];
+    }
+
+    /**
+     * Get the packages Boost should load: Essentials and the chosen packages.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function boostPackages(): array
+    {
+        return [...self::CORE_PACKAGES, ...$this->packages];
     }
 
     /**
@@ -1060,8 +1240,22 @@ PHP;
             ->forever()
             ->env([self::RESTARTED => '1'])
             ->tty($interactive && SymfonyProcess::isTtySupported())
-            ->run([PHP_BINARY, 'artisan', 'nyumbani:install', ...($interactive ? [] : ['--no-interaction']), ...($this->option('portal') ? ['--portal'] : [])], fn (string $type, string $output) => $this->output->write($output))
+            ->run([PHP_BINARY, 'artisan', 'nyumbani:install', ...($interactive ? [] : ['--no-interaction']), ...($this->option('portal') ? ['--portal'] : []), ...$this->packageFlags()], fn (string $type, string $output) => $this->output->write($output))
             ->exitCode();
+    }
+
+    /**
+     * Get the flags that carry the chosen packages into the second pass, so it never asks again.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function packageFlags(): array
+    {
+        //  Name every package, chosen or refused, so the flags always decide
+        return [
+            ...($this->packages === [] ? [] : ['--with='.implode(',', $this->packages)]),
+            ...(array_diff(array_keys(OptionalPackages::PACKAGES), $this->packages) === [] ? [] : ['--without='.implode(',', array_diff(array_keys(OptionalPackages::PACKAGES), $this->packages))]),
+        ];
     }
 
     /**
@@ -1077,9 +1271,13 @@ PHP;
         //  Make sure the folder exists
         File::ensureDirectoryExists($destination);
 
+        //  Leave out the rules of optional packages the app did not choose
+        $skipped = collect(OptionalPackages::PACKAGES)->except($this->packages)->flatMap(fn (array $package) => $package['rules']);
+        $rules = collect(File::glob(essentials_path('resources/boost/rules/*.md')))
+            ->reject(fn (string $path) => $skipped->contains(basename($path)));
+
         //  Collect the file names the package ships
-        $shipped = collect(File::glob(essentials_path('resources/boost/rules/*.md')))
-            ->map(fn (string $path) => self::RULE_PREFIX.basename($path));
+        $shipped = $rules->map(fn (string $path) => self::RULE_PREFIX.basename($path));
 
         //  Remove the owned files the package no longer ships
         collect($this->installedRules())
@@ -1087,7 +1285,7 @@ PHP;
             ->each(fn (string $path) => File::delete($path));
 
         //  Copy every shipped rule, marking it as managed
-        collect(File::glob(essentials_path('resources/boost/rules/*.md')))->each(
+        $rules->each(
             fn (string $path) => File::put(
                 $destination.'/'.self::RULE_PREFIX.basename($path),
                 $this->managedContent($path),
@@ -1164,7 +1362,7 @@ PHP;
     }
 
     /**
-     * Add Essentials, Daraja, Messaging and DtTables to the packages Boost loads from, which it keeps in boost.json.
+     * Add Essentials and the chosen packages to the packages Boost loads from, which it keeps in boost.json.
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
@@ -1179,7 +1377,7 @@ PHP;
 
         //  Merge it into the packages Boost already loads
         $settings = json_decode(File::get($path), true) ?? [];
-        $settings['packages'] = array_values(array_unique([...($settings['packages'] ?? []), ...self::BOOST_PACKAGES]));
+        $settings['packages'] = array_values(array_unique([...($settings['packages'] ?? []), ...$this->boostPackages()]));
 
         //  List the packages' skills too, since boost:update installs only the skills named here and finds new ones only by asking
         $settings['skills'] = array_values(array_unique([...($settings['skills'] ?? []), ...$this->packageSkills()]));
@@ -1200,7 +1398,7 @@ PHP;
      */
     protected function packageSkills(): array
     {
-        return collect(self::BOOST_PACKAGES)
+        return collect($this->boostPackages())
             ->map(fn (string $package) => base_path("vendor/{$package}/resources/boost/skills"))
             ->filter(fn (string $folder) => File::isDirectory($folder))
             ->flatMap(fn (string $folder) => File::directories($folder))

@@ -7,7 +7,7 @@ It covers five areas:
 1. Helpers (`src/Utils`): `money()`, `numeric()`, the date helpers and the Blade directives built on them
 2. Service classes (`src/Services`) and traits (`src/Traits`)
 3. UIs (`resources/views`, `resources/js`, `resources/css`): layouts, modal, toasts, loader, error pages and the theme
-4. Packages it standardises and requires: Fortify, Spatie permissions, activity log and impersonation, plus `nyumbani/daraja` (M-Pesa) and `nyumbani/messaging` (SMS)
+4. Packages it standardises and requires: Fortify, Spatie permissions, activity log and impersonation; `nyumbani/daraja` (M-Pesa), `nyumbani/messaging` (SMS) and `nyumbani/dt-tables` (data tables) are optional and chosen in the installer
 5. AI skills and rules (`resources/boost`)
 
 ## Install
@@ -17,7 +17,7 @@ composer require nyumbani/essentials
 php artisan nyumbani:install
 ```
 
-It copies the rules, publishes the config files and migrations of the packages, adds the missing keys to `.env.example`, the discord log channel and the shared Vite aliases, imports the theme and scripts and starts Livewire in `resources/js/app.js`, creates a starter `permissions.json`, optionally sets up a basic portal (dashboard, layout and sidebar), runs `npm run build`, optionally runs the migrations and then syncs the roles and permissions, links storage, formats the files it published with Pint, installs and sets up Boost (requiring `laravel/boost --dev` first if it is missing), and ends with a checklist of what is left for you. The two optional steps are questions that default to no; `--no-interaction` never asks, and `--portal` sets up the portal without asking. If you did not run the migrations, run `php artisan migrate` afterwards and run the installer again. Run the same command whenever a package changes: it replaces the rules, guidelines and skills with the newest ones and only adds what is missing. Then follow the Quick start.
+It asks which optional packages the app uses (Daraja, Messaging, Data tables; `--with=` and `--without=` answer for scripts, and a run with nobody to ask keeps only what the app already requires), copies the rules, publishes the config files and migrations of the packages, adds the missing keys to `.env.example`, the discord log channel and the shared Vite aliases, imports the theme and scripts and starts Livewire in `resources/js/app.js`, creates a starter `permissions.json`, optionally sets up a basic portal (dashboard, layout and sidebar), runs `npm run build`, optionally runs the migrations and then syncs the roles and permissions, links storage, formats the files it published with Pint, installs and sets up Boost (requiring `laravel/boost --dev` first if it is missing), and ends with a checklist of what is left for you. The two optional steps are questions that default to no; `--no-interaction` never asks, and `--portal` sets up the portal without asking. If you did not run the migrations, run `php artisan migrate` afterwards and run the installer again. Run the same command whenever a package changes: it replaces the rules, guidelines and skills with the newest ones and only adds what is missing. Then follow the Quick start.
 
 ## Docs
 
