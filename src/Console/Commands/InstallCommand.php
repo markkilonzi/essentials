@@ -985,7 +985,12 @@ PHP;
 
         if ($missing !== []) {
             //  Say why
-            $this->done('Installing '.implode(' and ', $missing).', which the app chose and Boost reads only when the app requires it itself.');
+            $dev = OptionalPackages::dev($missing);
+            $production = array_values(array_diff($missing, $dev));
+            $this->done('Installing '.collect([
+                $production === [] ? null : implode(' and ', $production),
+                $dev === [] ? null : implode(' and ', $dev).' as a dev dependency',
+            ])->filter()->implode(', and ').', which the app chose and Boost reads only when the app requires it itself.');
 
             //  Stop when Composer cannot require them
             if (! $this->requirePackages($missing)) {
