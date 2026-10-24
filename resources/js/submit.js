@@ -1,58 +1,56 @@
 /**
- * Prevent double-submission of a form and show a spinner on the button that triggered it. Every submit
- * button is guarded; opt a button out with `data-allow-resubmit`. It works for plain Blade forms,
- * Alpine-driven forms, and DataTable rows rendered client-side, since this is a single delegated
- * listener on `document` with no dependency on Alpine or any Blade component.
+ * Guard every submit button against double submission. Opt out with `data-allow-resubmit`.
+ * The button is never disabled, since a disabled button drops its name and value from the form.
  */
 document.addEventListener('submit', (event) => {
-    //  Respect forms/handlers that already cancelled this submission (e.g. Alpine bulk-action guards)
+    //  Skip a cancelled submission
     if (event.defaultPrevented) return;
 
     //  Get the form
     const form = event.target;
 
-    //  A form opened in a new tab/window never navigates away on this page, so a disabled
-    //  button here would never get reset
+    //  Block a repeat submission of a busy form
+    if ('submitting' in form.dataset) {
+        event.preventDefault();
+        return;
+    }
+
+    //  Skip a form that opens in a new tab
     if (form.target === '_blank') return;
 
-    //  event.submitter is the actual button/input that triggered submission (click or Enter key)
+    //  Get the clicked button
     const submitter = event.submitter;
 
-    //  Ignore submissions without a button, and buttons that opted out
-    if (!submitter || 'allowResubmit' in submitter.dataset) return;
+    //  Skip no button, an opt-out and a disabled button
+    if (!submitter || 'allowResubmit' in submitter.dataset || submitter.disabled) return;
 
-    //  Ignore disabled buttons
-    if (submitter.disabled) return;
+    //  Mark the form busy
+    form.dataset.submitting = '';
 
-    //  Lock in the button's current rendered size so swapping to a spinner doesn't shrink it
+    //  Get the button size
     const { width, height } = submitter.getBoundingClientRect();
 
-    //  Remember any inline styles already on the button so they can be restored exactly
+    //  Keep the original style and content
     const originalStyle = {
         position: submitter.style.position,
         width: submitter.style.width,
         height: submitter.style.height,
-        cursor: submitter.style.cursor,
+        pointerEvents: submitter.style.pointerEvents,
     };
+    const originalHtml = submitter.innerHTML;
 
-    //  Apply the locked size and a not-allowed cursor while disabled. Position is set to relative
-    //  so the spinner below can be centered with absolute positioning regardless of the button's
-    //  own display type, padding, or text-align
+    //  Lock the size and ignore the pointer
     submitter.style.position = 'relative';
     submitter.style.width = `${width}px`;
     submitter.style.height = `${height}px`;
-    submitter.style.cursor = 'not-allowed';
+    submitter.style.pointerEvents = 'none';
 
-    //  Store the original button content so it can be restored later
-    const originalHtml = submitter.innerHTML;
-
-    //  Disable the button
-    submitter.disabled = true;
-
-    //  Add the aria-busy attribute to the button
+    //  Look disabled to assistive tech and the keyboard
     submitter.setAttribute('aria-busy', 'true');
+    submitter.setAttribute('aria-disabled', 'true');
+    submitter.setAttribute('tabindex', '-1');
 
-    //  Replace the button content with a centered spinner
+    //  Show the spinner
     submitter.innerHTML = `
         <span class="absolute inset-0 flex items-center justify-center">
             <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -62,25 +60,26 @@ document.addEventListener('submit', (event) => {
         </span>
     `;
 
-    //  Reset the button state
+    //  Restore the button and the form
     const resetButtonState = () => {
-        submitter.disabled = false;
+        delete form.dataset.submitting;
         submitter.removeAttribute('aria-busy');
+        submitter.removeAttribute('aria-disabled');
+        submitter.removeAttribute('tabindex');
         submitter.style.position = originalStyle.position;
         submitter.style.width = originalStyle.width;
         submitter.style.height = originalStyle.height;
-        submitter.style.cursor = originalStyle.cursor;
+        submitter.style.pointerEvents = originalStyle.pointerEvents;
         submitter.innerHTML = originalHtml;
     };
 
-    //  Restore the button if the browser blocks a later resubmission attempt via HTML5 validation
+    //  Restore on a validation block
     form.addEventListener('invalid', resetButtonState, { capture: true, once: true });
 
-    //  Escape hatch for future AJAX-driven forms that need to manually reset the button
+    //  Restore on reset-loading
     form.addEventListener('reset-loading', resetButtonState, { once: true });
 
-    //  A full-page POST navigation can be restored from the back/forward cache with the button
-    //  still frozen mid-spinner from before the user left — reset it if this page comes back that way
+    //  Restore on back/forward cache
     window.addEventListener('pageshow', (e) => {
         if (e.persisted) resetButtonState();
     }, { once: true });

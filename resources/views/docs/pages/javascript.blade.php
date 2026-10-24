@@ -21,7 +21,7 @@
     </x-docs::section>
 
     <x-docs::section id="submit" title="Double-submit guard">
-        <p>Every submit button is guarded automatically, including forms rendered later by Alpine or a DataTable. Opt a button out when it must be pressed more than once.</p>
+        <p>Every submit button is guarded automatically, including forms rendered later by Alpine or a DataTable. Opt a button out when it must be pressed more than once. The button is never disabled, because a disabled button drops its <code>name</code> and <code>value</code> from the form. It shows a spinner, ignores the pointer and reads as disabled to assistive technology, while the form refuses a second submission, so a button that picks one of several options still posts its value.</p>
         <x-docs::code lang="blade">
             @verbatim
             <button type="submit" class="btn btn-primary">Save</button>
