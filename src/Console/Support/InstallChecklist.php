@@ -90,7 +90,7 @@ class InstallChecklist
             $this->item('Vite aliases in vite.config.js', collect(array_keys(self::APP_ALIASES))->every(fn (string $alias) => $this->fileHas(base_path('vite.config.js'), "'{$alias}'")), 'Add the '.implode(', ', array_keys(self::APP_ALIASES)).' aliases to resolve.alias in vite.config.js.'),
             $this->item('Scripts imported in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'nyumbani/essentials/resources/dist/essentials.js'), "Add import '../../vendor/nyumbani/essentials/resources/dist/essentials.js'; before Livewire starts."),
             $this->item('Livewire started in resources/js/app.js', $this->fileHas(resource_path('js/app.js'), 'Livewire.start('), "Add import { Livewire } from '../../vendor/livewire/livewire/dist/livewire.esm'; and Livewire.start(); to resources/js/app.js."),
-            $this->homeRouteItem($user, $portal),
+            $this->homeRouteItem($user),
             $this->item('User model has roles and default permissions', is_string($user) && method_exists($user, 'assignDefaultPermissions'), $this->permissionsFix($user)),
             $this->item('User model can be impersonated', is_string($user) && method_exists($user, 'canBeImpersonated'), 'Use Lab404\Impersonate\Models\Impersonate on the user model.'),
             $this->item('Migrations have run (permissions with group, activity_log)', $this->hasTables(), 'Run php artisan migrate.'),
@@ -105,28 +105,13 @@ class InstallChecklist
     }
 
     /**
-     * Get the home route check: the user model implements HasHomeRoute, and with the basic portal the dashboard also has a route, found by its view under any name and in any routes file. The fix names only what is missing.
+     * Get the home route check: the user model implements HasHomeRoute, which is all it asks, so a dashboard route is not a requirement
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
      */
-    protected function homeRouteItem(mixed $user, bool $portal): array
+    protected function homeRouteItem(mixed $user): array
     {
-        $implements = is_a($user, HasHomeRoute::class, true);
-        $contract = 'Implement Nyumbani\Essentials\Contracts\HasHomeRoute and add homeRoute().';
-
-        if (! $portal) {
-            return $this->item('User model implements HasHomeRoute', $implements, $contract);
-        }
-
-        //  Name the steps that are missing, joined into one sentence
-        $routed = $this->hasDashboardRoute();
-        $fix = collect([
-            ! $routed ? "Add a GET route named dashboard (or home) inside the auth middleware, for example Route::view('dashboard', 'admins.pages.dashboard')->name('dashboard')" : null,
-            ! $implements ? 'implement Nyumbani\Essentials\Contracts\HasHomeRoute on the user model' : null,
-            $implements && ! $routed ? 'return the dashboard URL from homeRoute() on the user model' : null,
-        ])->filter()->implode(', and ');
-
-        return $this->item('User model implements HasHomeRoute and the dashboard has a route', $implements && $routed, ucfirst($fix).'.');
+        return $this->item('User model implements HasHomeRoute', is_a($user, HasHomeRoute::class, true), 'Implement Nyumbani\Essentials\Contracts\HasHomeRoute and add homeRoute().');
     }
 
     /**

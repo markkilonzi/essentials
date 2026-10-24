@@ -156,7 +156,7 @@
             Daraja credentials set ............................. optional
             Nyumbani Connect settings set ...................... optional
         </x-docs::code>
-        <p>With the basic portal, the <code>HasHomeRoute</code> item is one check for both halves: the user model implements <code>HasHomeRoute</code> and a GET route inside the <code>auth</code> middleware is the dashboard: it is named <code>dashboard</code> or <code>home</code> (with any prefix, such as <code>admins.dashboard</code>) or shows the <code>admins.pages.dashboard</code> view. What runs it and which routes file it is in do not matter; a route outside <code>auth</code> does not count. Its fix names only what is missing.</p>
+        <p>The <code>HasHomeRoute</code> item asks only that the user model implements the contract, with or without the basic portal. A dashboard route is not a checklist requirement: after <code>--portal</code> the installer prints a note about the route while the model or a GET route inside <code>auth</code> named <code>dashboard</code> or <code>home</code> is missing.</p>
         <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel and, for the packages you chose, the Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. The command then ends with a short invitation that links to this Quick start and to the docs of each package. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
     </x-docs::section>
 
@@ -244,7 +244,7 @@
                 ->create(['name' => 'Admin', 'email' => 'admin@example.com'])
                 ->assignDefaultPermissions('admin');
         </x-docs::code>
-        <p>Then open <code>/login</code>, sign in, and you land on <code>/dashboard</code>. Run <code>php artisan nyumbani:install</code> once more: the <em>User model implements HasHomeRoute and the dashboard has a route</em> item should read <strong>done</strong>.</p>
+        <p>Then open <code>/login</code>, sign in, and you land on <code>/dashboard</code>. Run <code>php artisan nyumbani:install</code> once more: the <em>User model implements HasHomeRoute</em> item should read <strong>done</strong>.</p>
 
         <h3>If something goes wrong</h3>
         <x-docs::table :columns="['What you see', 'Why', 'What to do']" :rows="[
