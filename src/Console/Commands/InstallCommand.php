@@ -896,6 +896,11 @@ PHP;
      */
     protected function showDocsInvitation(): void
     {
+        //  Leave the invitation out when the docs package is not installed
+        if (! class_exists(DocsRegistry::class)) {
+            return;
+        }
+
         //  Find the docs the packages registered
         $registry = app(DocsRegistry::class);
         $essentials = $registry->find('nyumbani-essentials');
@@ -1003,7 +1008,11 @@ PHP;
      */
     protected function missingPackages(): array
     {
-        return (new DirectRequirements)->missing($this->packages);
+        //  A dev dependency in the require key counts as missing, so composer require --dev moves it
+        return array_values(array_unique([
+            ...(new DirectRequirements)->missing($this->packages),
+            ...(new DirectRequirements)->misplaced(OptionalPackages::dev($this->packages)),
+        ]));
     }
 
     /**
@@ -1022,7 +1031,7 @@ PHP;
             return multiselect(
                 label: 'Which Nyumbani packages does this app use?',
                 options: OptionalPackages::labels(),
-                default: OptionalPackages::required(),
+                default: array_values(array_unique([...OptionalPackages::required(), 'nyumbani/docs'])),
                 hint: 'Space selects, enter confirms. Essentials is always installed.',
             );
         }
@@ -1102,7 +1111,7 @@ PHP;
         //  Say what was removed, and what only the developer can judge
         $this->done('Removed '.implode(' and ', $packages).'.');
         $files = collect($packages)->flatMap(fn (string $package) => array_values(OptionalPackages::PACKAGES[$package]['config']))->map(fn (string $file) => "config/{$file}");
-        note("Your own files were left alone: delete {$files->implode(', ')} if you no longer need them, and any code that used the packages.");
+        note('Your own files were left alone: '.($files->isEmpty() ? '' : "delete {$files->implode(', ')} if you no longer need them, and ").'check any code that used the packages.');
 
         return true;
     }
@@ -1180,7 +1189,7 @@ PHP;
      */
     protected function boostPackages(): array
     {
-        return [...self::CORE_PACKAGES, ...$this->packages];
+        return [...self::CORE_PACKAGES, ...array_diff($this->packages, OptionalPackages::dev($this->packages))];
     }
 
     /**
@@ -1190,18 +1199,27 @@ PHP;
      */
     protected function requirePackages(array $packages): bool
     {
-        //  Run composer while a spinner shows
-        $result = spin(
-            fn () => Process::path(base_path())->forever()->run(['composer', 'require', ...$packages, '--no-interaction']),
-            'Requiring '.implode(' and ', $packages).'...',
-        );
+        //  Dev dependencies go in require-dev, the others in require
+        $dev = OptionalPackages::dev($packages);
+        $production = array_values(array_diff($packages, $dev));
+        $commands = array_filter([
+            $production === [] ? null : ['composer', 'require', ...$production, '--no-interaction'],
+            $dev === [] ? null : ['composer', 'require', '--dev', ...$dev, '--no-interaction'],
+        ]);
 
-        //  Show what Composer said when it failed
-        if ($result->failed()) {
-            note(trim($result->errorOutput() ?: $result->output()));
+        foreach ($commands as $command) {
+            //  Run composer while a spinner shows
+            $result = spin(fn () => Process::path(base_path())->forever()->run($command), 'Requiring '.implode(' and ', array_slice($command, $command[2] === '--dev' ? 3 : 2, -1)).'...');
+
+            //  Show what Composer said when it failed, and stop
+            if ($result->failed()) {
+                note(trim($result->errorOutput() ?: $result->output()));
+
+                return false;
+            }
         }
 
-        return $result->successful();
+        return true;
     }
 
     /**

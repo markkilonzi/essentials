@@ -12,6 +12,26 @@ use Illuminate\Support\Facades\File;
 class DirectRequirements
 {
     /**
+     * Get the packages among the given list that sit in the app's require key, where a dev dependency does not belong.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    public function misplaced(array $packages): array
+    {
+        //  Without a composer.json there is nothing to compare with
+        $path = base_path('composer.json');
+
+        if (! File::exists($path)) {
+            return [];
+        }
+
+        //  Keep the packages listed in the production requirements
+        $required = array_keys((json_decode(File::get($path), true) ?? [])['require'] ?? []);
+
+        return array_values(array_intersect($packages, $required));
+    }
+
+    /**
      * Get the packages among the given list that the app does not require itself, however many it gets through other packages
      *
      * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>

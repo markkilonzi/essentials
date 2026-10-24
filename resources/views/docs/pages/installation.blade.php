@@ -15,7 +15,7 @@
     </x-docs::section>
 
     <x-docs::section id="require" title="1. Require the package">
-        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it, and <code>nyumbani/docs</code>, which serves the docs you are reading. The other Nyumbani packages, <code>nyumbani/daraja</code> (M-Pesa), <code>nyumbani/messaging</code> (SMS through Connect) and <code>nyumbani/dt-tables</code> (data tables), are optional: the installer asks which ones the app uses and requires only those.</p>
+        <p>Essentials is a private package. Add it to the app with Composer. It brings Fortify, Spatie permissions, activity log and impersonation with it. The other Nyumbani packages, <code>nyumbani/daraja</code> (M-Pesa), <code>nyumbani/messaging</code> (SMS through Connect), <code>nyumbani/dt-tables</code> (data tables) and <code>nyumbani/docs</code> (the guides you are reading), are optional: the installer asks which ones the app uses and requires only those. Docs is always a dev dependency, installed with <code>composer require --dev nyumbani/docs</code> and served only locally; every package boots without it.</p>
         <x-docs::code lang="bash" title="Terminal">
             composer require nyumbani/essentials
         </x-docs::code>
@@ -112,7 +112,7 @@
             php artisan nyumbani:install
             php artisan migrate
         </x-docs::code>
-        <p>On an interactive run it first shows a checkbox, <strong>Which Nyumbani packages does this app use?</strong>, with Daraja, Messaging and Data tables, the ones the app already requires ticked. It then asks two optional questions, both defaulting to no: <strong>Set up a basic portal?</strong> and <strong>Run the migrations now?</strong>. Scripts skip the checkbox with <code>--with=daraja,dt-tables</code> or <code>--without=messaging</code>; a run with nobody to ask (Composer's) manages only the optional packages the app already requires and never installs a new one. The installer does the following, in this order, and each step only adds what is missing:</p>
+        <p>On an interactive run it first shows a checkbox, <strong>Which Nyumbani packages does this app use?</strong>, with Daraja, Messaging, Data tables and Docs, the ones the app already requires ticked (Docs is ticked by default). It then asks two optional questions, both defaulting to no: <strong>Set up a basic portal?</strong> and <strong>Run the migrations now?</strong>. Scripts skip the checkbox with <code>--with=daraja,dt-tables</code> or <code>--without=messaging</code>; a run with nobody to ask (Composer's) manages only the optional packages the app already requires and never installs a new one. The installer does the following, in this order, and each step only adds what is missing:</p>
         <x-docs::table :columns="['Step', 'What it does', 'On a rerun']" :rows="[
             ['Dependencies', 'Installs laravel/boost as a dev dependency if it is missing, and requires the optional packages you chose (nyumbani/daraja, nyumbani/messaging, nyumbani/dt-tables) in your composer.json when it does not already. Boost loads skills and guidelines only from packages your app requires itself.', 'Skips what is already there. A package the app already requires and you leave out is kept unless you confirm its removal (default no) or pass --remove, which runs composer remove, drops it and its skills from boost.json and leaves your config file for you to delete.'],
             ['Rules', 'Copies the Nyumbani rules into .ai/rules and rebuilds the index.', 'Replaces them with the newest, and removes rules the package no longer ships.'],
@@ -164,7 +164,7 @@
         <p><code>php artisan nyumbani:install</code> takes four options of its own, next to Laravel's (<code>-n</code> / <code>--no-interaction</code> never asks, <code>-q</code>, <code>-v</code>, <code>--env</code>).</p>
         <x-docs::table :columns="['Option', 'What it does', 'Example']" :rows="[
             ['--portal', 'Sets up the basic portal (dashboard, layout and sidebar) without asking the question.', 'php artisan nyumbani:install --portal'],
-            ['--with=', 'Installs the named optional packages without showing the checkbox. Names are daraja, messaging and dt-tables (or the full nyumbani/daraja form), comma separated or repeated. Packages the app already requires stay chosen.', 'php artisan nyumbani:install --with=daraja,dt-tables'],
+            ['--with=', 'Installs the named optional packages without showing the checkbox. Names are daraja, messaging, dt-tables and docs (or the full nyumbani/daraja form), comma separated or repeated. Packages the app already requires stay chosen.', 'php artisan nyumbani:install --with=daraja,dt-tables'],
             ['--without=', 'Leaves the named optional packages out without showing the checkbox. A left-out package gets no config file, .env.example keys, rule, checklist item or Boost entry. It wins over --with and over a package the app already requires, which is kept unless you also remove it.', 'php artisan nyumbani:install --without=messaging'],
             ['--remove', 'Runs composer remove for each optional package the app requires and you left out, without asking, then drops it and its skills from boost.json and finishes in a fresh process. Your own config file is left for you to delete. Without this option, an interactive run asks once per package (default no) and a run with nobody to ask removes nothing.', 'php artisan nyumbani:install --without=messaging --remove'],
         ]" />
@@ -180,8 +180,8 @@
             php artisan nyumbani:install --without=messaging
             php artisan nyumbani:install --without=messaging --remove
 
-            # Set everything up in a script, with no questions
-            php artisan nyumbani:install --no-interaction --portal --with=daraja,messaging,dt-tables
+            # Set everything up in a script, with no questions (docs goes in require-dev)
+            php artisan nyumbani:install --no-interaction --portal --with=daraja,messaging,dt-tables,docs
         </x-docs::code>
         <p>When the installer has to require or remove packages it finishes in a second process, because the classes of the new packages are not loaded in the first. That process receives the choice as flags, so it never asks again.</p>
         <p><code>php artisan nyumbani:permissions</code> has no options. It syncs the roles and permissions from <code>database/seeders/data/permissions.json</code>, and the installer runs it for you once the permission tables exist.</p>

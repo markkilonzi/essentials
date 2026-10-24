@@ -98,6 +98,7 @@ class InstallChecklist
             $this->item('Boost is set up with the Nyumbani packages', $this->boostLoadsPackages(), $this->boostFix()),
             $this->item('Basic portal (dashboard, layout and sidebar)', $portal, 'Run php artisan nyumbani:install --portal.', optional: true),
             $this->item('discord log channel', $this->hasDiscordChannel(), "Add 'discord' => ['driver' => 'discord', 'url' => env('DISCORD_WEBHOOK_URL')] to config/logging.php.", optional: true),
+            ...(in_array('nyumbani/docs', $this->packages) ? [$this->item('Docs package is a dev dependency', (new DirectRequirements)->missing(['nyumbani/docs']) === [] && (new DirectRequirements)->misplaced(['nyumbani/docs']) === [], 'Run composer require --dev nyumbani/docs, which also moves it out of require if it sits there.', optional: true)] : []),
             ...(in_array('nyumbani/daraja', $this->packages) ? [$this->item('Daraja credentials set', filled(config('daraja.docs.short_code')) && filled(config('daraja.docs.consumer_key')), 'Set DARAJA_SHORT_CODE, DARAJA_CONSUMER_KEY, DARAJA_CONSUMER_SECRET and DARAJA_PASS_KEY in .env.', optional: true)] : []),
             ...(in_array('nyumbani/messaging', $this->packages) ? [$this->item('Nyumbani Connect settings set', filled(config('messaging.connect.base_url')) && filled(config('messaging.connect.access_token')), 'Set NYUMBANI_CONNECT_BASE_URL and NYUMBANI_CONNECT_TOKEN in .env.', optional: true)] : []),
         ];
@@ -216,7 +217,7 @@ class InstallChecklist
     protected function boostFix(): string
     {
         //  Boost ignores guidelines and skills of packages that reach the app only through another package
-        $missing = (new DirectRequirements)->missing($this->packages);
+        $missing = (new DirectRequirements)->missing(array_diff($this->packages, OptionalPackages::dev($this->packages)));
 
         if ($missing !== []) {
             return 'Boost only loads packages the app requires itself. Run composer require '.implode(' ', $missing).', then php artisan nyumbani:install.';
@@ -243,7 +244,7 @@ class InstallChecklist
         $packages = json_decode(File::get($path), true)['packages'] ?? [];
 
         //  Essentials and every package the app chose must be among them
-        return array_diff(['nyumbani/essentials', ...$this->packages], $packages) === [];
+        return array_diff(['nyumbani/essentials', ...array_diff($this->packages, OptionalPackages::dev($this->packages))], $packages) === [];
     }
 
     /**

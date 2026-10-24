@@ -22,14 +22,22 @@
 		"lab404/laravel-impersonate": "^1.7",
 		"laravel/fortify": "^1.41",
 		"livewire/livewire": "^4.4",
-		"nyumbani/docs": "^1.1",
 		"spatie/laravel-activitylog": "^5.1",
 		"spatie/laravel-permission": "^8.3"
+	},
+	"require-dev": {
+		"laravel/boost": "^2.2",
+		"laravel/pail": "^1.2.5",
+		"laravel/pint": "^1.27",
+		"nyumbani/docs": "^1.1",
+		"pestphp/pest": "^5.3",
+		"pestphp/pest-plugin-laravel": "^5.0"
 	},
 	"suggest": {
 		"nyumbani/daraja": "M-Pesa payments through Safaricom Daraja, chosen in php artisan nyumbani:install",
 		"nyumbani/messaging": "SMS sent through Nyumbani Connect, chosen in php artisan nyumbani:install",
-		"nyumbani/dt-tables": "Searchable, sortable data tables, chosen in php artisan nyumbani:install"
+		"nyumbani/dt-tables": "Searchable, sortable data tables, chosen in php artisan nyumbani:install",
+		"nyumbani/docs": "The local-only guides of Nyumbani packages, chosen in php artisan nyumbani:install and installed with composer require --dev nyumbani/docs"
 	},
 	"autoload": {
 		"psr-4": {
@@ -42,12 +50,5 @@
 				"Nyumbani\\Essentials\\EssentialsServiceProvider"
 			]
 		}
-	},
-	"require-dev": {
-		"laravel/boost": "^2.2",
-		"laravel/pail": "^1.2.5",
-		"laravel/pint": "^1.27",
-		"pestphp/pest": "^5.3",
-		"pestphp/pest-plugin-laravel": "^5.0"
 	}
 }

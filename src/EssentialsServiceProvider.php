@@ -58,8 +58,10 @@ class EssentialsServiceProvider extends ServiceProvider
         //  Load the translations
         $this->loadTranslationsFrom(essentials_path('lang'), 'essentials');
 
-        //  Add the docs of Essentials
-        $this->app->make(DocsRegistry::class)->register(EssentialsDocs::describe());
+        //  Add the docs of Essentials, when the docs package is installed
+        if (class_exists(DocsRegistry::class)) {
+            $this->app->make(DocsRegistry::class)->register(EssentialsDocs::describe());
+        }
 
         //  Load the routes
         $this->loadRoutesFrom(essentials_path('routes/web.php'));

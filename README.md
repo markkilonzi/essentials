@@ -24,14 +24,14 @@ It asks which optional packages the app uses (Daraja, Messaging, Data tables; `-
 | Option | Meaning |
 | --- | --- |
 | `--portal` | Set up the basic portal without asking. |
-| `--with=daraja,messaging,dt-tables` | Install the named optional packages without the checkbox. |
+| `--with=daraja,messaging,dt-tables,docs` | Install the named optional packages without the checkbox. `docs` is installed with `composer require --dev`. |
 | `--without=messaging` | Leave the named packages out without the checkbox. |
 | `--remove` | Remove the packages left out that the app already requires, without asking. |
 | `-n`, `--no-interaction` | Never ask; manage only the optional packages the app already requires. |
 
 ## Docs
 
-The full docs are served at `/nyumbani-essentials/docs`, in the `local` environment only, by `nyumbani/docs`, which Essentials requires. It brings its own styles and scripts. The same switcher opens the docs of `nyumbani/daraja` and `nyumbani/messaging`, which register their pages with it.
+The full docs are served at `/nyumbani-essentials/docs`, in the `local` environment only, by `nyumbani/docs`, a dev dependency the installer offers (`composer require --dev nyumbani/docs`); without it the app boots as usual and serves no docs. It brings its own styles and scripts. The same switcher opens the docs of `nyumbani/daraja` and `nyumbani/messaging`, which register their pages with it.
 
 Start with Installation, then Quick start, then Anatomy of a feature.
 

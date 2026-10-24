@@ -27,13 +27,16 @@ Route::post('essentials/impersonation/leave', LeaveImpersonationController::clas
     ->middleware(['web', 'auth'])
     ->name('essentials.impersonation.leave');
 
-//  Serve the samples the docs run for real: a form that fills an error bag, remote modal content and the error pages
-Route::prefix('{package}/docs/samples')
-    ->where(['package' => 'nyumbani-[a-z0-9-]+'])
-    ->middleware(['web', EnsureDocsAreAvailable::class])
-    ->name('essentials.docs.samples.')
-    ->group(function () {
-        Route::post('form', [DocsSamplesController::class, 'form'])->name('form');
-        Route::get('modal-content', [DocsSamplesController::class, 'modalContent'])->name('modal-content');
-        Route::get('errors/{code}', [DocsSamplesController::class, 'error'])->whereIn('code', [401, 403, 404, 419, 429, 500, 503])->name('error');
-    });
+//  The docs samples need the docs package, a dev dependency that production does not have
+if (class_exists(EnsureDocsAreAvailable::class)) {
+    //  Serve the samples the docs run for real: a form that fills an error bag, remote modal content and the error pages
+    Route::prefix('{package}/docs/samples')
+        ->where(['package' => 'nyumbani-[a-z0-9-]+'])
+        ->middleware(['web', EnsureDocsAreAvailable::class])
+        ->name('essentials.docs.samples.')
+        ->group(function () {
+            Route::post('form', [DocsSamplesController::class, 'form'])->name('form');
+            Route::get('modal-content', [DocsSamplesController::class, 'modalContent'])->name('modal-content');
+            Route::get('errors/{code}', [DocsSamplesController::class, 'error'])->whereIn('code', [401, 403, 404, 419, 429, 500, 503])->name('error');
+        });
+}

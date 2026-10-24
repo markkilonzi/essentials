@@ -10,30 +10,50 @@ namespace Nyumbani\Essentials\Console\Support;
 class OptionalPackages
 {
     /**
-     * The packages by name, with a label, the config tags and files, the environment keys and the rule files each one brings.
+     * The packages by name, with a label, whether it is a dev dependency, the config tags and files, the environment keys and the rule files each one brings.
      *
-     * @var array<string, array{label: string, config: array<string, string>, env: list<string>, rules: list<string>}>
+     * @var array<string, array{label: string, dev: bool, config: array<string, string>, env: list<string>, rules: list<string>}>
      */
     public const PACKAGES = [
         'nyumbani/daraja' => [
             'label' => 'Daraja: M-Pesa payments through Safaricom',
+            'dev' => false,
             'config' => ['daraja-config' => 'daraja.php'],
             'env' => ['DARAJA_ENVIRONMENT', 'DARAJA_SHORT_CODE', 'DARAJA_CONSUMER_KEY', 'DARAJA_CONSUMER_SECRET', 'DARAJA_PASS_KEY', 'DARAJA_TILL_NUMBER'],
             'rules' => [],
         ],
         'nyumbani/messaging' => [
             'label' => 'Messaging: SMS sent through Nyumbani Connect',
+            'dev' => false,
             'config' => ['messaging-config' => 'messaging.php'],
             'env' => ['NYUMBANI_CONNECT_BASE_URL', 'NYUMBANI_CONNECT_TOKEN', 'MESSAGING_SMS_ENABLED', 'MESSAGING_SMS_SENDER_ID'],
             'rules' => ['messaging.md'],
         ],
         'nyumbani/dt-tables' => [
             'label' => 'Data tables: searchable, sortable tables',
+            'dev' => false,
             'config' => ['dt-tables-config' => 'dt-tables.php'],
             'env' => [],
             'rules' => ['data-tables.md'],
         ],
+        'nyumbani/docs' => [
+            'label' => 'Docs: local-only guides with examples that run (dev dependency)',
+            'dev' => true,
+            'config' => [],
+            'env' => [],
+            'rules' => [],
+        ],
     ];
+
+    /**
+     * Get the packages among the given list that are dev dependencies, which go in require-dev.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    public static function dev(array $packages): array
+    {
+        return array_values(array_filter($packages, fn (string $package) => self::PACKAGES[$package]['dev'] ?? false));
+    }
 
     /**
      * Get the package names mapped to their labels, for a prompt.
