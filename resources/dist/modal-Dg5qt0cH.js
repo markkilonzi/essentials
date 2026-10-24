@@ -1743,55 +1743,60 @@ var ie = re;
 //#endregion
 //#region resources/js/modal.js
 document.addEventListener("alpine:init", () => {
-	window.Alpine.__essentialsUi || (window.Alpine.plugin(ie), window.Alpine.__essentialsUi = !0), window.Alpine.data("essentialsModal", (e) => ({
-		open: !1,
-		loaded: !1,
-		loading: !1,
-		failed: !1,
-		confirming: !1,
-		data: {},
-		init() {
-			this.$watch("open", (t) => {
-				t && e.src && this.load(), this.back();
-			}), e.reopen && this.$nextTick(() => this.open = !0);
-		},
-		advance() {
-			let e = this.$refs.body.querySelector("form");
-			e && e.reportValidity() && (this.data = Object.fromEntries(new FormData(e)), this.fillReview(), this.confirming = !0);
-		},
-		fillReview() {
-			let e = this.$refs.body.querySelector("[data-review]"), t = this.$refs.review;
-			e && t && t.dataset.slotted !== "true" && (t.innerHTML = e.innerHTML);
-		},
-		back() {
-			let e = this.confirming;
-			this.confirming = !1, this.data = {}, e && this.$refs.review && this.$refs.review.dataset.slotted !== "true" && (this.$refs.review.innerHTML = "");
-		},
-		submitted(t) {
-			e.confirm && !this.confirming && (t.preventDefault(), this.advance());
-		},
-		show(t) {
-			e.name && t === e.name && (this.open = !0);
-		},
-		hide(t) {
-			e.name && t === e.name && (this.open = !1);
-		},
-		async load() {
-			if (!(this.loaded || this.loading)) {
-				this.loading = !0, this.failed = !1;
-				try {
-					let t = await fetch(e.src, { headers: {
-						"X-Requested-With": "XMLHttpRequest",
-						Accept: "text/html"
-					} });
-					if (!t.ok) throw Error(t.status);
-					this.$refs.remote.innerHTML = await t.text(), this.loaded = !0;
-				} catch {
-					this.failed = !0;
+	window.Alpine.__essentialsUi || (window.Alpine.plugin(ie), window.Alpine.__essentialsUi = !0), window.Alpine.data("essentialsModal", (e) => {
+		let t;
+		return {
+			data: {},
+			modal: {
+				open: !1,
+				loaded: !1,
+				loading: !1,
+				failed: !1,
+				confirming: !1,
+				advance() {
+					let e = t.$refs.body.querySelector("form");
+					e && e.reportValidity() && (t.data = Object.fromEntries(new FormData(e)), this.fillReview(), this.confirming = !0);
+				},
+				fillReview() {
+					let e = t.$refs.body.querySelector("[data-review]"), n = t.$refs.review;
+					e && n && n.dataset.slotted !== "true" && (n.innerHTML = e.innerHTML);
+				},
+				back() {
+					let e = this.confirming;
+					this.confirming = !1, t.data = {}, e && t.$refs.review && t.$refs.review.dataset.slotted !== "true" && (t.$refs.review.innerHTML = "");
+				},
+				submitted(t) {
+					e.confirm && !this.confirming && (t.preventDefault(), this.advance());
+				},
+				show(t) {
+					e.name && t === e.name && (this.open = !0);
+				},
+				hide(t) {
+					e.name && t === e.name && (this.open = !1);
+				},
+				async load() {
+					if (!(this.loaded || this.loading)) {
+						this.loading = !0, this.failed = !1;
+						try {
+							let n = await fetch(e.src, { headers: {
+								"X-Requested-With": "XMLHttpRequest",
+								Accept: "text/html"
+							} });
+							if (!n.ok) throw Error(n.status);
+							t.$refs.remote.innerHTML = await n.text(), this.loaded = !0;
+						} catch {
+							this.failed = !0;
+						}
+						this.loading = !1;
+					}
 				}
-				this.loading = !1;
+			},
+			init() {
+				t = this, this.$watch("modal.open", (t) => {
+					t && e.src && this.modal.load(), this.modal.back();
+				}), e.reopen && this.$nextTick(() => this.modal.open = !0);
 			}
-		}
-	}));
+		};
+	});
 });
 //#endregion

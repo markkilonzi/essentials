@@ -107,7 +107,7 @@
             </div>
             @endverbatim
         </x-docs::code>
-        <p>Close it with <code>$dispatch('close-modal', 'edit-customer')</code>. When the user closes it themselves, the modal dispatches <code>modal-closed</code>. To bind its open state to your own Alpine or Livewire state, put <code>x-model</code> or <code>wire:model</code> on the tag.</p>
+        <p>Close it with <code>$dispatch('close-modal', 'edit-customer')</code>. When the user closes it themselves, the modal dispatches <code>modal-closed</code>. To bind its open state to your own Alpine or Livewire state, put <code>x-model</code> or <code>wire:model</code> on the tag. The modal keeps its own state under one name, <code>modal</code> (<code>modal.open</code>, <code>modal.loading</code> and so on), so your state can be called anything except <code>modal</code>, <code>data</code> (the review step's copy of the form) and <code>init</code>, which Alpine reserves. A name like <code>show</code>, <code>open</code> or <code>loading</code> is safe.</p>
             <x-docs::example title="Live: open and close by event">
             <div x-data class="flex flex-wrap gap-1.5">
                 <button type="button" class="btn btn-primary btn-sm" x-on:click="$dispatch('open-modal', 'docs-by-event')">Open by event</button>
