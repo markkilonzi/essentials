@@ -23,9 +23,8 @@
     </x-docs::section>
 
     <x-docs::section id="theme" title="2. Import the theme">
-        <p>Import the shared theme once in the app's Tailwind file. It sets the colours, form styles and the button classes, and tells Tailwind to scan the package's views, its view components and its scripts for classes, so the modal, the loader and the submit spinner are styled without any setting of yours. Classes your app writes in PHP are not scanned by the theme, so add a <code>@@source</code> line for each place: your enums, your data tables and the data tables config.</p>
+        <p>Import the shared theme once in the app's css, in place of <code>@@import 'tailwindcss'</code>: the theme brings Tailwind and the forms plugin, which the package ships, so the app needs only the <code>tailwindcss</code> npm package. It sets the colours, form styles and the button classes, and tells Tailwind to scan the package's views, its view components and its scripts for classes, so the modal, the loader and the submit spinner are styled without any setting of yours. Classes your app writes in PHP are not scanned by the theme, so add a <code>@@source</code> line for each place: your enums, your data tables and the data tables config.</p>
         <x-docs::code lang="css" title="resources/css/app.css">
-            @import 'tailwindcss';
             @import '../../vendor/nyumbani/essentials/resources/css/theme.css';
 
             @source '../../app/Enums/*.php';

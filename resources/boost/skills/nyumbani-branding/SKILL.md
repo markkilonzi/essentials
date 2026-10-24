@@ -30,9 +30,8 @@ The `sidebar` section takes the name of a view and the portal renders it; markup
 - To replace an icon for one app, publish the package images, do not edit `vendor`.
 
 ## Theme
-Import the shared theme once in the app's Tailwind css:
+Import the shared theme once in the app's css, in place of `@import 'tailwindcss'`. The theme imports Tailwind and loads the `@tailwindcss/forms` plugin, which the package bundles in `resources/dist/forms.js`, so an app has no `@plugin` line and installs only the `tailwindcss` npm package. `nyumbani:install` swaps an existing Tailwind import and forms plugin line for the theme import.
 ```css
-@import 'tailwindcss';
 @import '../../vendor/nyumbani/essentials/resources/css/theme.css';
 ```
 Use the tokens `primary`, `primary-dark`, `primary-darker` and `secondary*`. Do not hard-code hex colors for brand surfaces.

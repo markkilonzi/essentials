@@ -12,7 +12,7 @@ export default defineConfig({
         emptyOutDir: true,
         lib: {
             entry: Object.fromEntries(
-                ['essentials', 'toastr', 'shell', 'submit', 'file-input', 'modal', 'helpers']
+                ['essentials', 'toastr', 'shell', 'submit', 'file-input', 'modal', 'helpers', 'forms']
                     .map((name) => [name, resolve(import.meta.dirname, `resources/js/${name}.js`)])
             ),
             formats: ['es'],

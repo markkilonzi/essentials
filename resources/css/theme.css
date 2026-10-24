@@ -1,7 +1,11 @@
-/* Shared Nyumbani theme: import this once from the app's Tailwind css. */
+/* Shared Nyumbani theme: import this once from the app's css, in place of Tailwind, which it brings. The app needs the tailwindcss npm package. */
+@import 'tailwindcss';
 
 /* The styles of the bundled scripts, such as the toasts */
 @import '../dist/essentials.css';
+
+/* The forms plugin, bundled with the package */
+@plugin '../dist/forms.js';
 
 @source '../views/**/*.blade.php';
 

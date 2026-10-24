@@ -423,13 +423,9 @@ PHP;
         //  Import by the @vendor alias when the Vite config has it, and by the relative path when it does not
         $vendor = $this->hasViteAlias('@vendor') ? '@vendor' : '../../vendor';
 
-        //  The theme goes after the Tailwind import, unless it is already imported
-        if (File::exists($css) && ! str_contains(File::get($css), 'nyumbani/essentials/resources/css/theme.css')) {
-            //  Add the import
-            File::append($css, "\n@import '{$vendor}/nyumbani/essentials/resources/css/theme.css';\n");
-
-            //  Say what was imported
-            $this->done('Imported the theme in resources/css/app.css.');
+        //  Import the theme, which brings Tailwind and its forms plugin with it
+        if (File::exists($css)) {
+            $this->importTheme($css, $vendor);
         }
 
         //  Tell Tailwind to scan the app's enums, data tables and their config, where classes are written in PHP
@@ -458,6 +454,51 @@ PHP;
 
         //  Move the relative paths an earlier run wrote to the aliases, once the config has them
         $this->useAliasesInImports($css, $js);
+    }
+
+    /**
+     * Import the theme in the app's css, where the Tailwind import was, and drop the Tailwind and forms plugin lines, since the theme brings both.
+     *
+     * @author Alvin G. Kaburu <geekaburu@nyumbanitech.co.ke>
+     */
+    protected function importTheme(string $css, string $vendor): void
+    {
+        //  Read the stylesheet
+        $contents = File::get($css);
+
+        //  Find the theme import the app already has, whatever its path
+        $hasTheme = preg_match('/^@import\s+([\'"])[^\'"]*nyumbani\/essentials\/resources\/css\/theme\.css\1;\R?/m', $contents, $theme) === 1;
+
+        //  Find the Tailwind import and the forms plugin
+        $tailwind = '/^@import\s+([\'"])tailwindcss\1;\R?/m';
+        $forms = '/^@plugin\s+([\'"])@tailwindcss\/forms\1;\R?/m';
+
+        //  Leave a stylesheet that is already tidy alone
+        if ($hasTheme && preg_match($tailwind, $contents) !== 1 && preg_match($forms, $contents) !== 1) {
+            return;
+        }
+
+        //  Use the import the app already has, or write one
+        $import = $hasTheme ? rtrim($theme[0]) : "@import '{$vendor}/nyumbani/essentials/resources/css/theme.css';";
+
+        //  Take the old theme import out, so it moves to the top
+        if ($hasTheme) {
+            $contents = str_replace($theme[0], '', $contents);
+        }
+
+        //  The theme takes the place of the Tailwind import, or goes first when there is none
+        $contents = preg_match($tailwind, $contents) === 1
+            ? preg_replace($tailwind, $import."\n", $contents, 1)
+            : $import."\n\n".$contents;
+
+        //  Drop the forms plugin and any other Tailwind import, which the theme now brings
+        $contents = preg_replace([$tailwind, $forms], '', $contents);
+
+        //  Save it
+        File::put($css, $contents);
+
+        //  Say what changed
+        $this->done('Imported the theme in resources/css/app.css, which brings Tailwind and its forms plugin.');
     }
 
     /**
