@@ -160,6 +160,33 @@
         <p><strong>to do</strong> items are needed for Essentials to work. <strong>optional</strong> items matter only if you use that feature: the Discord log channel and, for the packages you chose, the Daraja credentials and the Nyumbani Connect settings. Fix an item and run the command again to see it turn to <strong>done</strong>. The command then ends with a short invitation that links to this Quick start and to the docs of each package. Read <a href="{{ $docs->url('rules-and-skills') }}">Rules and skills</a> for what lands where.</p>
     </x-docs::section>
 
+    <x-docs::section id="options" title="Command options">
+        <p><code>php artisan nyumbani:install</code> takes four options of its own, next to Laravel's (<code>-n</code> / <code>--no-interaction</code> never asks, <code>-q</code>, <code>-v</code>, <code>--env</code>).</p>
+        <x-docs::table :columns="['Option', 'What it does', 'Example']" :rows="[
+            ['--portal', 'Sets up the basic portal (dashboard, layout and sidebar) without asking the question.', 'php artisan nyumbani:install --portal'],
+            ['--with=', 'Installs the named optional packages without showing the checkbox. Names are daraja, messaging and dt-tables (or the full nyumbani/daraja form), comma separated or repeated. Packages the app already requires stay chosen.', 'php artisan nyumbani:install --with=daraja,dt-tables'],
+            ['--without=', 'Leaves the named optional packages out without showing the checkbox. A left-out package gets no config file, .env.example keys, rule, checklist item or Boost entry. It wins over --with and over a package the app already requires, which is kept unless you also remove it.', 'php artisan nyumbani:install --without=messaging'],
+            ['--remove', 'Runs composer remove for each optional package the app requires and you left out, without asking, then drops it and its skills from boost.json and finishes in a fresh process. Your own config file is left for you to delete. Without this option, an interactive run asks once per package (default no) and a run with nobody to ask removes nothing.', 'php artisan nyumbani:install --without=messaging --remove'],
+        ]" />
+        <p><strong>Which packages are chosen.</strong> With neither <code>--with</code> nor <code>--without</code>, an interactive run shows the checkbox with the packages the app already requires ticked. With <code>--no-interaction</code> it chooses the packages the app already requires and never installs a new one, which is why Composer's <code>post-update-cmd</code> is safe. Either flag skips the checkbox: the chosen packages are the ones the app already requires, plus <code>--with</code>, minus <code>--without</code>.</p>
+        <x-docs::code lang="bash" title="Terminal">
+            # Ask which packages to install (interactive)
+            php artisan nyumbani:install
+
+            # An app that sends no SMS and takes no payments, such as Nyumbani Connect
+            php artisan nyumbani:install --with=dt-tables --without=messaging,daraja
+
+            # Stop using Messaging: confirm the removal, or pass --remove to skip the question
+            php artisan nyumbani:install --without=messaging
+            php artisan nyumbani:install --without=messaging --remove
+
+            # Set everything up in a script, with no questions
+            php artisan nyumbani:install --no-interaction --portal --with=daraja,messaging,dt-tables
+        </x-docs::code>
+        <p>When the installer has to require or remove packages it finishes in a second process, because the classes of the new packages are not loaded in the first. That process receives the choice as flags, so it never asks again.</p>
+        <p><code>php artisan nyumbani:permissions</code> has no options. It syncs the roles and permissions from <code>database/seeders/data/permissions.json</code>, and the installer runs it for you once the permission tables exist.</p>
+    </x-docs::section>
+
     <x-docs::section id="portal" title="Set up the basic portal (optional)">
         <p>The portal gives a new app a working signed-in shell in a minute: a layout, a sidebar and a dashboard page, all on the shared portal layout. It is optional and the installer asks first, defaulting to no. Do it once, in this order, and nothing is overwritten along the way.</p>
 
