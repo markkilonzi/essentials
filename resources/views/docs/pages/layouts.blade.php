@@ -159,6 +159,28 @@
         </x-docs::code>
     </x-docs::section>
 
+    <x-docs::section id="content-wrapper" title="Wrapping every page in a card">
+        <p>The portal draws <code>portal.content</code> when your app layout defines it, and the page's <code>content</code> otherwise. Define it once to wrap every page, and yield <code>content</code> inside the wrapper. A page that should skip the wrapper fills a section your layout checks for, here <code>content.plain</code>.</p>
+        <x-docs::code lang="blade" title="resources/views/layouts/app.blade.php">
+            @verbatim
+            @extends('essentials::layouts.portal')
+
+            @section('sidebar', 'partials.sidebar')
+
+            @section('portal.content')
+                @hasSection('content.plain')
+                    @yield('content.plain')
+                @else
+                    <div class="bg-white p-2 shadow-xs">
+                        @yield('content')
+                    </div>
+                @endif
+            @endsection
+            @endverbatim
+        </x-docs::code>
+        <p>A page then fills <code>content</code> to sit on the card, or <code>content.plain</code> to sit straight on the portal, as a dashboard with a hero does.</p>
+    </x-docs::section>
+
     <x-docs::section id="sidebar" title="The sidebar">
         <p>Build the menu with the navigation components and place it in the <code>sidebar</code> section. Every top-level link and group takes an icon.</p>
         <x-docs::code lang="blade" title="resources/views/partials/sidebar.blade.php">
@@ -235,7 +257,8 @@
     <x-docs::section id="sections" title="Every section of the portal layout">
         <x-docs::table :columns="['Section', 'Where it shows', 'Notes']" :rows="[
             ['title', 'The page header and the browser tab', 'Required. The tab reads Title - App name.'],
-            ['content', 'The page body, inside the card every portal page sits in', 'Always called content. The layout draws the card (light grey with a soft shadow), so do not add an outer card of your own.'],
+            ['content', 'The page body', 'What a page fills. The portal shows it as it is, unless your app layout defines portal.content.'],
+            ['portal.content', 'The page body, as the portal draws it', 'Optional. Define it in your app layout to wrap every page, for example in a card, and yield content inside it. A page that should skip the wrapper can fill another section, such as content.plain, which your layout checks for.'],
             ['sidebar', 'The left navigation', 'Fill it with nav-link and nav-group.'],
             ['banner', 'Above the content', 'Optional notices, such as a trial warning.'],
             ['brand', 'The navbar, beside the menu button', 'Defaults to the app name.'],

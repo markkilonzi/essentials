@@ -42,8 +42,12 @@
                 @yield('banner')
 
                 {{--  The card every page sits in  --}}
-                <div class="relative bg-gray-100 shadow-xs">
-                    @yield('content')
+                <div class="relative">
+                    @hasSection('portal.content')
+                        @yield('portal.content')
+                    @else
+                        @yield('content')
+                    @endif
                 </div>
             </main>
         </div>

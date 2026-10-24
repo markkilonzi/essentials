@@ -22,8 +22,14 @@
 }
 
 @layer base {
+    /* The base font size of every app: change it here, not per page */
+    :root {
+        --font-size-base: 15px;
+    }
+
     html, body {
-        @apply h-full bg-gray-100 text-[15px] text-gray-700;
+        @apply h-full bg-gray-100 text-gray-700;
+        font-size: var(--font-size-base);
     }
 
     [type='text'], [type='file'], input:where(:not([type])), [type='email'], [type='url'], [type='password'], [type='number'], [type='date'], [type='datetime-local'], [type='month'], [type='search'], [type='tel'], [type='time'], [type='week'], [multiple], textarea, select {
@@ -60,13 +66,21 @@
         @apply cursor-pointer;
     }
 
-    /* Table headers, which every list uses, including the data tables: a faint grey bar with dark text */
+    /* Tables, including the data tables: smaller text, a faint line under the header and a lighter one under each body row */
+    table {
+        @apply text-[13px];
+    }
+
     table thead {
         @apply bg-gray-100;
 
         th {
-            @apply border-b border-gray-200 text-xs font-bold tracking-wider text-secondary;
+            @apply border-b border-gray-300 text-xs font-bold tracking-wider text-secondary;
         }
+    }
+
+    table tbody td {
+        @apply border-b border-gray-200;
     }
 
     /* The review a form carries for its confirm modal is copied into the review step, so the form itself never shows it */
@@ -109,5 +123,16 @@
                 @apply bg-primary-dark/95!;
             }
         }
+    }
+}
+
+/* The data tables set their own sizes and remove the last row's line, in styles outside any layer, which beat the layered table rules above. These selectors are outside a layer too and more specific. */
+.dt-tables-container .dt-container table.dataTable {
+    & > thead > tr > th {
+        @apply border-b! border-gray-200! text-xs;
+    }
+
+    & > tbody > tr > td {
+        @apply border-b! border-gray-200! text-[13px];
     }
 }
